@@ -53,6 +53,6 @@ public class Banner {
     }
 
     public enum BannerPosition {
-        Home_Slider, Sidebar, Top, Bottom
+        Home_Slider, Sidebar, Top, Bottom,Category
     }
 }

@@ -1,12 +1,14 @@
 package com.example.do_an_tot_nghiep.controller;
 
-
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.example.do_an_tot_nghiep.dto.*;
 import com.example.do_an_tot_nghiep.security.EmployeeDetails;
 import com.example.do_an_tot_nghiep.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -99,7 +101,6 @@ public class DashboardController {
         model.addAttribute("lowStockCount", lowStockProducts.size());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-
         return "admin/dashboard";
     }
 
@@ -107,4 +108,5 @@ public class DashboardController {
     public String redirectToDashboard() {
         return "redirect:/admin/dashboard";
     }
+
 }

@@ -51,10 +51,10 @@ public class EmployeeSchedule {
     }
 
     public enum Shift {
-        MORNING("Morning"),
-        AFTERNOON("Afternoon"),
-        EVENING("Evening"),
-        FULL_DAY("Full Day");
+        MORNING("Buổi sáng"),
+        AFTERNOON("Buổi chiều"),
+        EVENING("Buổi tối"),
+        FULL_DAY("Cả ngày");
 
         private String value;
 
