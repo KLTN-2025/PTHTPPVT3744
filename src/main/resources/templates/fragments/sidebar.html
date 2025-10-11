@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- fragments/sidebar.html -->
+<aside th:fragment="sidebar" class="main-sidebar sidebar-dark-primary elevation-4"><a href="/admin/dashboard"
+                                                                                      class="brand-link text-center">
+    <i class="fas fa-hospital-alt brand-image"></i> <span class="brand-text font-weight-light">Medical Supply</span>
+</a>
+    <div class="sidebar"> <!-- User panel -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image"><img
+                    th:src="${currentEmployee.avatarUrl != null ? currentEmployee.avatarUrl : '/img/default-avatar.png'}"
+                    class="img-circle elevation-2" alt="User Image"></div>
+            <div class="info"><a href="#" class="d-block" th:text="${currentEmployee.fullName}">Admin</a> <small
+                    class="text-muted" th:text="${currentEmployee.position}">Quản lý</small></div>
+        </div>
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                <li class="nav-item"><a href="/admin/dashboard" class="nav-link active"> <i
+                        class="nav-icon fas fa-tachometer-alt"></i>
+                    <p>Dashboard</p></a></li>
+                <li class="nav-header">QUẢN LÝ SẢN PHẨM</li>
+                <li class="nav-item"><a href="/admin/products" class="nav-link"> <i class="nav-icon fas fa-box"></i>
+                    <p>Sản phẩm</p></a></li>
+                <li class="nav-item"><a href="/admin/categories" class="nav-link"> <i class="nav-icon fas fa-tags"></i>
+                    <p>Danh mục</p></a></li>
+                <li class="nav-item"><a href="/admin/brands" class="nav-link"> <i class="nav-icon fas fa-copyright"></i>
+                    <p>Thương hiệu</p></a></li>
+                <li class="nav-header">QUẢN LÝ ĐƠN HÀNG</li>
+                <li class="nav-item"><a href="/admin/orders" class="nav-link"> <i
+                        class="nav-icon fas fa-shopping-cart"></i>
+                    <p>Đơn hàng</p> <span class="badge badge-danger right" th:text="${pendingOrders}">0</span> </a></li>
+                <li class="nav-item"><a href="/admin/orders/pending" class="nav-link"> <i
+                        class="nav-icon fas fa-clock"></i>
+                    <p>Chờ xác nhận</p></a></li>
+                <li class="nav-item"><a href="/admin/orders/shipping" class="nav-link"> <i
+                        class="nav-icon fas fa-truck"></i>
+                    <p>Đang giao hàng</p></a></li>
+                <li class="nav-header">QUẢN LÝ KHO</li>
+                <li class="nav-item"><a href="/admin/import" class="nav-link"> <i
+                        class="nav-icon fas fa-file-import"></i>
+                    <p>Nhập kho</p></a></li>
+                <li class="nav-item"><a href="/admin/suppliers" class="nav-link"> <i
+                        class="nav-icon fas fa-truck-loading"></i>
+                    <p>Nhà cung cấp</p></a></li>
+                <li class="nav-item"><a href="/admin/stock/low" class="nav-link"> <i
+                        class="nav-icon fas fa-exclamation-triangle text-warning"></i>
+                    <p>Sản phẩm sắp hết</p> <span class="badge badge-warning right" th:text="${lowStockCount}">0</span>
+                </a></li>
+                <li class="nav-header">QUẢN LÝ NGƯỜI DÙNG</li>
+                <li class="nav-item"><a href="/admin/customers" class="nav-link"> <i class="nav-icon fas fa-users"></i>
+                    <p>Khách hàng</p></a></li>
+                <li class="nav-item"><a href="/admin/employees" class="nav-link"> <i
+                        class="nav-icon fas fa-user-tie"></i>
+                    <p>Nhân viên</p></a></li>
+                <li class="nav-header">MARKETING</li>
+                <li class="nav-item"><a href="/admin/promotions" class="nav-link"> <i
+                        class="nav-icon fas fa-percentage"></i>
+                    <p>Khuyến mãi</p></a></li>
+                <li class="nav-item"><a href="/admin/banners" class="nav-link"> <i class="nav-icon fas fa-image"></i>
+                    <p>Banner</p></a></li>
+                <li class="nav-header">KHÁC</li>
+                <li class="nav-item"><a href="/admin/reviews" class="nav-link"> <i class="nav-icon fas fa-star"></i>
+                    <p>Đánh giá</p></a></li>
+                <li class="nav-item"><a href="/admin/contacts" class="nav-link"> <i
+                        class="nav-icon fas fa-envelope"></i>
+                    <p>Liên hệ</p></a></li>
+                <li class="nav-item"><a href="/admin/settings" class="nav-link"> <i class="nav-icon fas fa-cog"></i>
+                    <p>Cài đặt</p></a></li>
+            </ul>
+        </nav>
+    </div>
+</aside>
+</body>
+</html>

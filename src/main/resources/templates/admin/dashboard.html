@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<!-- Page Title -->
+<h1 layout:fragment="page-title">📊 Dashboard</h1>
+
+<!-- Breadcrumb -->
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+    <li class="breadcrumb-item active">Dashboard</li>
+</ol>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <div class="container-fluid">
+        <!-- Filter Form -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-inline" method="get" action="/admin/dashboard">
+                            <label class="mr-2">Từ ngày:</label>
+                            <input type="date" name="startDate" class="form-control mr-2" th:value="${startDate}">
+                            <label class="mr-2">Đến ngày:</label>
+                            <input type="date" name="endDate" class="form-control mr-2" th:value="${endDate}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Lọc
+                            </button>
+                            <a href="/admin/dashboard" class="btn btn-secondary ml-2">
+                                <i class="fas fa-redo"></i> Reset
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success stat-card">
+                    <div class="inner">
+                        <h3 th:text="${#numbers.formatDecimal(stats.totalRevenue / 1000000, 1, 'COMMA', 2, 'POINT')} + 'M'">
+                            0M</h3>
+                        <p>Doanh thu (VNĐ)</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <a href="/admin/reports/revenue" class="small-box-footer">Chi tiết <i
+                            class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- Total Orders -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info stat-card">
+                        <div class="inner"><h3 th:text="${stats.totalOrders}">0</h3>
+                            <p>Tổng đơn hàng</p></div>
+                        <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                        <a href="/admin/orders" class="small-box-footer"> Chi tiết <i
+                                class="fas fa-arrow-circle-right"></i> </a></div>
+                </div> <!-- Total Customers -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning stat-card">
+                        <div class="inner"><h3 th:text="${stats.totalCustomers}">0</h3>
+                            <p>Khách hàng</p></div>
+                        <div class="icon"><i class="fas fa-users"></i></div>
+                        <a href="/admin/customers" class="small-box-footer"> Chi tiết <i
+                                class="fas fa-arrow-circle-right"></i> </a></div>
+                </div> <!-- Total Products -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger stat-card">
+                        <div class="inner"><h3 th:text="${stats.totalProducts}">0</h3>
+                            <p>Sản phẩm</p></div>
+                        <div class="icon"><i class="fas fa-box"></i></div>
+                        <a href="/admin/products" class="small-box-footer"> Chi tiết <i
+                                class="fas fa-arrow-circle-right"></i> </a></div>
+                </div>
+            </div> <!-- Secondary Statistics -->
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="info-box"><span class="info-box-icon bg-info"><i class="far fa-user"></i></span>
+                        <div class="info-box-content"><span class="info-box-text">Khách hàng mới</span> <span
+                                class="info-box-number" th:text="${stats.newCustomers}">0</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="info-box"><span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
+                        <div class="info-box-content"><span class="info-box-text">Đơn hoàn thành</span> <span
+                                class="info-box-number" th:text="${stats.completedOrders}">0</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="info-box"><span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
+                        <div class="info-box-content"><span class="info-box-text">Chờ xác nhận</span> <span
+                                class="info-box-number" th:text="${stats.pendingOrders}">0</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="info-box"><span class="info-box-icon bg-danger"><i
+                            class="fas fa-exclamation-triangle"></i></span>
+                        <div class="info-box-content"><span class="info-box-text">Sắp hết hàng</span> <span
+                                class="info-box-number" th:text="${stats.lowStockProducts}">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header border-0">
+                        <h3 class="card-title">📈 Biểu đồ doanh thu</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="revenueChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header border-0">
+                        <h3 class="card-title">📊 Trạng thái đơn hàng</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="orderStatusChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page scripts -->
+<th:block layout:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const revenueData = /*[[${revenueData}]]*/ {};
+        const revenueLabels = Object.keys(revenueData);
+        const revenueValues = Object.values(revenueData);
+
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: revenueValues,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {beginAtZero: true, ticks: {callback: v => v.toLocaleString('vi-VN') + ' đ'}}
+                },
+                plugins: {tooltip: {callbacks: {label: ctx => ctx.parsed.y.toLocaleString('vi-VN') + ' đ'}}}
+            }
+        });
+
+        const orderStatusData = /*[[${orderStatusData}]]*/ {};
+        const statusLabels = Object.keys(orderStatusData);
+        const statusValues = Object.values(orderStatusData);
+
+        const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusValues,
+                    backgroundColor: ['#ffc107', '#36a2eb', '#4bc0c0', '#28a745', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
+        });
+        /*]]>*/
+    </script>
+</th:block>
+</html>
