@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>400 - Yêu Cầu Không Hợp Lệ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+
+        .error-container {
+            background: white;
+            padding: 60px 50px;
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            font-size: 120px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .error-code {
+            font-size: 100px;
+            font-weight: 800;
+            color: #fcb69f;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(252, 182, 159, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #fcb69f;
+            border: 2px solid #fcb69f;
+        }
+
+        .btn-secondary:hover {
+            background: #fcb69f;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(252, 182, 159, 0.3);
+        }
+
+        .info-box {
+            margin-top: 40px;
+            padding: 25px;
+            background: #fff8f0;
+            border-radius: 15px;
+            border-left: 5px solid #fcb69f;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-box li {
+            padding: 8px 0;
+            color: #666;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-box li::before {
+            content: '•';
+            color: #fcb69f;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .error-container {
+                padding: 40px 30px;
+            }
+
+            .error-code {
+                font-size: 80px;
+            }
+
+            .error-title {
+                font-size: 26px;
+            }
+
+            .error-icon {
+                font-size: 80px;
+            }
+
+            .error-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-container">
+    <div class="error-icon">⚠️</div>
+    <div class="error-code">400</div>
+    <h1 class="error-title">Yêu Cầu Không Hợp Lệ</h1>
+    <p class="error-message">
+        Yêu cầu của bạn không thể được xử lý do dữ liệu không hợp lệ.<br>
+        Vui lòng kiểm tra lại thông tin và thử lại.
+    </p>
+
+    <div class="error-actions">
+        <a href="javascript:history.back()" class="btn btn-primary">← Quay Lại</a>
+        <a href="/" class="btn btn-secondary">🏠 Về Trang Chủ</a>
+    </div>
+
+    <div class="info-box">
+        <h3>Nguyên nhân có thể:</h3>
+        <ul>
+            <li>Dữ liệu nhập vào không đúng định dạng</li>
+            <li>Thiếu thông tin bắt buộc</li>
+            <li>URL hoặc tham số không hợp lệ</li>
+            <li>File tải lên bị lỗi hoặc không đúng định dạng</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

@@ -196,6 +196,21 @@ public class EmployeeService implements IEmployeeService {
         return employeeRepository.findDistinctDepartments();
     }
 
+    @Override
+    public boolean existsByPhone(String phone) {
+        return employeeRepository.findByPhone(phone).isPresent();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return employeeRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return employeeRepository.findByUsername(username).isPresent();
+    }
+
     @Transactional
     @Override
     public void deleteEmployee(Integer id) {

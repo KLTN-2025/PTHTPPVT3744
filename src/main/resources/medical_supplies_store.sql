@@ -1743,5 +1743,27 @@ SELECT CONCAT('Total Revenue: ', FORMAT(SUM(total_price), 0), ' VNĐ')
 FROM `order`
 WHERE status = 'Hoàn thành';
 -- =============================================
+-- 1. Sửa columns cho phép NULL
+ALTER TABLE customer 
+MODIFY COLUMN password_hash VARCHAR(255) NULL,
+MODIFY COLUMN username VARCHAR(100) NULL;
+
+-- 2. Thêm OAuth2 columns
+ALTER TABLE customer 
+ADD COLUMN provider VARCHAR(20) COMMENT 'LOCAL, GOOGLE, FACEBOOK' AFTER password_hash,
+ADD COLUMN provider_id VARCHAR(255) COMMENT 'OAuth2 Provider ID' AFTER provider,
+ADD COLUMN has_custom_password BOOLEAN DEFAULT FALSE AFTER provider_id;
+
+-- 3. Thêm indexes
+CREATE INDEX idx_provider ON customer(provider);
+CREATE INDEX idx_provider_id ON customer(provider_id);
+
+-- 4. Update existing data
+UPDATE customer 
+SET provider = 'LOCAL', 
+    has_custom_password = TRUE 
+WHERE provider IS NULL AND password_hash IS NOT NULL;
+-- =============================================
+-- =============================================
 -- KẾT THÚC SCRIPT
 -- =============================================

@@ -1,6 +1,8 @@
 package com.example.do_an_tot_nghiep.config;
 
+import com.example.do_an_tot_nghiep.service.CustomOAuth2UserService;
 import com.example.do_an_tot_nghiep.service.MultiUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,11 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final MultiUserDetailsService multiUserDetailsService;
-
-    public SecurityConfig(MultiUserDetailsService multiUserDetailsService) {
-        this.multiUserDetailsService = multiUserDetailsService;
-    }
+    @Autowired
+    private MultiUserDetailsService multiUserDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,20 +41,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
-                .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/auth/**",
-                                "/register",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/img/**",
-                                "/favicon.ico"
-                        ).permitAll()
+                        .requestMatchers("/auth/**", "/register", "/css/**", "/js/**", "/images/**", "/img/**", "/favicon.ico").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                         .requestMatchers("/user/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
@@ -65,10 +55,16 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        // ✅ Thêm ?error (không có =true)
                         .failureUrl("/auth/login?error")
                         .defaultSuccessUrl("/redirectByRole", true)
                         .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/auth/login") // trang login chung
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService) // service xử lý user info
+                        )
+                        .defaultSuccessUrl("/redirectByRole", true)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Lỗi Máy Chủ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .error-code {
+            font-size: 80px;
+            font-weight: 800;
+            color: #fa709a;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #fa709a;
+        }
+
+        .btn-primary:hover {
+            background: #fa709a;
+            color: white;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">⚙️</div>
+    <div class="error-code">500</div>
+    <h1 class="error-title">Lỗi Máy Chủ</h1>
+    <p class="error-message">
+        Đã xảy ra sự cố trên máy chủ.<br>
+        Vui lòng thử lại sau hoặc liên hệ quản trị viên.
+    </p>
+    <div class="error-actions">
+        <a href="/" class="btn btn-primary">🏠 Về Trang Chủ</a>
+    </div>
+</div>
+</body>
+</html>
