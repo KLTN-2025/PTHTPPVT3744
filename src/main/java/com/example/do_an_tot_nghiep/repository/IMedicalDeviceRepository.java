@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 
 @Repository
 public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, String> {
+
     @Query("SELECT d FROM MedicalDevice d WHERE d.stockQuantity <= d.minStockLevel " +
             "AND d.status != 'Ngừng bán' ORDER BY (d.minStockLevel - d.stockQuantity) DESC")
     List<MedicalDevice> findLowStockProducts();
@@ -57,16 +57,32 @@ public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, S
     List<MedicalDevice> searchByKeyword(@Param("keyword") String keyword);
 
     /**
-     * Tìm sản phẩm theo danh mục
+     * Tìm sản phẩm theo danh mục - SỬA VERSION
      */
     @Query("SELECT md FROM MedicalDevice md " +
             "LEFT JOIN FETCH md.brand b " +
             "LEFT JOIN FETCH md.category c " +
-            "WHERE c.id = :categoryId AND md.status = 'Còn_hàng'")
+            "WHERE c.categoryId = :categoryId AND md.status = 'Còn_hàng' " +
+            "ORDER BY md.createdAt DESC")
     List<MedicalDevice> findByCategoryId(@Param("categoryId") Long categoryId);
+
+    /**
+     * Tìm sản phẩm theo thương hiệu
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE b.brandId = :brandId AND md.status = 'Còn_hàng' " +
+            "ORDER BY md.createdAt DESC")
+    List<MedicalDevice> findByBrandId(@Param("brandId") Integer brandId);
+
+    /**
+     * Lấy tất cả sản phẩm hoạt động
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE md.status != 'Ngừng_bán' " +
+            "ORDER BY md.createdAt DESC")
+    List<MedicalDevice> findAllActive();
 }
-
-/**
- * PromotionRepository - Quản lý khuyến mãi
- */
-

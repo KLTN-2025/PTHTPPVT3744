@@ -35,7 +35,6 @@ public class HomeController {
         try {
             // Thêm title cho trang
             model.addAttribute("title", "Trang chủ - Vật Tư Y Tế ABC");
-
             // Lấy 6 danh mục đang hoạt động
             List<Category> categories = categoryRepository.findTop6ByIsActiveTrueOrderByDisplayOrder();
 

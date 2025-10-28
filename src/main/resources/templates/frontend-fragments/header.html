@@ -1,0 +1,231 @@
+<!-- Header Fragment - Dùng chung cho tất cả trang -->
+<div xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" th:fragment="header">
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="container">
+      <div>
+        <i class="fas fa-phone"></i> Hotline: 1900-xxxx
+        <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
+      </div>
+      <div>
+        <!-- Nếu CHƯA đăng nhập -->
+        <div sec:authorize="!isAuthenticated()">
+          <a th:href="@{/auth/login}"><i class="fas fa-user"></i> Đăng nhập</a>
+          <a th:href="@{/auth/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
+        </div>
+
+        <!-- Nếu ĐÃ đăng nhập -->
+        <div sec:authorize="isAuthenticated()">
+                    <span>
+                        <i class="fas fa-user-circle"></i>
+                        Xin chào, <b sec:authentication="name"></b>
+                    </span>
+          <a th:href="@{/logout}" onclick="return confirm('Bạn có chắc muốn đăng xuất không?')">
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="container">
+      <a th:href="@{/}" class="logo">
+        <i class="fas fa-heartbeat"></i>
+        Vật Tư Y Tế ABC
+      </a>
+      <div class="search-bar">
+        <form th:action="@{/search}" method="get">
+          <input type="text" name="keyword" placeholder="Tìm kiếm vật tư y tế..." th:value="${keyword}">
+          <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+      <div class="header-actions">
+        <a th:href="@{/support}"><i class="fas fa-phone-alt"></i> Hỗ trợ</a>
+        <a th:href="@{/cart}">
+          <i class="fas fa-shopping-cart"></i> Giỏ hàng
+          <span class="cart-badge" id="cartBadge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <ul>
+        <li><a th:href="@{/}">Trang chủ</a></li>
+        <li><a th:href="@{/products}">Thiết bị y tế</a></li>
+        <li><a th:href="@{/products(categoryId=8)}">Vật tư tiêu hao</a></li>
+        <li><a th:href="@{/products(categoryId=6)}">Dụng cụ phẫu thuật</a></li>
+        <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
+        <li><a th:href="@{/contact}">Liên hệ</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <script>
+    // Load cart badge on page load
+    function loadCartBadge() {
+      const cartData = sessionStorage.getItem('cart');
+      if (cartData) {
+        try {
+          const cart = JSON.parse(cartData);
+          const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+          const badge = document.getElementById('cartBadge');
+          if (badge) {
+            badge.textContent = totalItems;
+          }
+        } catch (e) {
+          console.error('Error loading cart:', e);
+        }
+      }
+    }
+    loadCartBadge();
+  </script>
+
+  <style>
+    /* Top Header */
+    .top-header {
+      background: #0066cc;
+      color: white;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    .top-header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-header a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    /* Main Header */
+    .main-header {
+      background: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .main-header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0066cc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .search-bar form {
+      display: flex;
+      border: 2px solid #0066cc;
+      border-radius: 25px;
+      overflow: hidden;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      outline: none;
+    }
+
+    .search-bar button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .header-actions a {
+      color: #333;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+
+    .header-actions i {
+      font-size: 20px;
+      color: #0066cc;
+    }
+
+    .cart-badge {
+      background: #ff4444;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 11px;
+      position: relative;
+      top: -5px;
+    }
+
+    /* Navigation */
+    nav {
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    nav .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #333;
+      text-decoration: none;
+      padding: 15px 0;
+      display: block;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #0066cc;
+    }
+  </style>
+</div>

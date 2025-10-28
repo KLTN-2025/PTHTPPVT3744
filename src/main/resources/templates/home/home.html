@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -718,8 +718,22 @@
             <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
         </div>
         <div>
-            <a th:href="@{/auth/login}"><i class="fas fa-user"></i> Đăng nhập</a>
-            <a th:href="@{/auth/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
+            <!-- Nếu CHƯA đăng nhập -->
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/auth/login}"><i class="fas fa-user"></i> Đăng nhập</a>
+                <a th:href="@{/auth/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
+            </div>
+
+            <!-- Nếu ĐÃ đăng nhập -->
+            <div sec:authorize="isAuthenticated()">
+        <span>
+            <i class="fas fa-user-circle"></i>
+            Xin chào, <b sec:authentication="name"></b>
+        </span>
+                <a th:href="@{/logout}" onclick="return confirm('Bạn có chắc muốn đăng xuất không?')">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
+            </div>
         </div>
     </div>
 </div>
