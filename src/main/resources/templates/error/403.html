@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Truy Cập Bị Từ Chối</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            50% {
+                transform: translateX(10px);
+            }
+            75% {
+                transform: translateX(-10px);
+            }
+        }
+
+        .error-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .error-code {
+            font-size: 80px;
+            font-weight: 800;
+            color: #f5576c;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #f5576c;
+        }
+
+        .btn-primary:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #f5576c;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">🚫</div>
+    <div class="error-code">403</div>
+    <h1 class="error-title">Truy Cập Bị Từ Chối</h1>
+    <p class="error-message">
+        Bạn không có quyền truy cập vào trang này.<br>
+        Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.
+    </p>
+    <div class="error-actions">
+        <a href="/" class="btn btn-primary">🏠 Về Trang Chủ</a>
+        <a href="javascript:history.back()" class="btn btn-secondary">← Quay Lại</a>
+    </div>
+</div>
+</body>
+</html>

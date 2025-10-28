@@ -46,4 +46,6 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Integer>,
     // Position queries
     @Query("SELECT DISTINCT e.position FROM Employee e WHERE e.position IS NOT NULL ORDER BY e.position")
     List<String> findDistinctPositions();
+
+    Optional<Employee> findByPhone(String phone);
 }

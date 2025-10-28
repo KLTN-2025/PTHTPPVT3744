@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lỗi Hệ Thống</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display:flex; align-items:center; justify-content:center;
+            min-height:100vh; padding:20px;
+        }
+        .error-container {
+            background:white; padding:50px 40px; border-radius:30px;
+            text-align:center; box-shadow:0 30px 80px rgba(0,0,0,0.3);
+        }
+        .error-icon {font-size:100px; margin-bottom:20px; display:inline-block;}
+        .error-title {font-size:28px; font-weight:700; color:#333; margin-bottom:15px;}
+        .error-message {font-size:16px; color:#666; line-height:1.6; margin-bottom:30px;}
+        .btn {padding:12px 30px; border:none; border-radius:12px; font-size:16px;
+            font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; transition:all 0.3s ease;}
+        .btn-primary {background:#667eea; color:white;}
+        .btn-primary:hover {background:white; color:#667eea; transform:translateY(-3px);}
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">❗</div>
+    <h1 class="error-title">Đã xảy ra lỗi</h1>
+    <p class="error-message">
+        Có lỗi xảy ra trong quá trình xử lý yêu cầu.<br>
+        Mã lỗi: <span th:text="${statusCode}">???</span>
+    </p>
+    <a href="/" class="btn btn-primary">🏠 Về Trang Chủ</a>
+</div>
+</body>
+</html>

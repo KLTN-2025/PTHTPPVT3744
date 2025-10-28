@@ -22,11 +22,21 @@ public class Customer {
     @Column(name = "customer_code", unique = true, length = 50)
     private String customerCode;
 
-    @Column(name = "username", unique = true, nullable = false, length = 100)
-    private String username;
+    @Column(name = "username", unique = true, length = 100)
+    private String username;  // ✅ Bỏ nullable = false
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name = "password_hash")
+    private String passwordHash;  // ✅ Bỏ nullable = false
+
+    // ✅ Thêm OAuth2 fields
+    @Column(name = "provider", length = 20)
+    private String provider;  // LOCAL, GOOGLE, FACEBOOK
+
+    @Column(name = "provider_id", length = 255)
+    private String providerId;
+
+    @Column(name = "has_custom_password")
+    private Boolean hasCustomPassword = false;
 
     @Column(name = "full_name")
     private String fullName;
@@ -96,6 +106,14 @@ public class Customer {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+
+        // Auto-generate codes
+        if (customerCode == null) {
+            customerCode = "CUST" + System.currentTimeMillis();
+        }
+        if (referralCode == null) {
+            referralCode = "REF" + (System.currentTimeMillis() % 1000000);
+        }
     }
 
     @PreUpdate
@@ -118,6 +136,10 @@ public class Customer {
         CustomerTier(String value) {
             this.value = value;
         }
+
+        public String getValue() {
+            return value;
+        }
     }
 
     public enum CustomerStatus {
@@ -129,6 +151,10 @@ public class Customer {
 
         CustomerStatus(String value) {
             this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 }
