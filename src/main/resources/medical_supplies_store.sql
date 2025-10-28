@@ -1551,8 +1551,8 @@ VALUES (2, 'MD006', 2, 5, 'Máy xông rất tốt, con nhỏ dùng rất hiệu 
 -- Thêm nhân viên nghỉ phép
 INSERT INTO employee (employee_code, username, password_hash, full_name, email, phone, address, role_id,
                       date_of_birth, gender, position, department, hire_date, salary, status)
-VALUES ('EMP009', 'staff06', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Ngô Thị Lan',
-        'staff06@vattuyteabc.com', '0901234575', '369 Nguyễn Văn Cừ, Q.5, TP.HCM', 3, '1997-04-20', 'Female',
+VALUES ('EMP021', 'staff021', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Ngô Thị Lan',
+        'staff21@vattuyteabc.com', '0901234575', '369 Nguyễn Văn Cừ, Q.5, TP.HCM', 3, '1997-04-20', 'Female',
         'Nhân viên bán hàng', 'Kinh doanh', '2024-06-01', 10500000, 'ACTIVE');
 
 -- Thêm khách hàng mới (chưa mua hàng)

@@ -1,5 +1,6 @@
 package com.example.do_an_tot_nghiep.config;
 
+import com.example.do_an_tot_nghiep.security.OAuth2LoginSuccessHandler;
 import com.example.do_an_tot_nghiep.service.CustomOAuth2UserService;
 import com.example.do_an_tot_nghiep.service.MultiUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class SecurityConfig {
 
     @Autowired
     private MultiUserDetailsService multiUserDetailsService;
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,11 +63,11 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/auth/login") // trang login chung
+                        .loginPage("/auth/login")
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // service xử lý user info
+                                .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/redirectByRole", true)
+                        .successHandler(oAuth2LoginSuccessHandler) // ✅ Dùng custom handler
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

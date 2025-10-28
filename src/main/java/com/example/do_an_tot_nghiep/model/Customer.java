@@ -7,7 +7,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customer")
+@Table(
+        name = "customer",
+        indexes = {
+                @Index(name = "idx_provider", columnList = "provider"),
+                @Index(name = "idx_provider_id", columnList = "provider_id")
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,27 +28,29 @@ public class Customer {
     @Column(name = "customer_code", unique = true, length = 50)
     private String customerCode;
 
+    // Cho phép null khi đăng nhập OAuth2
     @Column(name = "username", unique = true, length = 100)
-    private String username;  // ✅ Bỏ nullable = false
+    private String username;
 
     @Column(name = "password_hash")
-    private String passwordHash;  // ✅ Bỏ nullable = false
+    private String passwordHash;
 
-    // ✅ Thêm OAuth2 fields
+    // OAuth2 fields
     @Column(name = "provider", length = 20)
-    private String provider;  // LOCAL, GOOGLE, FACEBOOK
+    private String provider; // LOCAL, GOOGLE, FACEBOOK
 
     @Column(name = "provider_id", length = 255)
     private String providerId;
 
-    @Column(name = "has_custom_password")
+    @Column(name = "has_custom_password", nullable = false)
     private Boolean hasCustomPassword = false;
 
+    // Thông tin cơ bản
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "email", unique = true)
-    private String email;
+    @Column(name = "email")
+    private String email; // Không unique để tránh trùng giữa Local & Google
 
     @Column(name = "phone", length = 20)
     private String phone;
@@ -61,7 +69,7 @@ public class Customer {
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "customer_tier", length = 20)
+    @Column(name = "customer_tier", length = 20, nullable = false)
     private CustomerTier customerTier = CustomerTier.BRONZE;
 
     @Column(name = "loyalty_points")
@@ -74,7 +82,7 @@ public class Customer {
     private Integer totalOrders = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
+    @Column(name = "status", length = 20, nullable = false)
     private CustomerStatus status = CustomerStatus.ACTIVE;
 
     @Column(name = "email_verified")
@@ -104,10 +112,10 @@ public class Customer {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
 
-        // Auto-generate codes
         if (customerCode == null) {
             customerCode = "CUST" + System.currentTimeMillis();
         }
@@ -121,6 +129,7 @@ public class Customer {
         updatedAt = LocalDateTime.now();
     }
 
+    // ================= ENUMS ================= //
     public enum Gender {
         MALE, FEMALE, OTHER
     }
@@ -131,7 +140,7 @@ public class Customer {
         GOLD("Gold"),
         PLATINUM("Platinum");
 
-        private String value;
+        private final String value;
 
         CustomerTier(String value) {
             this.value = value;
@@ -140,6 +149,13 @@ public class Customer {
         public String getValue() {
             return value;
         }
+
+        public static CustomerTier fromString(String value) {
+            for (CustomerTier t : values()) {
+                if (t.value.equalsIgnoreCase(value)) return t;
+            }
+            return BRONZE;
+        }
     }
 
     public enum CustomerStatus {
@@ -147,7 +163,7 @@ public class Customer {
         INACTIVE("Inactive"),
         BLOCKED("Blocked");
 
-        private String value;
+        private final String value;
 
         CustomerStatus(String value) {
             this.value = value;
@@ -155,6 +171,13 @@ public class Customer {
 
         public String getValue() {
             return value;
+        }
+
+        public static CustomerStatus fromString(String value) {
+            for (CustomerStatus s : values()) {
+                if (s.value.equalsIgnoreCase(value)) return s;
+            }
+            return ACTIVE;
         }
     }
 }
