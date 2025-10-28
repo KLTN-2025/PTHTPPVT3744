@@ -42,4 +42,8 @@ public interface ICustomerRepository extends JpaRepository<Customer, Integer> {
             "ORDER BY c.totalSpent DESC")
     List<Customer> findTopCustomers(Pageable pageable);
 
+    /**
+     * Kiểm tra email đã tồn tại
+     */
+    boolean existsByEmail(String email);
 }
