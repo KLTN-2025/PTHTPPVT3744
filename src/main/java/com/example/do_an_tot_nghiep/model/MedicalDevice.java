@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "medical_device")
@@ -133,4 +135,27 @@ public class MedicalDevice {
             return displayName;
         }
     }
+    @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
+
+    @Transient
+    public Double getAverageRating() {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
+        return reviews.stream()
+                .filter(r -> r.getStatus() == Review.ReviewStatus.APPROVED && r.getRating() != null)
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    @Transient
+    public Long getTotalReviews() {
+        if (reviews == null) return 0L;
+        return reviews.stream()
+                .filter(r -> r.getStatus() == Review.ReviewStatus.APPROVED)
+                .count();
+    }
+
 }

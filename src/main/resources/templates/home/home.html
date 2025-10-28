@@ -44,7 +44,7 @@
         /* Main Header */
         .main-header {
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 15px 0;
             position: sticky;
             top: 0;
@@ -193,14 +193,14 @@
             font-size: 48px;
             color: white;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .slide p {
             font-size: 20px;
             color: white;
             margin-bottom: 30px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .btn-primary {
@@ -219,7 +219,7 @@
 
         .btn-primary:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .slider-dots {
@@ -235,7 +235,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -264,11 +264,11 @@
         }
 
         .promo-card {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             padding: 20px;
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .promo-card h3 {
@@ -326,7 +326,7 @@
         .category-card:hover {
             border-color: #0066cc;
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,102,204,0.2);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.2);
         }
 
         .category-card i {
@@ -361,14 +361,14 @@
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
             position: relative;
         }
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         .product-badge {
@@ -499,13 +499,13 @@
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
 
         .blog-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         .blog-image {
@@ -640,7 +640,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
             transition: all 0.3s;
             z-index: 1000;
         }
@@ -718,8 +718,8 @@
             <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
         </div>
         <div>
-            <a th:href="@{/login}"><i class="fas fa-user"></i> Đăng nhập</a>
-            <a th:href="@{/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
+            <a th:href="@{/auth/login}"><i class="fas fa-user"></i> Đăng nhập</a>
+            <a th:href="@{/auth/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
         </div>
     </div>
 </div>
@@ -753,8 +753,8 @@
         <ul>
             <li><a th:href="@{/}">Trang chủ</a></li>
             <li><a th:href="@{/products}">Thiết bị y tế</a></li>
-<li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
-<li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
+            <li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
+            <li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
             <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
             <li><a th:href="@{/contact}">Liên hệ</a></li>
         </ul>
@@ -773,7 +773,7 @@
                 <div class="slide-content">
                     <h2 th:text="${banner.title}">Banner Title</h2>
                     <!-- description and buttonText are not fields on Banner model; use static/fallback content -->
-                    <p> </p>
+                    <p></p>
                     <a th:href="${banner.linkUrl != null ? banner.linkUrl : '#products'}" class="btn-primary">
                         <span th:text="'Xem ngay'">Xem ngay</span>
                     </a>
@@ -784,7 +784,7 @@
                  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="slide-content">
                     <h2 th:text="${banner.title}">Banner Title</h2>
-                    <p> </p>
+                    <p></p>
                     <a th:href="${banner.linkUrl != null ? banner.linkUrl : '#products'}" class="btn-primary">
                         <span th:text="'Xem ngay'">Xem ngay</span>
                     </a>
@@ -795,7 +795,7 @@
         <div class="slider-dots">
             <span th:each="banner, iterStat : ${banners}"
                   th:class="${iterStat.index == 0 ? 'dot active' : 'dot'}"
-                   th:attr="data-slide=${iterStat.index}"></span>
+                  th:attr="data-slide=${iterStat.index}"></span>
         </div>
     </th:block>
 
@@ -837,7 +837,7 @@
         <h2 class="section-title" style="color: white;">Khuyến mãi đặc biệt</h2>
         <div class="promo-grid">
             <div class="promo-card" th:each="promo : ${promotions}">
-                <h3 th:text="${promo.title}">Promotion Title</h3>
+                <p th:text="${promo.name}"></p>
                 <p th:text="${promo.description}">Promotion Description</p>
                 <div class="promo-code" th:if="${promo.code}">
                     <i class="fas fa-tag"></i> <span th:text="${promo.code}">CODE</span>
@@ -853,10 +853,9 @@
         <h2 class="section-title">Danh mục sản phẩm</h2>
 
         <div class="category-grid" th:if="${!#lists.isEmpty(categories)}">
-            <a th:href="@{/products(categoryId=${category.id})}"
-               class="category-card"
-               th:each="category : ${categories}">
-                <i th:class="${category.icon ?: 'fas fa-heartbeat'}"></i>
+            <a th:each="category : ${categories}"
+               th:href="@{/products(categoryId=${category.categoryId})}"
+               class="category-card">
                 <h3 th:text="${category.name}">Category Name</h3>
                 <p th:text="${category.description}">Category Description</p>
             </a>
@@ -917,12 +916,10 @@
                 <div class="product-info">
                     <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
                     <h4 th:text="${product.name}">Product Name</h4>
-
-                    <div class="product-rating" th:if="${product.averageRating != null}">
-                        <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>
-                        <span class="review-count" th:if="${product.reviewCount != null && product.reviewCount > 0}">
-                            (<span th:text="${product.reviewCount}">0</span>)
-                        </span>
+                    <div class="product-rating">
+                        <span th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
+                        <i class="fas fa-star text-warning"></i>
+                        <span th:text="'(' + ${product.totalReviews} + ' đánh giá)'">(0 đánh giá)</span>
                     </div>
 
                     <div class="product-price-group">
@@ -943,7 +940,7 @@
                     </div>
 
                     <button class="btn-add-cart"
-                            th:attr="data-id=${product.id},
+                            th:attr="data-id=${product.deviceId},
                                      data-name=${product.name},
                                      data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
                             th:disabled="${product.status != 'Còn_hàng'}">
@@ -982,8 +979,8 @@
 
                     <div class="product-rating" th:if="${product.averageRating != null}">
                         <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>
-                        <span class="review-count" th:if="${product.reviewCount != null && product.reviewCount > 0}">
-                            (<span th:text="${product.reviewCount}">0</span>)
+                        <span class="review-count" th:if="${product.totalReviews != null && product.totalReviews > 0}">
+                                (<span th:text="${product.totalReviews}">0</span> đánh giá)
                         </span>
                     </div>
 
@@ -1005,7 +1002,7 @@
                     </div>
 
                     <button class="btn-add-cart"
-                            th:attr="data-id=${product.id},
+                            th:attr="data-id=${product.deviceId},
                                      data-name=${product.name},
                                      data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
                             th:disabled="${product.status != 'Còn_hàng'}">
@@ -1037,7 +1034,8 @@
                 </div>
                 <div class="blog-content">
                     <h3 th:text="${post.title}">Blog Title</h3>
-                    <p class="blog-excerpt" th:text="${@helper.truncate((post.excerpt != null ? post.excerpt : post.content), 150)}">
+                    <p class="blog-excerpt"
+                       th:text="${@helper.truncate((post.excerpt != null ? post.excerpt : post.content), 150)}">
                         Blog excerpt...
                     </p>
                     <div class="blog-meta">
@@ -1062,7 +1060,8 @@
                 </div>
                 <div class="blog-content">
                     <h3>Cách sử dụng máy đo huyết áp đúng cách</h3>
-                    <p class="blog-excerpt">Hướng dẫn chi tiết cách đo huyết áp tại nhà để có kết quả chính xác nhất...</p>
+                    <p class="blog-excerpt">Hướng dẫn chi tiết cách đo huyết áp tại nhà để có kết quả chính xác
+                        nhất...</p>
                     <div class="blog-meta">
                         <span><i class="fas fa-user"></i> Bác sĩ Nguyễn Văn A</span>
                         <span><i class="fas fa-calendar"></i> 25/10/2024</span>
@@ -1134,7 +1133,8 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Vật Tư Y Tế ABC</h3>
-                <p>Hệ thống phân phối vật tư y tế uy tín, chất lượng hàng đầu Việt Nam. Cung cấp đầy đủ thiết bị y tế cho bệnh viện, phòng khám và gia đình.</p>
+                <p>Hệ thống phân phối vật tư y tế uy tín, chất lượng hàng đầu Việt Nam. Cung cấp đầy đủ thiết bị y tế
+                    cho bệnh viện, phòng khám và gia đình.</p>
                 <div style="margin-top: 20px;">
                     <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-facebook"></i></a>
                     <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-youtube"></i></a>
@@ -1171,9 +1171,14 @@
                 <p><i class="fas fa-envelope"></i> info@vattuyteabc.com</p>
                 <h4 style="margin-top: 20px;">Phương thức thanh toán</h4>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <div style="background: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: #0066cc;">VNPAY</div>
-                    <div style="background: white; padding: 5px 10px; border-radius: 5px; color: #d82d8b; font-weight: bold;">MOMO</div>
-                    <div style="background: white; padding: 5px 10px; border-radius: 5px;"><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i></div>
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: #0066cc;">
+                        VNPAY
+                    </div>
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px; color: #d82d8b; font-weight: bold;">
+                        MOMO
+                    </div>
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px;"><i
+                            class="fas fa-money-bill-wave" style="color: #4CAF50;"></i></div>
                 </div>
             </div>
         </div>
@@ -1214,7 +1219,7 @@
     }
 
     // Auto slide every 5 seconds
-    if(slides.length > 0) {
+    if (slides.length > 0) {
         setInterval(nextSlide, 5000);
     }
 
@@ -1229,10 +1234,10 @@
     // Load cart from sessionStorage on page load
     function loadCart() {
         const cartData = sessionStorage.getItem('cart');
-        if(cartData) {
+        if (cartData) {
             try {
                 cart = JSON.parse(cartData);
-            } catch(e) {
+            } catch (e) {
                 cart = [];
             }
         }
@@ -1249,18 +1254,18 @@
     function updateCartBadge() {
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         const badge = document.getElementById('cartBadge');
-        if(badge) {
+        if (badge) {
             badge.textContent = totalItems;
         }
     }
 
     // Add to cart functionality
-    document.addEventListener('click', function(e) {
-        if(e.target.closest('.btn-add-cart')) {
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-add-cart')) {
             const button = e.target.closest('.btn-add-cart');
 
             // Check if button is disabled
-            if(button.disabled) {
+            if (button.disabled) {
                 showNotification('Sản phẩm hiện đang hết hàng!', 'error');
                 return;
             }
@@ -1272,7 +1277,7 @@
             // Check if product already in cart
             const existingItem = cart.find(item => item.id === productId);
 
-            if(existingItem) {
+            if (existingItem) {
                 existingItem.quantity += 1;
             } else {
                 cart.push({
@@ -1328,7 +1333,7 @@
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
-            if(target) {
+            if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
@@ -1339,7 +1344,6 @@
 
     /*]]>*/
 </script>
-
 </body>
 </html>
 
