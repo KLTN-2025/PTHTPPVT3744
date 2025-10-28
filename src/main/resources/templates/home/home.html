@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vật Tư Y Tế ABC - Cung cấp thiết bị y tế chất lượng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: #0066cc;
+            color: white;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+
+        .top-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-header a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        /* Main Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .main-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-bar form {
+            display: flex;
+            border: 2px solid #0066cc;
+            border-radius: 25px;
+            overflow: hidden;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            outline: none;
+        }
+
+        .search-bar button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            cursor: pointer;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-actions a {
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            color: #0066cc;
+        }
+
+        .cart-badge {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 11px;
+            position: relative;
+            top: -5px;
+        }
+
+        /* Navigation */
+        nav {
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #333;
+            text-decoration: none;
+            padding: 15px 0;
+            display: block;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #0066cc;
+        }
+
+        /* Banner Slider */
+        .banner-slider {
+            position: relative;
+            height: 450px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .slide h2 {
+            font-size: 48px;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .slide p {
+            font-size: 20px;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #0066cc;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        /* Promotions Banner */
+        .promotions-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 0;
+            color: white;
+        }
+
+        .promotions-banner .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .promo-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .promo-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .promo-code {
+            background: white;
+            color: #764ba2;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Categories */
+        .categories {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .category-card:hover {
+            border-color: #0066cc;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,102,204,0.2);
+        }
+
+        .category-card i {
+            font-size: 48px;
+            color: #0066cc;
+            margin-bottom: 15px;
+        }
+
+        .category-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .category-card p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Products */
+        .products {
+            padding: 60px 0;
+            background: #f8f9fa;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .product-badge.new {
+            background: #4CAF50;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-brand {
+            color: #0066cc;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .product-info h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+            height: 40px;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 14px;
+        }
+
+        .review-count {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .product-price-group {
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            color: #ff4444;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .product-original-price {
+            color: #999;
+            font-size: 14px;
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+
+        .product-stock {
+            color: #4CAF50;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .btn-add-cart {
+            background: #0066cc;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-add-cart:hover {
+            background: #0052a3;
+        }
+
+        /* Blog Section */
+        .blog-section {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            overflow: hidden;
+        }
+
+        .blog-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            padding: 20px;
+        }
+
+        .blog-content h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .blog-excerpt {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 0;
+            background: #f8f9fa;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .feature-item i {
+            font-size: 48px;
+            color: #0066cc;
+            margin-bottom: 20px;
+        }
+
+        .feature-item h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .feature-item p {
+            color: #666;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            padding-top: 20px;
+            text-align: center;
+            color: #bdc3c7;
+        }
+
+        /* Chatbot */
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #0066cc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-button i {
+            color: white;
+            font-size: 28px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-header .container {
+                flex-wrap: wrap;
+            }
+
+            .search-bar {
+                order: 3;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .slide h2 {
+                font-size: 32px;
+            }
+
+            .slide p {
+                font-size: 16px;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Header -->
+<div class="top-header">
+    <div class="container">
+        <div>
+            <i class="fas fa-phone"></i> Hotline: 1900-xxxx
+            <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
+        </div>
+        <div>
+            <a th:href="@{/login}"><i class="fas fa-user"></i> Đăng nhập</a>
+            <a th:href="@{/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
+        </div>
+    </div>
+</div>
+
+<!-- Main Header -->
+<header class="main-header">
+    <div class="container">
+        <a th:href="@{/}" class="logo">
+            <i class="fas fa-heartbeat"></i>
+            Vật Tư Y Tế ABC
+        </a>
+        <div class="search-bar">
+            <form th:action="@{/search}" method="get">
+                <input type="text" name="keyword" placeholder="Tìm kiếm vật tư y tế..." th:value="${keyword}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="header-actions">
+            <a th:href="@{/support}"><i class="fas fa-phone-alt"></i> Hỗ trợ</a>
+            <a th:href="@{/cart}">
+                <i class="fas fa-shopping-cart"></i> Giỏ hàng
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Navigation -->
+<nav>
+    <div class="container">
+        <ul>
+            <li><a th:href="@{/}">Trang chủ</a></li>
+            <li><a th:href="@{/products}">Thiết bị y tế</a></li>
+<li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
+<li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
+            <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
+            <li><a th:href="@{/contact}">Liên hệ</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Banner Slider -->
+<section class="banner-slider">
+    <!-- Banners from database -->
+    <th:block th:if="${!#lists.isEmpty(banners)}">
+        <div th:each="banner, iterStat : ${banners}"
+             th:class="${iterStat.index == 0 ? 'slide active' : 'slide'}">
+            <!-- If banner has an image, use it as background -->
+            <div th:if="${banner.imageUrl != null}"
+                 th:style="|background-image: url('${banner.imageUrl}'); background-size: cover; background-position: center;|">
+                <div class="slide-content">
+                    <h2 th:text="${banner.title}">Banner Title</h2>
+                    <!-- description and buttonText are not fields on Banner model; use static/fallback content -->
+                    <p> </p>
+                    <a th:href="${banner.linkUrl != null ? banner.linkUrl : '#products'}" class="btn-primary">
+                        <span th:text="'Xem ngay'">Xem ngay</span>
+                    </a>
+                </div>
+            </div>
+            <!-- Fallback when no image: use default gradient -->
+            <div th:if="${banner.imageUrl == null}"
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="slide-content">
+                    <h2 th:text="${banner.title}">Banner Title</h2>
+                    <p> </p>
+                    <a th:href="${banner.linkUrl != null ? banner.linkUrl : '#products'}" class="btn-primary">
+                        <span th:text="'Xem ngay'">Xem ngay</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-dots">
+            <span th:each="banner, iterStat : ${banners}"
+                  th:class="${iterStat.index == 0 ? 'dot active' : 'dot'}"
+                   th:attr="data-slide=${iterStat.index}"></span>
+        </div>
+    </th:block>
+
+    <!-- Default banners if no data -->
+    <th:block th:if="${#lists.isEmpty(banners)}">
+        <div class="slide active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="slide-content">
+                <h2>Vật tư y tế chất lượng cao</h2>
+                <p>Chất lượng cao - Giá cả hợp lý - Giao hàng nhanh</p>
+                <a href="#products" class="btn-primary">Xem ngay</a>
+            </div>
+        </div>
+        <div class="slide" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="slide-content">
+                <h2>Khuyến mãi đặc biệt</h2>
+                <p>Giảm giá lên đến 50% cho sản phẩm chọn lọc</p>
+                <a href="#promotions" class="btn-primary">Khám phá</a>
+            </div>
+        </div>
+        <div class="slide" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="slide-content">
+                <h2>Miễn phí vận chuyển</h2>
+                <p>Cho đơn hàng trên 500.000đ</p>
+                <a href="#products" class="btn-primary">Mua ngay</a>
+            </div>
+        </div>
+
+        <div class="slider-dots">
+            <span class="dot active" data-slide="0"></span>
+            <span class="dot" data-slide="1"></span>
+            <span class="dot" data-slide="2"></span>
+        </div>
+    </th:block>
+</section>
+
+<!-- Promotions Banner -->
+<section class="promotions-banner" th:if="${!#lists.isEmpty(promotions)}">
+    <div class="container">
+        <h2 class="section-title" style="color: white;">Khuyến mãi đặc biệt</h2>
+        <div class="promo-grid">
+            <div class="promo-card" th:each="promo : ${promotions}">
+                <h3 th:text="${promo.title}">Promotion Title</h3>
+                <p th:text="${promo.description}">Promotion Description</p>
+                <div class="promo-code" th:if="${promo.code}">
+                    <i class="fas fa-tag"></i> <span th:text="${promo.code}">CODE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="categories">
+    <div class="container">
+        <h2 class="section-title">Danh mục sản phẩm</h2>
+
+        <div class="category-grid" th:if="${!#lists.isEmpty(categories)}">
+            <a th:href="@{/products(categoryId=${category.id})}"
+               class="category-card"
+               th:each="category : ${categories}">
+                <i th:class="${category.icon ?: 'fas fa-heartbeat'}"></i>
+                <h3 th:text="${category.name}">Category Name</h3>
+                <p th:text="${category.description}">Category Description</p>
+            </a>
+        </div>
+
+        <!-- Default categories if no data -->
+        <div class="category-grid" th:if="${#lists.isEmpty(categories)}">
+            <a href="#" class="category-card">
+                <i class="fas fa-stethoscope"></i>
+                <h3>Thiết bị y tế</h3>
+                <p>Các thiết bị y tế chuyên dụng</p>
+            </a>
+            <a href="#" class="category-card">
+                <i class="fas fa-syringe"></i>
+                <h3>Vật tư tiêu hao</h3>
+                <p>Kim tiêm, băng gạc, bông y tế</p>
+            </a>
+            <a href="#" class="category-card">
+                <i class="fas fa-heartbeat"></i>
+                <h3>Thiết bị chẩn đoán</h3>
+                <p>Máy đo huyết áp, nhiệt kế</p>
+            </a>
+            <a href="#" class="category-card">
+                <i class="fas fa-band-aid"></i>
+                <h3>Dụng cụ cấp cứu</h3>
+                <p>Bộ y tế gia đình</p>
+            </a>
+            <a href="#" class="category-card">
+                <i class="fas fa-head-side-mask"></i>
+                <h3>Bảo hộ y tế</h3>
+                <p>Khẩu trang, găng tay</p>
+            </a>
+            <a href="#" class="category-card">
+                <i class="fas fa-pills"></i>
+                <h3>Dụng cụ phẫu thuật</h3>
+                <p>Kéo, kìm, dao phẫu thuật</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="products" id="products">
+    <div class="container">
+        <h2 class="section-title">Sản phẩm nổi bật</h2>
+
+        <div class="product-grid" th:if="${!#lists.isEmpty(featuredProducts)}">
+            <div class="product-card" th:each="product : ${featuredProducts}">
+                <div class="product-badge" th:if="${product.discountPercent != null && product.discountPercent > 0}">
+                    -<span th:text="${product.discountPercent}">0</span>%
+                </div>
+
+                <div class="product-image">
+                    <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" th:alt="${product.name}">
+                    <i th:unless="${product.imageUrl}" class="fas fa-heartbeat"></i>
+                </div>
+
+                <div class="product-info">
+                    <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
+                    <h4 th:text="${product.name}">Product Name</h4>
+
+                    <div class="product-rating" th:if="${product.averageRating != null}">
+                        <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>
+                        <span class="review-count" th:if="${product.reviewCount != null && product.reviewCount > 0}">
+                            (<span th:text="${product.reviewCount}">0</span>)
+                        </span>
+                    </div>
+
+                    <div class="product-price-group">
+                        <span class="product-price"
+                              th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(product.price, product.discountPercent))}">
+                            0 đ
+                        </span>
+                        <span class="product-original-price"
+                              th:if="${product.discountPercent != null && product.discountPercent > 0}"
+                              th:text="${@helper.formatPrice(product.price)}">
+                            0 đ
+                        </span>
+                    </div>
+
+                    <div class="product-stock">
+                        <i class="fas fa-box"></i>
+                        <span th:text="${product.status == 'Còn_hàng' ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</span>
+                    </div>
+
+                    <button class="btn-add-cart"
+                            th:attr="data-id=${product.id},
+                                     data-name=${product.name},
+                                     data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
+                            th:disabled="${product.status != 'Còn_hàng'}">
+                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" th:if="${#lists.isEmpty(featuredProducts)}">
+            <i class="fas fa-box-open"></i>
+            <h3>Chưa có sản phẩm nổi bật</h3>
+            <p>Vui lòng quay lại sau</p>
+        </div>
+    </div>
+</section>
+
+<!-- New Products -->
+<section class="products" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">Sản phẩm mới</h2>
+
+        <div class="product-grid" th:if="${!#lists.isEmpty(newProducts)}">
+            <div class="product-card" th:each="product : ${newProducts}">
+                <div class="product-badge new">MỚI</div>
+
+                <div class="product-image">
+                    <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" th:alt="${product.name}">
+                    <i th:unless="${product.imageUrl}" class="fas fa-heartbeat"></i>
+                </div>
+
+                <div class="product-info">
+                    <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
+                    <h4 th:text="${product.name}">Product Name</h4>
+
+                    <div class="product-rating" th:if="${product.averageRating != null}">
+                        <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>
+                        <span class="review-count" th:if="${product.reviewCount != null && product.reviewCount > 0}">
+                            (<span th:text="${product.reviewCount}">0</span>)
+                        </span>
+                    </div>
+
+                    <div class="product-price-group">
+                        <span class="product-price"
+                              th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(product.price, product.discountPercent))}">
+                            0 đ
+                        </span>
+                        <span class="product-original-price"
+                              th:if="${product.discountPercent != null && product.discountPercent > 0}"
+                              th:text="${@helper.formatPrice(product.price)}">
+                            0 đ
+                        </span>
+                    </div>
+
+                    <div class="product-stock">
+                        <i class="fas fa-box"></i>
+                        <span th:text="${product.status == 'Còn_hàng' ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</span>
+                    </div>
+
+                    <button class="btn-add-cart"
+                            th:attr="data-id=${product.id},
+                                     data-name=${product.name},
+                                     data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
+                            th:disabled="${product.status != 'Còn_hàng'}">
+                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" th:if="${#lists.isEmpty(newProducts)}">
+            <i class="fas fa-box-open"></i>
+            <h3>Chưa có sản phẩm mới</h3>
+            <p>Vui lòng quay lại sau</p>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Section -->
+<section class="blog-section">
+    <div class="container">
+        <h2 class="section-title">Tin tức & Kiến thức y tế</h2>
+
+        <div class="blog-grid" th:if="${!#lists.isEmpty(blogPosts)}">
+            <div class="blog-card" th:each="post : ${blogPosts}">
+                <div class="blog-image">
+                    <img th:if="${post.featuredImage}" th:src="${post.featuredImage}" th:alt="${post.title}">
+                    <i th:unless="${post.featuredImage}" class="fas fa-newspaper"></i>
+                </div>
+                <div class="blog-content">
+                    <h3 th:text="${post.title}">Blog Title</h3>
+                    <p class="blog-excerpt" th:text="${@helper.truncate((post.excerpt != null ? post.excerpt : post.content), 150)}">
+                        Blog excerpt...
+                    </p>
+                    <div class="blog-meta">
+                        <span th:if="${post.author}">
+                            <i class="fas fa-user"></i>
+                            <span th:text="${post.author.fullName}">Author</span>
+                        </span>
+                        <span>
+                            <i class="fas fa-calendar"></i>
+                            <span th:text="${#temporals.format(post.publishedAt, 'dd/MM/yyyy')}">Date</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Default blog posts if no data -->
+        <div class="blog-grid" th:if="${#lists.isEmpty(blogPosts)}">
+            <div class="blog-card">
+                <div class="blog-image">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="blog-content">
+                    <h3>Cách sử dụng máy đo huyết áp đúng cách</h3>
+                    <p class="blog-excerpt">Hướng dẫn chi tiết cách đo huyết áp tại nhà để có kết quả chính xác nhất...</p>
+                    <div class="blog-meta">
+                        <span><i class="fas fa-user"></i> Bác sĩ Nguyễn Văn A</span>
+                        <span><i class="fas fa-calendar"></i> 25/10/2024</span>
+                    </div>
+                </div>
+            </div>
+            <div class="blog-card">
+                <div class="blog-image">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="blog-content">
+                    <h3>Tầm quan trọng của việc vệ sinh dụng cụ y tế</h3>
+                    <p class="blog-excerpt">Các bước vệ sinh và bảo quản dụng cụ y tế tại nhà một cách an toàn...</p>
+                    <div class="blog-meta">
+                        <span><i class="fas fa-user"></i> Dược sĩ Trần Thị B</span>
+                        <span><i class="fas fa-calendar"></i> 23/10/2024</span>
+                    </div>
+                </div>
+            </div>
+            <div class="blog-card">
+                <div class="blog-image">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="blog-content">
+                    <h3>Chọn mua vật tư y tế chất lượng cho gia đình</h3>
+                    <p class="blog-excerpt">Những tiêu chí quan trọng khi lựa chọn vật tư y tế gia đình...</p>
+                    <div class="blog-meta">
+                        <span><i class="fas fa-user"></i> Ths. Lê Văn C</span>
+                        <span><i class="fas fa-calendar"></i> 20/10/2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="container">
+        <h2 class="section-title">Ưu điểm của chúng tôi</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Chất lượng đảm bảo</h3>
+                <p>Sản phẩm chính hãng 100%, có nguồn gốc xuất xứ rõ ràng</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shipping-fast"></i>
+                <h3>Giao hàng nhanh</h3>
+                <p>Giao hàng toàn quốc, nội thành TP.HCM trong 1-2 ngày</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-credit-card"></i>
+                <h3>Thanh toán đa dạng</h3>
+                <p>Hỗ trợ nhiều hình thức: COD, VNPAY, MOMO, Chuyển khoản</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-headset"></i>
+                <h3>Hỗ trợ 24/7</h3>
+                <p>Tư vấn và chăm sóc khách hàng tận tình mọi lúc</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Vật Tư Y Tế ABC</h3>
+                <p>Hệ thống phân phối vật tư y tế uy tín, chất lượng hàng đầu Việt Nam. Cung cấp đầy đủ thiết bị y tế cho bệnh viện, phòng khám và gia đình.</p>
+                <div style="margin-top: 20px;">
+                    <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-facebook"></i></a>
+                    <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-youtube"></i></a>
+                    <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Danh mục</h3>
+                <ul>
+                    <li><a th:href="@{/products}">Thiết bị y tế</a></li>
+                    <li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
+                    <li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
+                    <li><a th:href="@{/products(category='diagnostic')}">Thiết bị chẩn đoán</a></li>
+                    <li><a th:href="@{/products(category='protective')}">Bảo hộ y tế</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Chính sách</h3>
+                <ul>
+                    <li><a th:href="@{/policies/privacy}">Chính sách bảo mật</a></li>
+                    <li><a th:href="@{/policies/return}">Chính sách đổi trả</a></li>
+                    <li><a th:href="@{/policies/shipping}">Chính sách vận chuyển</a></li>
+                    <li><a th:href="@{/policies/payment}">Hướng dẫn thanh toán</a></li>
+                    <li><a th:href="@{/policies/warranty}">Chính sách bảo hành</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Lê Lợi, Q.1, TP.HCM</p>
+                <p><i class="fas fa-phone"></i> Hotline: 1900-xxxx</p>
+                <p><i class="fas fa-envelope"></i> info@vattuyteabc.com</p>
+                <h4 style="margin-top: 20px;">Phương thức thanh toán</h4>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: #0066cc;">VNPAY</div>
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px; color: #d82d8b; font-weight: bold;">MOMO</div>
+                    <div style="background: white; padding: 5px 10px; border-radius: 5px;"><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 Vật Tư Y Tế ABC. Phát triển bởi Bùi Trung Nguyên.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Chatbot Button -->
+<div class="chatbot-button" onclick="alert('Chatbot đang được phát triển!')">
+    <i class="fas fa-comments"></i>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Slider functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+
+    function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+
+        currentSlide = n;
+        if (currentSlide >= slides.length) currentSlide = 0;
+        if (currentSlide < 0) currentSlide = slides.length - 1;
+
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
+
+    // Auto slide every 5 seconds
+    if(slides.length > 0) {
+        setInterval(nextSlide, 5000);
+    }
+
+    // Dot navigation
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => showSlide(index));
+    });
+
+    // Cart functionality (using sessionStorage instead of localStorage)
+    let cart = [];
+
+    // Load cart from sessionStorage on page load
+    function loadCart() {
+        const cartData = sessionStorage.getItem('cart');
+        if(cartData) {
+            try {
+                cart = JSON.parse(cartData);
+            } catch(e) {
+                cart = [];
+            }
+        }
+        updateCartBadge();
+    }
+
+    // Save cart to sessionStorage
+    function saveCart() {
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        updateCartBadge();
+    }
+
+    // Update cart badge
+    function updateCartBadge() {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const badge = document.getElementById('cartBadge');
+        if(badge) {
+            badge.textContent = totalItems;
+        }
+    }
+
+    // Add to cart functionality
+    document.addEventListener('click', function(e) {
+        if(e.target.closest('.btn-add-cart')) {
+            const button = e.target.closest('.btn-add-cart');
+
+            // Check if button is disabled
+            if(button.disabled) {
+                showNotification('Sản phẩm hiện đang hết hàng!', 'error');
+                return;
+            }
+
+            const productId = button.dataset.id;
+            const productName = button.dataset.name;
+            const productPrice = parseFloat(button.dataset.price);
+
+            // Check if product already in cart
+            const existingItem = cart.find(item => item.id === productId);
+
+            if(existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1
+                });
+            }
+
+            // Save to sessionStorage
+            saveCart();
+
+            // Show notification
+            showNotification(`Đã thêm "${productName}" vào giỏ hàng!`, 'success');
+        }
+    });
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        const bgColor = type === 'success' ? '#4CAF50' : '#ff4444';
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+        `;
+        notification.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Initialize cart on page load
+    loadCart();
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if(target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    /*]]>*/
+</script>
+
+</body>
+</html>
+

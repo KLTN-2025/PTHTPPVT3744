@@ -3,6 +3,7 @@ package com.example.do_an_tot_nghiep.repository;
 import com.example.do_an_tot_nghiep.model.MedicalDevice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -23,4 +24,49 @@ public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, S
 
     @Query("SELECT d FROM MedicalDevice d ORDER BY d.soldCount DESC")
     List<MedicalDevice> findTopSellingProducts(org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * Lấy sản phẩm nổi bật, sắp xếp theo lượt xem
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE md.isFeatured = true AND md.status = 'Còn_hàng' " +
+            "ORDER BY md.viewCount DESC")
+    List<MedicalDevice> findFeaturedProducts();
+
+    /**
+     * Lấy top 4 sản phẩm mới, sắp xếp theo ngày tạo
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE md.isNew = true AND md.status = 'Còn_hàng' " +
+            "ORDER BY md.createdAt DESC")
+    List<MedicalDevice> findTop4NewProducts();
+
+    /**
+     * Tìm kiếm sản phẩm theo từ khóa
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE LOWER(md.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(md.description) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<MedicalDevice> searchByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * Tìm sản phẩm theo danh mục
+     */
+    @Query("SELECT md FROM MedicalDevice md " +
+            "LEFT JOIN FETCH md.brand b " +
+            "LEFT JOIN FETCH md.category c " +
+            "WHERE c.id = :categoryId AND md.status = 'Còn_hàng'")
+    List<MedicalDevice> findByCategoryId(@Param("categoryId") Long categoryId);
 }
+
+/**
+ * PromotionRepository - Quản lý khuyến mãi
+ */
+
