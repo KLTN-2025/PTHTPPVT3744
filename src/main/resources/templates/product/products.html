@@ -467,13 +467,21 @@
         <p>Tìm thấy <strong th:text="${totalProducts}">0</strong> sản phẩm</p>
         <div class="sort-wrapper">
           <label>Sắp xếp:</label>
-          <select onchange="window.location.href = '@{/products}' + '?sortBy=' + this.value + '&page=1' + (new URLSearchParams(window.location.search).get('categoryId') ? '&categoryId=' + new URLSearchParams(window.location.search).get('categoryId') : '')">
-            <option value="newest" th:selected="${sortBy == 'newest'}">Mới nhất</option>
-            <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Giá: Thấp đến cao</option>
-            <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Giá: Cao đến thấp</option>
-            <option value="popular" th:selected="${sortBy == 'popular'}">Phổ biến</option>
-            <option value="sold" th:selected="${sortBy == 'sold'}">Bán chạy</option>
-          </select>
+          <form method="get" th:action="@{/products}" style="display: inline; margin: 0;">
+            <!-- Giữ lại các filter hiện tại -->
+            <input type="hidden" name="keyword" th:value="${keyword}">
+            <input type="hidden" name="categoryId" th:value="${selectedCategoryId}">
+            <input type="hidden" name="brandId" th:value="${selectedBrandId}">
+            <input type="hidden" name="page" value="1">
+
+            <select name="sortBy" class="sort-select" onchange="this.form.submit()">
+              <option value="newest" th:selected="${sortBy == 'newest'}">Mới nhất</option>
+              <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Giá: Thấp đến cao</option>
+              <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Giá: Cao đến thấp</option>
+              <option value="popular" th:selected="${sortBy == 'popular'}">Phổ biến</option>
+              <option value="sold" th:selected="${sortBy == 'sold'}">Bán chạy</option>
+            </select>
+          </form>
         </div>
       </div>
 

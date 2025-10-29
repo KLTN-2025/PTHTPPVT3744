@@ -39,29 +39,28 @@ public class ProductController {
         try {
             List<MedicalDevice> products = new java.util.ArrayList<>();
 
-            // Lấy sản phẩm theo tiêu chí tìm kiếm
-            if (!keyword.isEmpty()) {
-                // Tìm kiếm theo từ khóa
+            // Lấy sản phẩm theo tiêu chí tìm kiếm (FIX: Logic rõ ràng hơn)
+            if (!keyword.isEmpty() && categoryId != null) {
+                // Cả keyword VÀ category
+                products = medicalDeviceRepository.searchByKeyword(keyword).stream()
+                        .filter(p -> p.getCategory() != null &&
+                                p.getCategory().getCategoryId().equals(categoryId.longValue()))
+                        .collect(Collectors.toList());
+            } else if (!keyword.isEmpty()) {
+                // Chỉ keyword
                 products = medicalDeviceRepository.searchByKeyword(keyword);
             } else if (categoryId != null) {
-                // Lọc theo danh mục
+                // Chỉ category
                 products = medicalDeviceRepository.findByCategoryId(categoryId.longValue());
             } else {
-                // Lấy tất cả sản phẩm
+                // Không có filter, lấy tất cả
                 products = medicalDeviceRepository.findAllActive();
             }
 
             // Lọc theo thương hiệu (nếu có)
             if (brandId != null) {
                 products = products.stream()
-                        .filter(p -> p.getBrand() != null && p.getBrand().getBrandId().equals(brandId))
-                        .collect(Collectors.toList());
-            }
-
-            // Nếu có keyword VÀ categoryId, kết hợp cả hai
-            if (!keyword.isEmpty() && categoryId != null) {
-                products = products.stream()
-                        .filter(p -> p.getCategory() != null && p.getCategory().getCategoryId().equals(categoryId))
+                        .filter(p -> p.getBrand() != null && p.getBrand().getBrandId().equals(brandId.longValue()))
                         .collect(Collectors.toList());
             }
 

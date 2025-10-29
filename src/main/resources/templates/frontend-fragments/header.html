@@ -16,10 +16,10 @@
 
         <!-- Nếu ĐÃ đăng nhập -->
         <div sec:authorize="isAuthenticated()">
-                    <span>
-                        <i class="fas fa-user-circle"></i>
-                        Xin chào, <b sec:authentication="name"></b>
-                    </span>
+          <span>
+            <i class="fas fa-user-circle"></i>
+            Xin chào, <b sec:authentication="name"></b>
+          </span>
           <a th:href="@{/logout}" onclick="return confirm('Bạn có chắc muốn đăng xuất không?')">
             <i class="fas fa-sign-out-alt"></i> Đăng xuất
           </a>
@@ -51,14 +51,21 @@
     </div>
   </header>
 
-  <!-- Navigation -->
+  <!-- Navigation - FIXED -->
   <nav>
     <div class="container">
       <ul>
         <li><a th:href="@{/}">Trang chủ</a></li>
-        <li><a th:href="@{/products}">Thiết bị y tế</a></li>
-        <li><a th:href="@{/products(categoryId=8)}">Vật tư tiêu hao</a></li>
-        <li><a th:href="@{/products(categoryId=6)}">Dụng cụ phẫu thuật</a></li>
+
+        <!-- TẤT CẢ SẢN PHẨM -->
+        <li><a th:href="@{/products}">Sản phẩm</a></li>
+
+        <!-- DANH MỤC CỤ THỂ -->
+        <li><a th:href="@{/products(categoryId=1)}">Thiết bị y tế</a></li>
+        <li><a th:href="@{/products(categoryId=3)}">Máy đo sức khỏe</a></li>
+        <li><a th:href="@{/products(categoryId=5)}">Khẩu trang</a></li>
+
+        <!-- KHUYẾN MÃI & LIÊN HỆ -->
         <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
         <li><a th:href="@{/contact}">Liên hệ</a></li>
       </ul>

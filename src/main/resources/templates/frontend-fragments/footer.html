@@ -17,11 +17,15 @@
         <div class="footer-section">
           <h3>Danh mục</h3>
           <ul>
-            <li><a th:href="@{/products}">Thiết bị y tế</a></li>
-            <li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
-            <li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
-            <li><a th:href="@{/products(category='diagnostic')}">Thiết bị chẩn đoán</a></li>
-            <li><a th:href="@{/products(category='protective')}">Bảo hộ y tế</a></li>
+            <!-- TẤT CẢ SẢN PHẨM -->
+            <li><a th:href="@{/products}">Tất cả sản phẩm</a></li>
+
+            <!-- DANH MỤC CỤ THỂ -->
+            <li><a th:href="@{/products(categoryId=1)}">Thiết bị y tế</a></li>
+            <li><a th:href="@{/products(categoryId=2)}">Dụng cụ chăm sóc</a></li>
+            <li><a th:href="@{/products(categoryId=3)}">Máy đo sức khỏe</a></li>
+            <li><a th:href="@{/products(categoryId=5)}">Khẩu trang</a></li>
+            <li><a th:href="@{/products(categoryId=8)}">Vật tư tiêu hao</a></li>
           </ul>
         </div>
 

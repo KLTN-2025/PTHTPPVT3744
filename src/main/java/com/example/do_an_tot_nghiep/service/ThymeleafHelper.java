@@ -23,10 +23,25 @@ public class ThymeleafHelper {
      * @return Chuỗi giá đã format
      */
     public String formatPrice(Double price) {
-        if (price == null) {
+        if (price == null || price < 0) {
             return "0 đ";
         }
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(price.longValue()) + " đ";
+    }
+
+    /**
+     * Format giá tiền (với số thập phân)
+     *
+     * @param price Giá cần format
+     * @return Chuỗi giá đã format
+     */
+    public String formatPriceDecimal(Double price) {
+        if (price == null || price < 0) {
+            return "0 đ";
+        }
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        formatter.setMaximumFractionDigits(0);
         return formatter.format(price) + " đ";
     }
 
@@ -38,11 +53,14 @@ public class ThymeleafHelper {
      * @return Giá sau giảm
      */
     public Double calculateDiscountPrice(Double price, Double discountPercent) {
-        if (price == null) {
+        if (price == null || price < 0) {
             return 0.0;
         }
-        if (discountPercent == null || discountPercent == 0) {
+        if (discountPercent == null || discountPercent <= 0) {
             return price;
+        }
+        if (discountPercent > 100) {
+            discountPercent = 100.0;
         }
         return price - (price * discountPercent / 100);
     }
@@ -56,6 +74,9 @@ public class ThymeleafHelper {
      */
     public Double calculateDiscountAmount(Double price, Double discountPercent) {
         if (price == null || discountPercent == null) {
+            return 0.0;
+        }
+        if (discountPercent <= 0 || discountPercent > 100) {
             return 0.0;
         }
         return price * discountPercent / 100;
@@ -128,7 +149,7 @@ public class ThymeleafHelper {
      * @return Chuỗi đã cắt
      */
     public String truncate(String text, int maxLength) {
-        if (text == null || text.length() <= maxLength) {
+        if (text == null || text.isEmpty() || text.length() <= maxLength) {
             return text;
         }
         return text.substring(0, maxLength) + "...";
@@ -142,7 +163,7 @@ public class ThymeleafHelper {
      * @return Chuỗi đã cắt
      */
     public String truncateWords(String text, int maxLength) {
-        if (text == null || text.length() <= maxLength) {
+        if (text == null || text.isEmpty() || text.length() <= maxLength) {
             return text;
         }
 
@@ -163,7 +184,7 @@ public class ThymeleafHelper {
      * @return Chuỗi format "(count)"
      */
     public String formatReviewCount(Long count) {
-        if (count == null || count == 0) {
+        if (count == null || count <= 0) {
             return "";
         }
         return "(" + count + ")";
@@ -209,26 +230,30 @@ public class ThymeleafHelper {
             return "";
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        long seconds = java.time.Duration.between(dateTime, now).getSeconds();
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            long seconds = java.time.Duration.between(dateTime, now).getSeconds();
 
-        if (seconds < 60) {
-            return "Vừa xong";
-        } else if (seconds < 3600) {
-            long minutes = seconds / 60;
-            return minutes + " phút trước";
-        } else if (seconds < 86400) {
-            long hours = seconds / 3600;
-            return hours + " giờ trước";
-        } else if (seconds < 2592000) {
-            long days = seconds / 86400;
-            return days + " ngày trước";
-        } else if (seconds < 31536000) {
-            long months = seconds / 2592000;
-            return months + " tháng trước";
-        } else {
-            long years = seconds / 31536000;
-            return years + " năm trước";
+            if (seconds < 60) {
+                return "Vừa xong";
+            } else if (seconds < 3600) {
+                long minutes = seconds / 60;
+                return minutes + " phút trước";
+            } else if (seconds < 86400) {
+                long hours = seconds / 3600;
+                return hours + " giờ trước";
+            } else if (seconds < 2592000) {
+                long days = seconds / 86400;
+                return days + " ngày trước";
+            } else if (seconds < 31536000) {
+                long months = seconds / 2592000;
+                return months + " tháng trước";
+            } else {
+                long years = seconds / 31536000;
+                return years + " năm trước";
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
 
@@ -250,11 +275,15 @@ public class ThymeleafHelper {
      * @return Phần trăm giảm
      */
     public Integer calculateDiscountPercent(Double originalPrice, Double salePrice) {
-        if (originalPrice == null || salePrice == null || originalPrice == 0) {
+        if (originalPrice == null || salePrice == null || originalPrice <= 0) {
             return 0;
         }
+        if (salePrice <= 0) {
+            return 100;
+        }
         double discount = ((originalPrice - salePrice) / originalPrice) * 100;
-        return (int) Math.round(discount);
+        int result = (int) Math.round(discount);
+        return Math.max(0, Math.min(100, result)); // Giới hạn 0-100
     }
 
     /**
@@ -264,16 +293,16 @@ public class ThymeleafHelper {
      * @return Chuỗi đã format
      */
     public String formatLargeNumber(Long count) {
-        if (count == null) {
+        if (count == null || count < 0) {
             return "0";
         }
 
         if (count < 1000) {
             return String.valueOf(count);
         } else if (count < 1000000) {
-            return String.format("%.1fK", count / 1000.0);
+            return String.format("%.1fK", count / 1000.0).replaceAll(",0K$", "K");
         } else {
-            return String.format("%.1fM", count / 1000000.0);
+            return String.format("%.1fM", count / 1000000.0).replaceAll(",0M$", "M");
         }
     }
 
@@ -286,7 +315,7 @@ public class ThymeleafHelper {
      * @return true nếu nằm trong khoảng
      */
     public boolean isBetween(Double value, Double min, Double max) {
-        if (value == null) {
+        if (value == null || min == null || max == null) {
             return false;
         }
         return value >= min && value <= max;
@@ -299,7 +328,7 @@ public class ThymeleafHelper {
      * @return URL slug
      */
     public String createSlug(String text) {
-        if (text == null) {
+        if (text == null || text.isEmpty()) {
             return "";
         }
 
@@ -327,7 +356,7 @@ public class ThymeleafHelper {
      * @return Class CSS tương ứng
      */
     public String getOrderStatusClass(String status) {
-        if (status == null) {
+        if (status == null || status.isEmpty()) {
             return "badge-secondary";
         }
 
@@ -354,7 +383,7 @@ public class ThymeleafHelper {
      * @return Tên hiển thị
      */
     public String formatStatus(String status) {
-        if (status == null) {
+        if (status == null || status.isEmpty()) {
             return "";
         }
         return status.replace("_", " ");
