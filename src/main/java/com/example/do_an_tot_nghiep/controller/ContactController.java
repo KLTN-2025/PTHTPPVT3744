@@ -4,6 +4,7 @@ import com.example.do_an_tot_nghiep.dto.ContactMessageDTO;
 import com.example.do_an_tot_nghiep.model.ContactMessage;
 import com.example.do_an_tot_nghiep.model.Customer;
 import com.example.do_an_tot_nghiep.security.CustomOAuth2User;
+import com.example.do_an_tot_nghiep.security.CustomerUserDetails;
 import com.example.do_an_tot_nghiep.service.IContactMessageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,18 @@ public class ContactController {
 
         Object principal = auth.getPrincipal();
 
+        // ✅ FIX: Xử lý trường hợp đăng nhập bằng username/password
+        if (principal instanceof CustomerUserDetails) {
+            CustomerUserDetails userDetails = (CustomerUserDetails) principal;
+            Customer customer = userDetails.getCustomer(); // ✅ Lấy Customer trực tiếp
+            return new CustomerInfo(
+                    customer.getCustomerId(),
+                    customer.getFullName(),
+                    customer.getEmail(),
+                    customer.getPhone()
+            );
+        }
+
         // Trường hợp đăng nhập bằng OAuth2 (Google)
         if (principal instanceof CustomOAuth2User) {
             CustomOAuth2User oauth2User = (CustomOAuth2User) principal;
@@ -46,7 +59,7 @@ public class ContactController {
             );
         }
 
-        // Trường hợp đăng nhập thông thường
+        // ✅ FALLBACK: Trường hợp principal là Customer trực tiếp (ít xảy ra)
         if (principal instanceof Customer) {
             Customer customer = (Customer) principal;
             return new CustomerInfo(
@@ -115,13 +128,25 @@ public class ContactController {
     @GetMapping("/my-messages")
     public String myMessages(Model model, RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // ✅ DEBUG: Log để kiểm tra
+        System.out.println("=== DEBUG MY MESSAGES ===");
+        System.out.println("Auth: " + auth);
+        if (auth != null) {
+            System.out.println("Principal type: " + auth.getPrincipal().getClass().getName());
+            System.out.println("Authorities: " + auth.getAuthorities());
+        }
+
         CustomerInfo customerInfo = getCustomerInfo(auth);
 
         if (customerInfo == null) {
+            System.out.println("❌ CustomerInfo is NULL!");
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Vui lòng đăng nhập để xem tin nhắn của bạn!");
             return "redirect:/auth/login";
         }
+
+        System.out.println("✅ Customer ID: " + customerInfo.customerId);
 
         // Lấy danh sách tin nhắn của khách hàng
         List<ContactMessage> messages = contactMessageService.findByCustomerId(customerInfo.customerId);

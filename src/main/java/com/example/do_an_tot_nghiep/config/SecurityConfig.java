@@ -59,7 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/contact", "/contact/", "/contact/submit").permitAll()
 
                         // My Messages - AUTHENTICATED (chỉ user đã đăng nhập)
-                        .requestMatchers("/contact/my-messages", "/contact/message/**").hasRole("CUSTOMER")
+                        // ✅ FIX: Thêm authenticated() để đảm bảo user đã login
+                        .requestMatchers("/contact/my-messages", "/contact/message/**").authenticated()
 
                         // Admin area - ADMIN/MANAGER/STAFF only
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
@@ -84,7 +85,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(oAuth2LoginSuccessHandler) // ✅ Dùng custom handler
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -92,6 +93,10 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                // ✅ FIX: Thêm exceptionHandling để redirect đúng khi access denied
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/auth/login?error=access-denied")
                 );
 
         return http.build();

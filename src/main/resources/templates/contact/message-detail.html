@@ -372,14 +372,12 @@
 
                 <div class="meta-item">
                     <i class="fas fa-tag"></i>
-                    <span class="message-status"
-                          th:classappend="${message.status.name() == 'New'} ? 'status-new' :
-                                ${message.status.name() == 'Processing'} ? 'status-processing' :
-                                ${message.status.name() == 'Resolved'} ? 'status-resolved' : 'status-closed'"
-                          th:text="${message.status.name() == 'New'} ? 'Mới' :
-                         ${message.status.name() == 'Processing'} ? 'Đang xử lý' :
-                         ${message.status.name() == 'Resolved'} ? 'Đã giải quyết' : 'Đã đóng'">
-          </span>
+                    <th:block th:switch="${message.status.name()}">
+                        <span class="message-status status-new" th:case="'NEW'">Mới</span>
+                        <span class="message-status status-processing" th:case="'PROCESSING'">Đang xử lý</span>
+                        <span class="message-status status-resolved" th:case="'RESOLVED'">Đã giải quyết</span>
+                        <span class="message-status status-closed" th:case="*">Đã đóng</span>
+                    </th:block>
                 </div>
             </div>
         </div>
