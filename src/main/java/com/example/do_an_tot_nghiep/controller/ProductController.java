@@ -80,6 +80,25 @@ public class ProductController {
             List<Category> categories = categoryRepository.findByIsActiveTrueOrderByDisplayOrder();
             List<Brand> brands = brandRepository.findByIsActiveTrue();
 
+            // **FIX: Lấy tên danh mục động cho breadcrumb**
+            String categoryName = "Sản phẩm"; // Tên mặc định khi không chọn danh mục
+            String pageTitle = "Sản phẩm - Vật Tư Y Tế ABC";
+            String pageDescription = "Cung cấp đầy đủ thiết bị y tế chất lượng cao cho bệnh viện, phòng khám và gia đình";
+
+            if (categoryId != null) {
+                Category selectedCategory = categoryRepository.findById((int) categoryId.longValue()).orElse(null);
+                if (selectedCategory != null) {
+                    categoryName = selectedCategory.getName();
+                    pageTitle = categoryName + " - Vật Tư Y Tế ABC";
+                    // Có thể tùy chỉnh description theo danh mục
+                    pageDescription = "Tìm kiếm và mua " + categoryName.toLowerCase() + " chất lượng cao với giá tốt nhất";
+                }
+            } else if (!keyword.isEmpty()) {
+                categoryName = "Kết quả tìm kiếm: \"" + keyword + "\"";
+                pageTitle = "Tìm kiếm: " + keyword + " - Vật Tư Y Tế ABC";
+                pageDescription = "Kết quả tìm kiếm cho từ khóa: " + keyword;
+            }
+
             // Thêm dữ liệu vào model
             model.addAttribute("products", pageProducts);
             model.addAttribute("categories", categories);
@@ -91,10 +110,15 @@ public class ProductController {
             model.addAttribute("selectedCategoryId", categoryId);
             model.addAttribute("selectedBrandId", brandId);
             model.addAttribute("sortBy", sortBy);
-            model.addAttribute("title", "Thiết bị y tế - Vật Tư Y Tế ABC");
+
+            // **FIX: Thêm các thuộc tính mới**
+            model.addAttribute("categoryName", categoryName);
+            model.addAttribute("pageDescription", pageDescription);
+            model.addAttribute("title", pageTitle);
 
             System.out.println("Products loaded: " + pageProducts.size());
             System.out.println("Total pages: " + totalPages);
+            System.out.println("Category name for breadcrumb: " + categoryName);
 
         } catch (Exception e) {
             System.err.println("Error loading products: " + e.getMessage());
@@ -102,6 +126,8 @@ public class ProductController {
             model.addAttribute("products", List.of());
             model.addAttribute("categories", List.of());
             model.addAttribute("brands", List.of());
+            model.addAttribute("categoryName", "Thiết bị y tế");
+            model.addAttribute("pageDescription", "Cung cấp đầy đủ thiết bị y tế chất lượng cao");
             model.addAttribute("errorMessage", "Có lỗi xảy ra khi tải sản phẩm!");
         }
 

@@ -48,9 +48,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Static resources - PUBLIC
                         .requestMatchers("/auth/**", "/register", "/css/**", "/js/**", "/images/**", "/img/**", "/favicon.ico").permitAll()
+
+                        // Frontend pages - PUBLIC (không cần đăng nhập)
+                        .requestMatchers("/", "/home", "/products", "/products/**", "/cart", "/cart/**").permitAll()
+                        .requestMatchers("/promotions", "/promotions/**", "/support").permitAll()
+
+                        // Contact - PUBLIC (ai cũng gửi được tin nhắn)
+                        .requestMatchers("/contact", "/contact/", "/contact/submit").permitAll()
+
+                        // My Messages - AUTHENTICATED (chỉ user đã đăng nhập)
+                        .requestMatchers("/contact/my-messages", "/contact/message/**").hasRole("CUSTOMER")
+
+                        // Admin area - ADMIN/MANAGER/STAFF only
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
+                        // User area - CUSTOMER only
                         .requestMatchers("/user/**").hasRole("CUSTOMER")
+
+                        // Các request còn lại cần authenticate
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

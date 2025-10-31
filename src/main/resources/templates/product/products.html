@@ -385,21 +385,21 @@
 <!-- Include Header (từ home.html) -->
 <div th:insert="~{frontend-fragments/header :: header}"></div>
 
-<!-- Breadcrumb -->
+<!-- Breadcrumb - FIXED: Sử dụng biến động từ Controller -->
 <div class="breadcrumb-section">
   <div class="container">
     <ul class="breadcrumb">
       <li><a th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a></li>
-      <li><span>Thiết bị y tế</span></li>
+      <li><span th:text="${categoryName}">Thiết bị y tế</span></li>
     </ul>
   </div>
 </div>
 
-<!-- Page Header -->
+<!-- Page Header - FIXED: Sử dụng biến động từ Controller -->
 <div class="page-header">
   <div class="container">
-    <h1>Thiết bị y tế</h1>
-    <p>Cung cấp đầy đủ thiết bị y tế chất lượng cao cho bệnh viện, phòng khám và gia đình</p>
+    <h1 th:text="${categoryName}">Thiết bị y tế</h1>
+    <p th:text="${pageDescription}">Cung cấp đầy đủ thiết bị y tế chất lượng cao cho bệnh viện, phòng khám và gia đình</p>
   </div>
 </div>
 
@@ -426,7 +426,8 @@
             <label th:for="'cat-' + ${category.categoryId}" th:text="${category.name}">Category</label>
           </div>
           <div class="filter-option">
-            <input type="radio" id="cat-all" name="categoryId" value="">
+            <input type="radio" id="cat-all" name="categoryId" value=""
+                   th:checked="${selectedCategoryId == null}">
             <label for="cat-all">Tất cả</label>
           </div>
         </div>
@@ -506,15 +507,15 @@
               </h4>
 
               <div class="product-price-group">
-                                <span class="product-price"
-                                      th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(product.price.doubleValue(), product.discountPercent.doubleValue()))}">
-                                    0 đ
-                                </span>
+                <span class="product-price"
+                      th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(product.price.doubleValue(), product.discountPercent.doubleValue()))}">
+                    0 đ
+                </span>
                 <span class="product-original-price"
                       th:if="${product.discountPercent != null && product.discountPercent > 0}"
                       th:text="${@helper.formatPrice(product.price.doubleValue())}">
-                                    0 đ
-                                </span>
+                    0 đ
+                </span>
               </div>
 
               <div class="product-stock">
@@ -524,8 +525,8 @@
 
               <button class="btn-add-cart"
                       th:attr="data-id=${product.deviceId},
-                                             data-name=${product.name},
-                                             data-price=${@helper.calculateDiscountPrice(product.price.doubleValue(), product.discountPercent.doubleValue())}"
+                               data-name=${product.name},
+                               data-price=${@helper.calculateDiscountPrice(product.price.doubleValue(), product.discountPercent.doubleValue())}"
                       th:disabled="${product.status != 'Còn_hàng'}">
                 <i class="fas fa-cart-plus"></i> Thêm vào giỏ
               </button>
@@ -544,11 +545,11 @@
 
           <span th:each="i : ${#numbers.sequence(1, totalPages)}"
                 th:if="${(i - currentPage) <= 2 and (i - currentPage) >= -2 or i == 1 or i == totalPages}">
-                        <span th:if="${i == currentPage}" class="active" th:text="${i}">1</span>
-                        <a th:unless="${i == currentPage}"
-                           th:href="@{/products(page=${i}, keyword=${keyword}, categoryId=${selectedCategoryId}, brandId=${selectedBrandId}, sortBy=${sortBy})}"
-                           th:text="${i}">1</a>
-                    </span>
+            <span th:if="${i == currentPage}" class="active" th:text="${i}">1</span>
+            <a th:unless="${i == currentPage}"
+               th:href="@{/products(page=${i}, keyword=${keyword}, categoryId=${selectedCategoryId}, brandId=${selectedBrandId}, sortBy=${sortBy})}"
+               th:text="${i}">1</a>
+          </span>
 
           <a th:if="${currentPage < totalPages}"
              th:href="@{/products(page=${currentPage + 1}, keyword=${keyword}, categoryId=${selectedCategoryId}, brandId=${selectedBrandId}, sortBy=${sortBy})}"

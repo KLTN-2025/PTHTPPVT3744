@@ -20,6 +20,9 @@
             <i class="fas fa-user-circle"></i>
             Xin chào, <b sec:authentication="name"></b>
           </span>
+          <a th:href="@{/contact/my-messages}">
+            <i class="fas fa-comments"></i> Tin nhắn
+          </a>
           <a th:href="@{/logout}" onclick="return confirm('Bạn có chắc muốn đăng xuất không?')">
             <i class="fas fa-sign-out-alt"></i> Đăng xuất
           </a>
@@ -36,7 +39,7 @@
         Vật Tư Y Tế ABC
       </a>
       <div class="search-bar">
-        <form th:action="@{/search}" method="get">
+        <form th:action="@{/products}" method="get">
           <input type="text" name="keyword" placeholder="Tìm kiếm vật tư y tế..." th:value="${keyword}">
           <button type="submit"><i class="fas fa-search"></i></button>
         </form>
@@ -51,7 +54,7 @@
     </div>
   </header>
 
-  <!-- Navigation - FIXED -->
+  <!-- Navigation -->
   <nav>
     <div class="container">
       <ul>
@@ -60,7 +63,7 @@
         <!-- TẤT CẢ SẢN PHẨM -->
         <li><a th:href="@{/products}">Sản phẩm</a></li>
 
-        <!-- DANH MỤC CỤ THỂ -->
+        <!-- DANH MỤC CỤ THỂ - Kiểm tra lại categoryId trong database -->
         <li><a th:href="@{/products(categoryId=1)}">Thiết bị y tế</a></li>
         <li><a th:href="@{/products(categoryId=3)}">Máy đo sức khỏe</a></li>
         <li><a th:href="@{/products(categoryId=5)}">Khẩu trang</a></li>
@@ -114,6 +117,11 @@
       color: white;
       text-decoration: none;
       margin-left: 20px;
+      transition: opacity 0.3s;
+    }
+
+    .top-header a:hover {
+      opacity: 0.8;
     }
 
     /* Main Header */
