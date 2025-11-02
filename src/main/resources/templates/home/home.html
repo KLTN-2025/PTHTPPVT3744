@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vật Tư Y Tế ABC - Cung cấp thiết bị y tế chất lượng</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -111,6 +113,7 @@
             align-items: center;
             gap: 5px;
             font-size: 14px;
+            position: relative;
         }
 
         .header-actions i {
@@ -124,8 +127,22 @@
             border-radius: 50%;
             padding: 2px 6px;
             font-size: 11px;
-            position: relative;
-            top: -5px;
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            min-width: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
         }
 
         /* Navigation */
@@ -471,16 +488,65 @@
             background: #0066cc;
             color: white;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-add-cart:hover {
+        .btn-add-cart:hover:not(:disabled) {
             background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-add-cart:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-add-cart:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-add-cart.adding {
+            background: #4CAF50;
+            pointer-events: none;
+        }
+
+        .btn-add-cart .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-add-cart.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-add-cart.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Blog Section */
@@ -665,6 +731,90 @@
             margin-bottom: 20px;
         }
 
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .notification-toast.error {
+            border-left-color: #ff4444;
+        }
+
+        .notification-toast .icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-toast.success .icon {
+            color: #4CAF50;
+        }
+
+        .notification-toast.error .icon {
+            color: #ff4444;
+        }
+
+        .notification-toast .content {
+            flex: 1;
+        }
+
+        .notification-toast .title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notification-toast .message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .notification-toast .close {
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+
+        .notification-toast .close:hover {
+            color: #333;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-header .container {
                 flex-wrap: wrap;
@@ -683,118 +833,33 @@
             .slide p {
                 font-size: 16px;
             }
-        }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
+            .notification-toast {
+                right: 10px;
+                left: 10px;
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
-
-<!-- Top Header -->
-<div class="top-header">
-    <div class="container">
-        <div>
-            <i class="fas fa-phone"></i> Hotline: 1900-xxxx
-            <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
-        </div>
-        <div>
-            <!-- Nếu CHƯA đăng nhập -->
-            <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/auth/login}"><i class="fas fa-user"></i> Đăng nhập</a>
-                <a th:href="@{/auth/register}"><i class="fas fa-user-plus"></i> Đăng ký</a>
-            </div>
-
-            <!-- Nếu ĐÃ đăng nhập -->
-            <div sec:authorize="isAuthenticated()">
-        <span>
-            <i class="fas fa-user-circle"></i>
-            Xin chào, <b sec:authentication="name"></b>
-        </span>
-                <a th:href="@{/logout}" onclick="return confirm('Bạn có chắc muốn đăng xuất không?')">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Main Header -->
-<header class="main-header">
-    <div class="container">
-        <a th:href="@{/}" class="logo">
-            <i class="fas fa-heartbeat"></i>
-            Vật Tư Y Tế ABC
-        </a>
-        <div class="search-bar">
-            <form th:action="@{/search}" method="get">
-                <input type="text" name="keyword" placeholder="Tìm kiếm vật tư y tế..." th:value="${keyword}">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
-        <div class="header-actions">
-            <a th:href="@{/support}"><i class="fas fa-phone-alt"></i> Hỗ trợ</a>
-            <a th:href="@{/cart}">
-                <i class="fas fa-shopping-cart"></i> Giỏ hàng
-                <span class="cart-badge" id="cartBadge">0</span>
-            </a>
-        </div>
-    </div>
-</header>
-
-<!-- Navigation -->
-<nav>
-    <div class="container">
-        <ul>
-            <li><a th:href="@{/}">Trang chủ</a></li>
-            <li><a th:href="@{/products}">Sản phẩm</a></li>
-            <li><a th:href="@{/products}">Thiết bị y tế</a></li>
-            <li><a th:href="@{/products(category='consumables')}">Vật tư tiêu hao</a></li>
-            <li><a th:href="@{/products(category='surgical')}">Dụng cụ phẫu thuật</a></li>
-            <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
-            <li><a th:href="@{/contact}">Liên hệ</a></li>
-        </ul>
-    </div>
-</nav>
-
+<!-- Include Header (từ home.html) -->
+<div th:insert="~{frontend-fragments/header :: header}"></div>
 <!-- Banner Slider -->
 <section class="banner-slider">
-    <!-- Banners from database -->
     <th:block th:if="${!#lists.isEmpty(banners)}">
         <div th:each="banner, iterStat : ${banners}"
              th:class="${iterStat.index == 0 ? 'slide active' : 'slide'}">
-            <!-- If banner has an image, use it as background -->
             <div th:if="${banner.imageUrl != null}"
                  th:style="|background-image: url('${banner.imageUrl}'); background-size: cover; background-position: center;|">
                 <div class="slide-content">
                     <h2 th:text="${banner.title}">Banner Title</h2>
-                    <!-- description and buttonText are not fields on Banner model; use static/fallback content -->
                     <p></p>
                     <a th:href="${banner.linkUrl != null ? banner.linkUrl : '#products'}" class="btn-primary">
                         <span th:text="'Xem ngay'">Xem ngay</span>
                     </a>
                 </div>
             </div>
-            <!-- Fallback when no image: use default gradient -->
             <div th:if="${banner.imageUrl == null}"
                  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="slide-content">
@@ -806,7 +871,6 @@
                 </div>
             </div>
         </div>
-
         <div class="slider-dots">
             <span th:each="banner, iterStat : ${banners}"
                   th:class="${iterStat.index == 0 ? 'dot active' : 'dot'}"
@@ -814,7 +878,6 @@
         </div>
     </th:block>
 
-    <!-- Default banners if no data -->
     <th:block th:if="${#lists.isEmpty(banners)}">
         <div class="slide active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div class="slide-content">
@@ -837,7 +900,6 @@
                 <a href="#products" class="btn-primary">Mua ngay</a>
             </div>
         </div>
-
         <div class="slider-dots">
             <span class="dot active" data-slide="0"></span>
             <span class="dot" data-slide="1"></span>
@@ -866,7 +928,6 @@
 <section class="categories">
     <div class="container">
         <h2 class="section-title">Danh mục sản phẩm</h2>
-
         <div class="category-grid" th:if="${!#lists.isEmpty(categories)}">
             <a th:each="category : ${categories}"
                th:href="@{/products(categoryId=${category.categoryId})}"
@@ -876,7 +937,6 @@
             </a>
         </div>
 
-        <!-- Default categories if no data -->
         <div class="category-grid" th:if="${#lists.isEmpty(categories)}">
             <a href="#" class="category-card">
                 <i class="fas fa-stethoscope"></i>
@@ -948,24 +1008,26 @@
                             0 đ
                         </span>
                     </div>
-
                     <div class="product-stock">
                         <i class="fas fa-box"></i>
-                        <span th:text="${product.status == 'Còn_hàng' ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</span>
+                        <span th:text="${product.status.displayName}">Còn hàng</span>
                     </div>
 
                     <button class="btn-add-cart"
                             th:attr="data-id=${product.deviceId},
-                                     data-name=${product.name},
-                                     data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
-                            th:disabled="${product.status != 'Còn_hàng'}">
-                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                            data-name=${product.name},
+                            data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
+                            th:disabled="${product.status.name() != 'Còn_hàng'}">
+                        <i class="fas fa-cart-plus"></i>
+                        <span th:text="${product.status.name() == 'Còn_hàng' ? 'Thêm vào giỏ' : product.status.displayName}">
+                            Thêm vào giỏ
+                        </span>
                     </button>
+
                 </div>
             </div>
         </div>
 
-        <!-- Empty state -->
         <div class="empty-state" th:if="${#lists.isEmpty(featuredProducts)}">
             <i class="fas fa-box-open"></i>
             <h3>Chưa có sản phẩm nổi bật</h3>
@@ -990,12 +1052,12 @@
 
                 <div class="product-info">
                     <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
-                    <h4 th:text="${product.name}">Product Name</h4>
+                    <h4 th:text="${product.name}"></h4>
 
                     <div class="product-rating" th:if="${product.averageRating != null}">
                         <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>
                         <span class="review-count" th:if="${product.totalReviews != null && product.totalReviews > 0}">
-                                (<span th:text="${product.totalReviews}">0</span> đánh giá)
+                            (<span th:text="${product.totalReviews}">0</span> đánh giá)
                         </span>
                     </div>
 
@@ -1013,21 +1075,25 @@
 
                     <div class="product-stock">
                         <i class="fas fa-box"></i>
-                        <span th:text="${product.status == 'Còn_hàng' ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</span>
+                        <span th:text="${product.status.displayName}">Còn hàng</span>
                     </div>
 
                     <button class="btn-add-cart"
                             th:attr="data-id=${product.deviceId},
-                                     data-name=${product.name},
-                                     data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
-                            th:disabled="${product.status != 'Còn_hàng'}">
-                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                 data-name=${product.name},
+                 data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)}"
+                            th:disabled="${product.status.name() != 'Còn_hàng'}">
+                        <i class="fas fa-cart-plus"></i>
+                        <span th:text="${product.status.name() == 'Còn_hàng' ? 'Thêm vào giỏ' : product.status.displayName}">
+        Thêm vào giỏ
+    </span>
                     </button>
+
+
                 </div>
             </div>
         </div>
 
-        <!-- Empty state -->
         <div class="empty-state" th:if="${#lists.isEmpty(newProducts)}">
             <i class="fas fa-box-open"></i>
             <h3>Chưa có sản phẩm mới</h3>
@@ -1067,48 +1133,9 @@
             </div>
         </div>
 
-        <!-- Default blog posts if no data -->
-        <div class="blog-grid" th:if="${#lists.isEmpty(blogPosts)}">
-            <div class="blog-card">
-                <div class="blog-image">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="blog-content">
-                    <h3>Cách sử dụng máy đo huyết áp đúng cách</h3>
-                    <p class="blog-excerpt">Hướng dẫn chi tiết cách đo huyết áp tại nhà để có kết quả chính xác
-                        nhất...</p>
-                    <div class="blog-meta">
-                        <span><i class="fas fa-user"></i> Bác sĩ Nguyễn Văn A</span>
-                        <span><i class="fas fa-calendar"></i> 25/10/2024</span>
-                    </div>
-                </div>
-            </div>
-            <div class="blog-card">
-                <div class="blog-image">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="blog-content">
-                    <h3>Tầm quan trọng của việc vệ sinh dụng cụ y tế</h3>
-                    <p class="blog-excerpt">Các bước vệ sinh và bảo quản dụng cụ y tế tại nhà một cách an toàn...</p>
-                    <div class="blog-meta">
-                        <span><i class="fas fa-user"></i> Dược sĩ Trần Thị B</span>
-                        <span><i class="fas fa-calendar"></i> 23/10/2024</span>
-                    </div>
-                </div>
-            </div>
-            <div class="blog-card">
-                <div class="blog-image">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="blog-content">
-                    <h3>Chọn mua vật tư y tế chất lượng cho gia đình</h3>
-                    <p class="blog-excerpt">Những tiêu chí quan trọng khi lựa chọn vật tư y tế gia đình...</p>
-                    <div class="blog-meta">
-                        <span><i class="fas fa-user"></i> Ths. Lê Văn C</span>
-                        <span><i class="fas fa-calendar"></i> 20/10/2024</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Khi không có bài viết nào -->
+        <div class="empty-message" th:if="${#lists.isEmpty(blogPosts)}">
+            <p>Chưa có bài viết nào được đăng.</p>
         </div>
     </div>
 </section>
@@ -1212,7 +1239,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    // Slider functionality
+    // ==================== SLIDER FUNCTIONALITY ====================
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
@@ -1233,121 +1260,269 @@
         showSlide(currentSlide + 1);
     }
 
-    // Auto slide every 5 seconds
     if (slides.length > 0) {
         setInterval(nextSlide, 5000);
     }
 
-    // Dot navigation
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => showSlide(index));
     });
 
-    // Cart functionality (using sessionStorage instead of localStorage)
-    let cart = [];
+    // ==================== CART MANAGEMENT ====================
+    class CartManager {
+        constructor() {
+            this.cart = [];
+            this.loadCart();
+        }
 
-    // Load cart from sessionStorage on page load
-    function loadCart() {
-        const cartData = sessionStorage.getItem('cart');
-        if (cartData) {
+        loadCart() {
+            const cartData = sessionStorage.getItem('medicalCart');
+            if (cartData) {
+                try {
+                    this.cart = JSON.parse(cartData);
+                } catch (e) {
+                    console.error('Error loading cart:', e);
+                    this.cart = [];
+                }
+            }
+            this.updateBadge();
+        }
+
+        saveCart() {
             try {
-                cart = JSON.parse(cartData);
+                sessionStorage.setItem('medicalCart', JSON.stringify(this.cart));
+                this.updateBadge();
             } catch (e) {
-                cart = [];
+                console.error('Error saving cart:', e);
             }
         }
-        updateCartBadge();
-    }
 
-    // Save cart to sessionStorage
-    function saveCart() {
-        sessionStorage.setItem('cart', JSON.stringify(cart));
-        updateCartBadge();
-    }
-
-    // Update cart badge
-    function updateCartBadge() {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        const badge = document.getElementById('cartBadge');
-        if (badge) {
-            badge.textContent = totalItems;
-        }
-    }
-
-    // Add to cart functionality
-    document.addEventListener('click', function (e) {
-        if (e.target.closest('.btn-add-cart')) {
-            const button = e.target.closest('.btn-add-cart');
-
-            // Check if button is disabled
-            if (button.disabled) {
-                showNotification('Sản phẩm hiện đang hết hàng!', 'error');
-                return;
-            }
-
-            const productId = button.dataset.id;
-            const productName = button.dataset.name;
-            const productPrice = parseFloat(button.dataset.price);
-
-            // Check if product already in cart
-            const existingItem = cart.find(item => item.id === productId);
+        addItem(product) {
+            const existingItem = this.cart.find(item => item.id === product.id);
 
             if (existingItem) {
                 existingItem.quantity += 1;
+                return {
+                    success: true,
+                    message: `Đã tăng số lượng "${product.name}" lên ${existingItem.quantity}`,
+                    isUpdate: true
+                };
             } else {
-                cart.push({
-                    id: productId,
-                    name: productName,
-                    price: productPrice,
-                    quantity: 1
+                this.cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image || null,
+                    quantity: 1,
+                    addedAt: new Date().toISOString()
                 });
+                return {
+                    success: true,
+                    message: `Đã thêm "${product.name}" vào giỏ hàng`,
+                    isUpdate: false
+                };
             }
+        }
 
-            // Save to sessionStorage
-            saveCart();
+        removeItem(productId) {
+            const index = this.cart.findIndex(item => item.id === productId);
+            if (index !== -1) {
+                const removedItem = this.cart.splice(index, 1)[0];
+                this.saveCart();
+                return {
+                    success: true,
+                    message: `Đã xóa "${removedItem.name}" khỏi giỏ hàng`
+                };
+            }
+            return {
+                success: false,
+                message: 'Không tìm thấy sản phẩm'
+            };
+        }
+
+        updateQuantity(productId, quantity) {
+            const item = this.cart.find(item => item.id === productId);
+            if (item) {
+                if (quantity <= 0) {
+                    return this.removeItem(productId);
+                }
+                item.quantity = quantity;
+                this.saveCart();
+                return {
+                    success: true,
+                    message: 'Đã cập nhật số lượng'
+                };
+            }
+            return {
+                success: false,
+                message: 'Không tìm thấy sản phẩm'
+            };
+        }
+
+        getTotalItems() {
+            return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        getTotalPrice() {
+            return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+
+        updateBadge() {
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                const total = this.getTotalItems();
+                badge.textContent = total;
+                badge.style.animation = 'pulse 0.5s';
+                setTimeout(() => {
+                    badge.style.animation = '';
+                }, 500);
+            }
+        }
+
+        clearCart() {
+            this.cart = [];
+            this.saveCart();
+        }
+    }
+
+    // Initialize cart manager
+    const cartManager = new CartManager();
+
+    // ==================== NOTIFICATION SYSTEM ====================
+    class NotificationManager {
+        constructor() {
+            this.container = null;
+            this.queue = [];
+            this.isShowing = false;
+        }
+
+        show(message, type = 'success', title = null) {
+            const notification = {
+                message,
+                type,
+                title: title || (type === 'success' ? 'Thành công!' : 'Thông báo'),
+                id: Date.now()
+            };
+
+            this.queue.push(notification);
+            this.processQueue();
+        }
+
+        processQueue() {
+            if (this.isShowing || this.queue.length === 0) return;
+
+            this.isShowing = true;
+            const notification = this.queue.shift();
+            this.display(notification);
+        }
+
+        display(notification) {
+            const toast = document.createElement('div');
+            toast.className = `notification-toast ${notification.type}`;
+            toast.innerHTML = `
+                <i class="icon fas ${notification.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <div class="content">
+                    <div class="title">${notification.title}</div>
+                    <div class="message">${notification.message}</div>
+                </div>
+                <i class="close fas fa-times"></i>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Close button
+            const closeBtn = toast.querySelector('.close');
+            closeBtn.addEventListener('click', () => {
+                this.remove(toast);
+            });
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                this.remove(toast);
+            }, 4000);
+        }
+
+        remove(toast) {
+            toast.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                toast.remove();
+                this.isShowing = false;
+                this.processQueue();
+            }, 300);
+        }
+    }
+
+    const notificationManager = new NotificationManager();
+
+    // ==================== ADD TO CART FUNCTIONALITY ====================
+    document.addEventListener('click', async function (e) {
+        const button = e.target.closest('.btn-add-cart');
+        if (!button) return;
+
+        // Prevent if disabled
+        if (button.disabled || button.classList.contains('loading')) {
+            notificationManager.show('Sản phẩm hiện đang hết hàng!', 'error', 'Không thể thêm');
+            return;
+        }
+
+        // Get product data
+        const productData = {
+            id: button.dataset.id,
+            name: button.dataset.name,
+            price: parseFloat(button.dataset.price),
+            image: button.dataset.image
+        };
+
+        // Validate data
+        if (!productData.id || !productData.name || isNaN(productData.price)) {
+            notificationManager.show('Thông tin sản phẩm không hợp lệ', 'error', 'Lỗi');
+            return;
+        }
+
+        // Show loading state
+        button.classList.add('loading');
+        button.disabled = true;
+
+        // Simulate API call (remove this in production)
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Add to cart
+        const result = cartManager.addItem(productData);
+
+        if (result.success) {
+            cartManager.saveCart();
+
+            // Show success animation
+            button.classList.remove('loading');
+            button.classList.add('adding');
 
             // Show notification
-            showNotification(`Đã thêm "${productName}" vào giỏ hàng!`, 'success');
+            notificationManager.show(
+                result.message,
+                'success',
+                result.isUpdate ? 'Đã cập nhật' : 'Thành công!'
+            );
+
+            // Reset button after animation
+            setTimeout(() => {
+                button.classList.remove('adding');
+                button.disabled = false;
+            }, 1000);
+        } else {
+            button.classList.remove('loading');
+            button.disabled = false;
+            notificationManager.show(result.message || 'Có lỗi xảy ra', 'error', 'Lỗi');
         }
     });
 
-    // Show notification
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        const bgColor = type === 'success' ? '#4CAF50' : '#ff4444';
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-
-        notification.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: ${bgColor};
-            color: white;
-            padding: 15px 25px;
-            border-radius: 5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 10000;
-            animation: slideIn 0.3s ease-out;
-            max-width: 350px;
-        `;
-        notification.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    // Initialize cart on page load
-    loadCart();
-
-    // Smooth scroll
+    // ==================== SMOOTH SCROLL ====================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',
@@ -1357,8 +1532,22 @@
         });
     });
 
+    // ==================== UTILITY FUNCTIONS ====================
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(price);
+    }
+
+    // Expose cart manager globally for debugging (remove in production)
+    window.cartManager = cartManager;
+    window.notificationManager = notificationManager;
+
+    console.log('Cart system initialized successfully');
+    console.log('Current cart items:', cartManager.getTotalItems());
+
     /*]]>*/
 </script>
 </body>
 </html>
-
