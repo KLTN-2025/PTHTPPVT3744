@@ -1,12 +1,16 @@
 package com.example.do_an_tot_nghiep.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.example.do_an_tot_nghiep.dto.*;
 import com.example.do_an_tot_nghiep.security.EmployeeDetails;
 import com.example.do_an_tot_nghiep.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,54 +27,69 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final DashboardService dashboardService;
-    private final OrderService orderService;
-    private final CustomerService customerService;
-    private final EmployeeService employeeService;
-    private final MedicalDeviceService deviceService;
-    private final NotificationService notificationService;
+    @Autowired
+    private DashboardService dashboardService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private MedicalDeviceService deviceService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/dashboard")
     public String dashboard(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal EmployeeDetails currentEmployee,
             Model model) {
 
-        // ✅ Lấy thông tin nhân viên đăng nhập hiện tại
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        EmployeeDetails currentEmployee = null;
-        if (authentication != null && authentication.getPrincipal() instanceof EmployeeDetails employeeDetails) {
-            currentEmployee = employeeDetails;
+        // Set default date range if not provided (last 30 days)
+        if (startDate == null) {
+            startDate = LocalDate.now().minusDays(30);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
         }
 
-        LocalDate now = LocalDate.now();
-        if (startDate == null) startDate = now.minusDays(30);
-        if (endDate == null) endDate = now;
-
+        // Convert to LocalDateTime for queries
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
+        // Get dashboard statistics
         DashboardStatisticsDTO stats = dashboardService.getDashboardStatistics(startDateTime, endDateTime);
+
+        // Get revenue data for chart
         Map<String, BigDecimal> revenueData = dashboardService.getRevenueByDateRange(startDateTime, endDateTime);
+
+        // Get order status data for pie chart
         Map<String, Long> orderStatusData = dashboardService.getOrderStatusCounts();
 
-        List<OrderResponse> recentOrders = Optional.ofNullable(orderService.getRecentOrders(10))
-                .orElse(Collections.emptyList());
-        List<CustomerDTO> topCustomers = Optional.ofNullable(customerService.getTopCustomers(10))
-                .orElse(Collections.emptyList());
-        List<MedicalDeviceDTO> lowStockProducts = Optional.ofNullable(deviceService.getLowStockProducts())
-                .orElse(Collections.emptyList());
+        // Get recent orders
+        List<OrderResponse> recentOrders = orderService.getRecentOrders(10);
 
+        // Get top customers (VIP)
+        List<CustomerDTO> topCustomers = customerService.getTopCustomers(10);
+
+        // Get low stock products
+        List<MedicalDeviceDTO> lowStockProducts = deviceService.getLowStockProducts();
+
+        // Get pending orders count for sidebar badge
         Long pendingOrders = dashboardService.getPendingOrdersCount();
-        Long unreadNotifications = 0L;
 
-        if (currentEmployee != null) {
-            unreadNotifications = notificationService.getUnreadCountByEmployee(currentEmployee.getEmployeeId());
-        }
+        // Get unread notifications count
+        Long unreadNotifications = notificationService.getUnreadCountByEmployee(currentEmployee.getEmployeeId());
 
-        if (currentEmployee != null) {
-            model.addAttribute("currentEmployee", currentEmployee.getEmployee());
-        }
+        // Add data to model
+        model.addAttribute("currentEmployee", currentEmployee);
         model.addAttribute("stats", stats);
         model.addAttribute("revenueData", revenueData);
         model.addAttribute("orderStatusData", orderStatusData);
@@ -82,7 +101,6 @@ public class DashboardController {
         model.addAttribute("lowStockCount", lowStockProducts.size());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-
         return "admin/dashboard";
     }
 
@@ -90,4 +108,5 @@ public class DashboardController {
     public String redirectToDashboard() {
         return "redirect:/admin/dashboard";
     }
+
 }

@@ -1,6 +1,7 @@
 package com.example.do_an_tot_nghiep.security;
 
 import com.example.do_an_tot_nghiep.model.Employee;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,8 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
 public class EmployeeDetails implements UserDetails {
-    private final Employee employee;
+
     private final Integer employeeId;
     private final String username;
     private final String password;
@@ -22,7 +24,6 @@ public class EmployeeDetails implements UserDetails {
     private final boolean enabled;
 
     public EmployeeDetails(Employee employee) {
-        this.employee = employee;
         this.employeeId = employee.getEmployeeId();
         this.username = employee.getUsername();
         this.password = employee.getPasswordHash();
@@ -30,17 +31,10 @@ public class EmployeeDetails implements UserDetails {
         this.email = employee.getEmail();
         this.position = employee.getPosition();
         this.avatarUrl = employee.getAvatarUrl();
-
-        if (employee.getRole() != null && employee.getRole().getRoleName() != null) {
-            this.roleName = employee.getRole().getRoleName();
-            this.authorities = Collections.singletonList(
-                    new SimpleGrantedAuthority("ROLE_" + employee.getRole().getRoleName().toUpperCase())
-            );
-        } else {
-            this.roleName = "UNKNOWN";
-            this.authorities = Collections.emptyList();
-        }
-
+        this.roleName = employee.getRole().getRoleName();
+        this.authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + employee.getRole().getRoleName().toUpperCase())
+        );
         this.enabled = employee.getStatus() == Employee.EmployeeStatus.ACTIVE;
     }
 
@@ -66,7 +60,7 @@ public class EmployeeDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // ✅ tránh lỗi 500 khi tài khoản bị "inactive"
+        return enabled;
     }
 
     @Override
@@ -77,16 +71,5 @@ public class EmployeeDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public Integer getEmployeeId() {
-        return employeeId;
-    }
-    public String getFullName() { return fullName; }
-    public String getRoleName() { return roleName; }
-    public String getAvatarUrl() { return avatarUrl; }
-
-    public Employee getEmployee() {
-        return employee;
     }
 }
