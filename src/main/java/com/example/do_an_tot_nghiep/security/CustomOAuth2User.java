@@ -28,13 +28,13 @@ public class CustomOAuth2User implements OAuth2User, UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         // Mặc định là CUSTOMER
-        authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        authorities.add(new SimpleGrantedAuthority("CUSTOMER"));
 
         // Nếu email là admin (hoặc có field role trong Customer)
         if (customer.getEmail() != null &&
                 (customer.getEmail().endsWith("@admin.com") ||
                         customer.getEmail().equals("admin@example.com"))) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ADMIN"));
         }
 
         return authorities;
