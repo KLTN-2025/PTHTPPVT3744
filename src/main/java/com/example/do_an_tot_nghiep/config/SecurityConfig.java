@@ -63,10 +63,10 @@ public class SecurityConfig {
                         .requestMatchers("/contact/my-messages", "/contact/message/**").authenticated()
 
                         // Admin area - ADMIN/MANAGER/STAFF only
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF", "ROLE_WAREHOUSE")
 
                         // User area - CUSTOMER only
-                        .requestMatchers("/user/**").hasRole("CUSTOMER")
+                        .requestMatchers("/user/**").hasAuthority("ROLE_CUSTOMER")
 
                         // Các request còn lại cần authenticate
                         .anyRequest().authenticated()

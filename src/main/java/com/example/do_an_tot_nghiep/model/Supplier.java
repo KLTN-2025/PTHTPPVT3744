@@ -45,7 +45,7 @@ public class Supplier {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private SupplierStatus status = SupplierStatus.Active;
+    private SupplierStatus status = SupplierStatus.ACTIVE;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -65,6 +65,8 @@ public class Supplier {
     }
 
     public enum SupplierStatus {
-        Active, Inactive
+        ACTIVE,
+        INACTIVE,
+        SUSPENDED
     }
 }

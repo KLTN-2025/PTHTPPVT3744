@@ -460,48 +460,48 @@
         </div>
     </nav>
 
-    <!-- Modal xác nhận đăng xuất -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="logoutModalLabel">
-                        <i class="fas fa-sign-out-alt"></i> Xác nhận đăng xuất
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    <p style="margin: 0; font-size: 16px;">
-                        Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Hủy
-                    </button>
-                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--    &lt;!&ndash; Modal xác nhận đăng xuất &ndash;&gt;-->
+<!--    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-dialog-centered">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header bg-danger text-white">-->
+<!--                    <h5 class="modal-title" id="logoutModalLabel">-->
+<!--                        <i class="fas fa-sign-out-alt"></i> Xác nhận đăng xuất-->
+<!--                    </h5>-->
+<!--                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <p style="margin: 0; font-size: 16px;">-->
+<!--                        Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">-->
+<!--                        <i class="fas fa-times"></i> Hủy-->
+<!--                    </button>-->
+<!--                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">-->
+<!--                        <button type="submit" class="btn btn-danger">-->
+<!--                            <i class="fas fa-sign-out-alt"></i> Đăng xuất-->
+<!--                        </button>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
-    <!-- Toast Notification -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 10000">
-        <div id="logoutToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-             aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-check-circle"></i> Bạn đã đăng xuất thành công!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
+<!--    &lt;!&ndash; Toast Notification &ndash;&gt;-->
+<!--    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 10000">-->
+<!--        <div id="logoutToast" class="toast align-items-center text-white bg-success border-0" role="alert"-->
+<!--             aria-live="assertive" aria-atomic="true">-->
+<!--            <div class="d-flex">-->
+<!--                <div class="toast-body">-->
+<!--                    <i class="fas fa-check-circle"></i> Bạn đã đăng xuất thành công!-->
+<!--                </div>-->
+<!--                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"-->
+<!--                        aria-label="Close"></button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <!-- Bootstrap JS - Load before custom scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
