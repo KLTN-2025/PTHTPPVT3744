@@ -1,13 +1,19 @@
 package com.example.do_an_tot_nghiep.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.do_an_tot_nghiep.dto.MedicalDeviceDTO;
 import com.example.do_an_tot_nghiep.model.MedicalDevice;
 import com.example.do_an_tot_nghiep.repository.IMedicalDeviceRepository;
 import com.example.do_an_tot_nghiep.repository.IReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +22,8 @@ public class MedicalDeviceService implements IMedicalDeviceService {
     private IMedicalDeviceRepository deviceRepository;
     @Autowired
     private IReviewRepository reviewRepository;
+    @Autowired
+    private Cloudinary cloudinary;
 
     @Override
     public List<MedicalDeviceDTO> getLowStockProducts() {
@@ -56,5 +64,19 @@ public class MedicalDeviceService implements IMedicalDeviceService {
                 .isFeatured(device.getIsFeatured())
                 .isNew(device.getIsNew())
                 .build();
+    }
+    public MedicalDevice uploadAndSaveGallery(String deviceId, MultipartFile[] files) throws IOException {
+        MedicalDevice device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm: " + deviceId));
+
+        List<String> urls = new ArrayList<>();
+        for (MultipartFile file : files) {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "medical_devices/" + deviceId));
+            urls.add(uploadResult.get("url").toString());
+        }
+
+        device.setGalleryUrlList(urls);
+        return deviceRepository.save(device);
     }
 }

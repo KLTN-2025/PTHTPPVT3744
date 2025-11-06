@@ -157,5 +157,12 @@ public class MedicalDevice {
                 .filter(r -> r.getStatus() == Review.ReviewStatus.APPROVED)
                 .count();
     }
+    public List<String> getGalleryUrlList() {
+        if (galleryUrls == null || galleryUrls.isEmpty()) return new ArrayList<>();
+        return List.of(galleryUrls.split(","));
+    }
 
+    public void setGalleryUrlList(List<String> urls) {
+        this.galleryUrls = String.join(",", urls);
+    }
 }
