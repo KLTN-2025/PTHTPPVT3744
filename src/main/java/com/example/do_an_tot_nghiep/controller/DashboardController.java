@@ -68,9 +68,6 @@ public class DashboardController {
             unreadNotifications = notificationService.getUnreadCountByEmployee(currentEmployee.getEmployeeId());
         }
 
-        if (currentEmployee != null) {
-            model.addAttribute("currentEmployee", currentEmployee.getEmployee());
-        }
         model.addAttribute("stats", stats);
         model.addAttribute("revenueData", revenueData);
         model.addAttribute("orderStatusData", orderStatusData);

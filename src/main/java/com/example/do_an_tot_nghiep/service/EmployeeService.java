@@ -211,6 +211,11 @@ public class EmployeeService implements IEmployeeService {
         return employeeRepository.findByUsername(username).isPresent();
     }
 
+    @Override
+    public Employee findByEmployeeId(Integer employeeId) {
+        return employeeRepository.findById(employeeId).orElse(null);
+    }
+
     @Transactional
     @Override
     public void deleteEmployee(Integer id) {

@@ -80,7 +80,7 @@ public class EmployeeDetails implements UserDetails {
     }
 
     public Integer getEmployeeId() {
-        return employeeId;
+        return employee != null ? employee.getEmployeeId() : null;
     }
     public String getFullName() { return fullName; }
     public String getRoleName() { return roleName; }

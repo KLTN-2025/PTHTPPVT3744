@@ -2,6 +2,7 @@ package com.example.do_an_tot_nghiep.service;
 
 import com.example.do_an_tot_nghiep.dto.EmployeeDTO;
 import com.example.do_an_tot_nghiep.dto.RoleDTO;
+import com.example.do_an_tot_nghiep.model.Employee;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -51,4 +52,6 @@ public interface IEmployeeService {
     boolean existsByEmail(@NotBlank(message = "Email không được để trống") @Email(message = "Email không hợp lệ") String email);
 
     boolean existsByUsername(@NotBlank(message = "Tên đăng nhập không được để trống") @Size(min = 4, max = 100, message = "Tên đăng nhập phải từ 4-100 ký tự") String username);
+
+    Employee findByEmployeeId(Integer employeeId);
 }
