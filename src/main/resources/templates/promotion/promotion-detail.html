@@ -58,7 +58,7 @@
         /* Promotion Banner */
         .promotion-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 50px 0;
+            padding: 50px 30px;
             color: white;
             margin-bottom: 30px;
             border-radius: 10px;
@@ -66,7 +66,7 @@
 
         .banner-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 40px;
             align-items: center;
         }
@@ -337,9 +337,12 @@
         <div class="banner-content">
             <div>
                 <div class="banner-discount">
-                    <span th:text="${promotion.discountValue}">0</span>
+                    <span th:if="${promotion.discountType == 'Percent'}" th:text="${promotion.discountValue}">0</span>
+                    <span th:if="${promotion.discountType == 'Fixed'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+                    <span th:if="${promotion.discountType == 'FreeShip'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
                     <span th:if="${promotion.discountType == 'Percent'}">%</span>
                     <span th:if="${promotion.discountType == 'Fixed'}">đ</span>
+                    <span th:if="${promotion.discountType == 'FreeShip'}">đ</span>
                 </div>
                 <div class="banner-name" th:text="${promotion.name}">
                     Promotion Name

@@ -371,9 +371,12 @@
             <!-- Header với discount -->
             <div class="promotion-card-header">
               <div class="promotion-discount">
-                <span th:text="${promotion.discountValue}">0</span>
+                <span th:if="${promotion.discountType == 'Percent'}" th:text="${promotion.discountValue}">0</span>
+                <span th:if="${promotion.discountType == 'Fixed'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+                <span th:if="${promotion.discountType == 'FreeShip'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
                 <span th:if="${promotion.discountType == 'Percent'}">%</span>
                 <span th:if="${promotion.discountType == 'Fixed'}">đ</span>
+                <span th:if="${promotion.discountType == 'FreeShip'}">đ</span>
               </div>
               <div class="promotion-type" th:text="${promotion.discountType == 'Percent' ? 'Giảm giá %' : (promotion.discountType == 'Fixed' ? 'Giảm tiền' : 'Miễn phí ship')}">
                 Giảm giá
