@@ -3,6 +3,8 @@ package com.example.do_an_tot_nghiep.service;
 import com.example.do_an_tot_nghiep.dto.CustomerDTO;
 import com.example.do_an_tot_nghiep.dto.CustomerRegistrationRequest;
 import com.example.do_an_tot_nghiep.model.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -25,4 +27,13 @@ public interface ICustomerService {
     // ✅ Thêm methods mới
     CustomerDTO setPassword(Integer customerId, String newPassword);
     void updateLastLogin(Integer customerId);
+
+    Page<Customer> findAll(PageRequest of);
+
+
+    Page<Customer> findCustomers(String keyword, String tier, String status, int page, int pageSize);
+
+    void deleteCustomerById(Integer id);
+
+    void deleteCustomers(List<Integer> ids);
 }

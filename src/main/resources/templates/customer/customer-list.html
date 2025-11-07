@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Quản lý khách hàng</title>
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #293a58;
+            border-color: #293a58;
+        }
+        .page-link {
+            color: #293a58;
+        }
+        .page-link:hover {
+            background-color: #e9ecef;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+<h1 layout:fragment="page-title">👥 Quản lý Khách Hàng</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item active">Khách hàng</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+
+        <!-- Bộ lọc -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <form class="form-inline" th:action="@{/admin/customers}" method="get">
+                    <input type="text" name="keyword" class="form-control mr-2 mb-2"
+                           placeholder="Tìm theo tên, email hoặc SĐT"
+                           th:value="${keyword}" style="min-width:250px;">
+                    <select name="tier" class="form-control mr-2 mb-2">
+                        <option value="">-- Hạng thành viên --</option>
+                        <option th:each="tier : ${tiers}"
+                                th:value="${tier.name()}"
+                                th:text="${tier.value}"
+                                th:selected="${tier.name() == selectedTier}"></option>
+                    </select>
+                    <select name="status" class="form-control mr-2 mb-2">
+                        <option value="">-- Trạng thái --</option>
+                        <option th:each="s : ${statuses}"
+                                th:value="${s.name()}"
+                                th:text="${s.value}"
+                                th:selected="${s.name() == selectedStatus}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary mr-2 mb-2">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                    <a href="/admin/customers" class="btn btn-secondary mb-2">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                    <a href="/admin/customers/add" class="btn btn-success ml-auto mb-2">
+                        <i class="fas fa-plus"></i> Thêm khách hàng
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Danh sách khách hàng -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">
+                    Danh sách khách hàng
+                    <span class="badge badge-primary ml-2" th:text="${totalItems}">0</span>
+                </h3>
+
+                <button id="btnDeleteSelected" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash-alt"></i> Xóa đã chọn
+                </button>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover align-middle text-nowrap">
+                    <thead class="thead-light">
+                    <tr>
+                        <th><input type="checkbox" id="checkAll"></th>
+                        <th>#</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>SĐT</th>
+                        <th>Hạng</th>
+                        <th>Điểm</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c, stat : ${customers}">
+                        <td><input type="checkbox" class="row-check" th:value="${c.customerId}"></td>
+                        <td th:text="${stat.count}"></td>
+                        <td th:text="${c.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${c.email}">email@gmail.com</td>
+                        <td th:text="${c.phone}">0123456789</td>
+                        <td>
+                            <span class="badge"
+                                  th:text="${c.customerTier.value}"
+                                  th:classappend="${c.customerTier.name() == 'BRONZE' ? 'badge-secondary' :
+                                                   (c.customerTier.name() == 'SILVER' ? 'badge-info' :
+                                                   (c.customerTier.name() == 'GOLD' ? 'badge-warning text-dark' :
+                                                   'badge-success'))}">
+                            </span>
+                        </td>
+                        <td th:text="${c.loyaltyPoints}">0</td>
+                        <td>
+                            <span class="badge"
+                                  th:text="${c.status.value}"
+                                  th:classappend="${c.status.name() == 'ACTIVE' ? 'badge-success' :
+                                                  (c.status.name() == 'INACTIVE' ? 'badge-secondary' :
+                                                  'badge-danger')}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(c.createdAt, 'dd/MM/yyyy HH:mm')}">01/11/2025</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a th:href="@{'/admin/customers/edit/' + ${c.customerId}}"
+                                   class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button"
+                                        class="btn btn-sm btn-danger btn-delete"
+                                        th:attr="data-id=${c.customerId},data-name=${c.fullName}"
+                                        title="Xóa">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(customers)}">
+                        <td colspan="10" class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>Không tìm thấy khách hàng nào</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phân trang -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    <span>Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">1</strong></span>
+                    <span class="ml-2">Tổng: <strong th:text="${totalItems}">0</strong> khách hàng</span>
+                </div>
+
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/customers(page=0)}">&laquo;</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/customers(page=${currentPage - 1}, keyword=${keyword}, tier=${selectedTier}, status=${selectedStatus})}">
+                                Trước
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:text="${i + 1}"
+                               th:href="@{/admin/customers(page=${i}, keyword=${keyword}, tier=${selectedTier}, status=${selectedStatus})}">
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/customers(page=${currentPage + 1}, keyword=${keyword}, tier=${selectedTier}, status=${selectedStatus})}">
+                                Sau
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/customers(page=${totalPages - 1})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<th:block layout:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkAll = document.getElementById('checkAll');
+            const rowChecks = document.querySelectorAll('.row-check');
+            const deleteSelectedBtn = document.getElementById('btnDeleteSelected');
+
+            checkAll.addEventListener('change', () => {
+                rowChecks.forEach(chk => chk.checked = checkAll.checked);
+            });
+
+            deleteSelectedBtn.addEventListener('click', () => {
+                const selectedIds = Array.from(rowChecks)
+                    .filter(chk => chk.checked)
+                    .map(chk => chk.value);
+
+                if (selectedIds.length === 0) {
+                    Swal.fire('Thông báo', 'Vui lòng chọn ít nhất 1 khách hàng để xóa!', 'info');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Xác nhận xóa?',
+                    html: `Bạn có chắc chắn muốn xóa <b>${selectedIds.length}</b> khách hàng đã chọn?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch('/admin/customers/delete-batch', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(selectedIds)
+                        })
+                            .then(res => res.ok ? res.json() : Promise.reject(res))
+                            .then(() => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã xóa!',
+                                    text: 'Các khách hàng đã được xóa thành công.',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => location.reload());
+                            })
+                            .catch(() => Swal.fire('Lỗi!', 'Không thể xóa khách hàng', 'error'));
+                    }
+                });
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

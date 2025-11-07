@@ -5,6 +5,7 @@ import com.example.do_an_tot_nghiep.dto.CustomerRegistrationRequest;
 import com.example.do_an_tot_nghiep.model.Customer;
 import com.example.do_an_tot_nghiep.repository.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -347,4 +348,30 @@ public class CustomerService implements ICustomerService {
         customer.setLastLogin(LocalDateTime.now());
         customerRepository.save(customer);
     }
+
+    @Override
+    public Page<Customer> findAll(PageRequest of) {
+        return customerRepository.findAll(of);
+    }
+
+    @Override
+    public Page<Customer> findCustomers(String keyword, String tier, String status, int page, int pageSize) {
+        return customerRepository.searchCustomers(
+                keyword,
+                tier != null && !tier.isEmpty() ? Customer.CustomerTier.valueOf(tier) : null,
+                status != null && !status.isEmpty() ? Customer.CustomerStatus.valueOf(status) : null,
+                PageRequest.of(page - 1, pageSize)
+        );
+    }
+
+    @Override
+    public void deleteCustomerById(Integer id) {
+        customerRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteCustomers(List<Integer> ids) {
+        customerRepository.deleteAllById(ids);
+    }
+
 }
