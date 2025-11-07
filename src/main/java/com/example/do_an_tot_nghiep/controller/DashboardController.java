@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -30,18 +31,36 @@ public class DashboardController {
     private final MedicalDeviceService deviceService;
     private final NotificationService notificationService;
 
+    // ✅ Thêm currentEmployee vào model cho tất cả requests
+    @ModelAttribute("currentEmployee")
+    public EmployeeDetails getCurrentEmployee() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof EmployeeDetails) {
+            return (EmployeeDetails) authentication.getPrincipal();
+        }
+        return null;
+    }
+
+    // ✅ Thêm pendingOrders vào model cho sidebar
+    @ModelAttribute("pendingOrders")
+    public Long getPendingOrders() {
+        return dashboardService.getPendingOrdersCount();
+    }
+
+    // ✅ Thêm lowStockCount vào model cho sidebar
+    @ModelAttribute("lowStockCount")
+    public Integer getLowStockCount() {
+        List<MedicalDeviceDTO> lowStockProducts = deviceService.getLowStockProducts();
+        return lowStockProducts != null ? lowStockProducts.size() : 0;
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Model model) {
 
-        // ✅ Lấy thông tin nhân viên đăng nhập hiện tại
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        EmployeeDetails currentEmployee = null;
-        if (authentication != null && authentication.getPrincipal() instanceof EmployeeDetails employeeDetails) {
-            currentEmployee = employeeDetails;
-        }
+        EmployeeDetails currentEmployee = getCurrentEmployee();
 
         LocalDate now = LocalDate.now();
         if (startDate == null) startDate = now.minusDays(30);
@@ -61,9 +80,7 @@ public class DashboardController {
         List<MedicalDeviceDTO> lowStockProducts = Optional.ofNullable(deviceService.getLowStockProducts())
                 .orElse(Collections.emptyList());
 
-        Long pendingOrders = dashboardService.getPendingOrdersCount();
         Long unreadNotifications = 0L;
-
         if (currentEmployee != null) {
             unreadNotifications = notificationService.getUnreadCountByEmployee(currentEmployee.getEmployeeId());
         }
@@ -74,9 +91,7 @@ public class DashboardController {
         model.addAttribute("recentOrders", recentOrders);
         model.addAttribute("topCustomers", topCustomers);
         model.addAttribute("lowStockProducts", lowStockProducts);
-        model.addAttribute("pendingOrders", pendingOrders);
         model.addAttribute("unreadNotifications", unreadNotifications);
-        model.addAttribute("lowStockCount", lowStockProducts.size());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 

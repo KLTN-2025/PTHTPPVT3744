@@ -66,7 +66,7 @@ public class EmployeeDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // ✅ tránh lỗi 500 khi tài khoản bị "inactive"
+        return true;
     }
 
     @Override
@@ -82,9 +82,28 @@ public class EmployeeDetails implements UserDetails {
     public Integer getEmployeeId() {
         return employee != null ? employee.getEmployeeId() : null;
     }
-    public String getFullName() { return fullName; }
-    public String getRoleName() { return roleName; }
-    public String getAvatarUrl() { return avatarUrl; }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    // ✅ THÊM GETTER NÀY
+    public String getPosition() {
+        return position;
+    }
+
+    // ✅ BONUS: Thêm getter cho email nếu cần
+    public String getEmail() {
+        return email;
+    }
 
     public Employee getEmployee() {
         return employee;
