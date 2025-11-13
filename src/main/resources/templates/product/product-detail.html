@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' - Vật Tư Y Tế ABC'">Chi tiết sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-section {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb li:not(:last-child)::after {
+            content: '/';
+            margin-left: 10px;
+            color: #999;
+        }
+
+        .breadcrumb a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Product Detail Section */
+        .product-detail-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .product-detail-wrapper {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 40px;
+        }
+
+        /* Product Images */
+        .product-images {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 450px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .main-image img:hover {
+            transform: scale(1.05);
+        }
+
+        .badge-discount {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4444;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 1;
+        }
+
+        .thumbnail-images {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        .thumbnail:hover {
+            border-color: #0066cc;
+        }
+
+        .thumbnail.active {
+            border-color: #0066cc;
+            box-shadow: 0 0 10px rgba(0, 102, 204, 0.3);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Product Info */
+        .product-info {
+            padding: 10px 0;
+        }
+
+        .product-brand {
+            color: #0066cc;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .rating-stars {
+            color: #ffa500;
+        }
+
+        .rating-count {
+            color: #666;
+        }
+
+        /* Price Section */
+        .price-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .price-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .current-price {
+            font-size: 36px;
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .original-price {
+            font-size: 20px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .discount-percent {
+            background: #ff4444;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .price-note {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Stock Status */
+        .stock-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .stock-status.in-stock {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-status.out-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Quantity Selector */
+        .quantity-section {
+            margin-bottom: 25px;
+        }
+
+        .quantity-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-control {
+            display: flex;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .quantity-btn:hover:not(:disabled) {
+            background: #0066cc;
+            color: white;
+        }
+
+        .quantity-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .quantity-input {
+            width: 70px;
+            height: 45px;
+            border: none;
+            border-left: 2px solid #e0e0e0;
+            border-right: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .quantity-input:focus {
+            outline: none;
+        }
+
+        .stock-available {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 15px 30px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            padding: 15px 30px;
+            background: white;
+            color: #0066cc;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-icon {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-icon.active {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+        }
+
+        /* Product Features */
+        .product-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .feature-item i {
+            color: #0066cc;
+            font-size: 20px;
+            width: 30px;
+        }
+
+        /* Tabs Section */
+        .tabs-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        .tab-button {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            color: #0066cc;
+        }
+
+        .tab-button.active {
+            color: #0066cc;
+            border-bottom-color: #0066cc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .description-content {
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .description-content h3 {
+            margin: 25px 0 15px;
+            color: #333;
+        }
+
+        .description-content ul {
+            padding-left: 25px;
+        }
+
+        .description-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Specifications */
+        .specifications-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .specifications-table tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .specifications-table td {
+            padding: 15px;
+        }
+
+        .specifications-table td:first-child {
+            font-weight: 600;
+            width: 200px;
+            color: #666;
+        }
+
+        /* Reviews */
+        .reviews-summary {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .rating-overview {
+            text-align: center;
+        }
+
+        .rating-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .rating-stars-large {
+            color: #ffa500;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .rating-total {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .rating-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rating-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rating-bar-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: 80px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .rating-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            background: #ffa500;
+            transition: width 0.3s;
+        }
+
+        .rating-bar-count {
+            width: 50px;
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Review Item */
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .review-item {
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #0066cc;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .reviewer-details {
+            flex: 1;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .review-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 10px;
+        }
+
+        .verified-badge {
+            color: #4CAF50;
+        }
+
+        .review-rating {
+            color: #ffa500;
+        }
+
+        .review-date {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .review-content {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* Related Products */
+        .related-products-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .related-products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .product-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            border-color: #0066cc;
+        }
+
+        .product-card-image {
+            width: 100%;
+            height: 180px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-card-info {
+            padding: 15px;
+        }
+
+        .product-card-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            height: 36px;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .product-card-name a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .product-card-name a:hover {
+            color: #0066cc;
+        }
+
+        .product-card-price {
+            font-size: 16px;
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .notification-toast.error {
+            border-left-color: #ff4444;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .product-detail-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .product-images {
+                position: relative;
+                top: 0;
+            }
+
+            .related-products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-detail-section {
+                padding: 20px;
+            }
+
+            .main-image {
+                height: 350px;
+            }
+
+            .product-title {
+                font-size: 22px;
+            }
+
+            .current-price {
+                font-size: 28px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .product-features {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .related-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tabs-header {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Include Header -->
+<div th:insert="~{frontend-fragments/header :: header}"></div>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-section">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li><a th:href="@{/products}">Sản phẩm</a></li>
+            <li th:if="${product.category}">
+                <a th:href="@{/products(categoryId=${product.category.categoryId})}"
+                   th:text="${product.category.name}">Danh mục</a>
+            </li>
+            <li><span th:text="${product.name}">Tên sản phẩm</span></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Product Detail -->
+<div class="container">
+    <div class="product-detail-section">
+        <div class="product-detail-wrapper">
+            <!-- Product Images -->
+            <div class="product-images">
+                <div class="main-image">
+                    <img th:if="${product.imageUrl}"
+                         th:src="${product.imageUrl}"
+                         th:alt="${product.name}"
+                         id="mainProductImage">
+                    <i th:unless="${product.imageUrl}" class="fas fa-heartbeat" style="font-size: 100px; color: #ccc;"></i>
+
+                    <div th:if="${product.discountPercent != null && product.discountPercent > 0}"
+                         class="badge-discount">
+                        -<span th:text="${product.discountPercent}">0</span>%
+                    </div>
+                </div>
+
+                <div class="thumbnail-images" th:if="${product.imageUrl}">
+                    <div class="thumbnail active" onclick="changeImage(this)">
+                        <img th:src="${product.imageUrl}" th:alt="${product.name}">
+                    </div>
+                    <!-- Add more thumbnails if gallery_urls available -->
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Thương hiệu</div>
+
+                <h1 class="product-title" th:text="${product.name}">Tên sản phẩm</h1>
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="rating-stars">★★★★★</span>
+                        <span class="rating-count">(0 đánh giá)</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-eye"></i>
+                        <span th:text="${product.viewCount} + ' lượt xem'">0 lượt xem</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span th:text="${product.soldCount} + ' đã bán'">0 đã bán</span>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="price-section">
+                    <div class="price-wrapper">
+                        <span class="current-price"
+                              th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(product.price.doubleValue(), product.discountPercent.doubleValue()))}">
+                            0đ
+                        </span>
+                        <span class="original-price"
+                              th:if="${product.discountPercent != null && product.discountPercent > 0}"
+                              th:text="${@helper.formatPrice(product.price.doubleValue())}">
+                            0đ
+                        </span>
+                        <span class="discount-percent"
+                              th:if="${product.discountPercent != null && product.discountPercent > 0}"
+                              th:text="'-' + ${product.discountPercent} + '%'">
+                            -0%
+                        </span>
+                    </div>
+                    <p class="price-note">Giá đã bao gồm VAT</p>
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-status"
+                     th:classappend="${product.status.name() == 'Còn_hàng'} ? 'in-stock' : 'out-stock'">
+                    <i th:class="${product.status.name() == 'Còn_hàng'} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                    <span th:text="${product.status.displayName}">Còn hàng</span>
+                </div>
+
+                <!-- Quantity -->
+                <div class="quantity-section" th:if="${product.status.name() == 'Còn_hàng'}">
+                    <label class="quantity-label">Số lượng:</label>
+                    <div class="quantity-selector">
+                        <div class="quantity-control">
+                            <button type="button" class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                            <input type="number" id="quantity" class="quantity-input" value="1" min="1"
+                                   th:max="${product.stockQuantity}" readonly>
+                            <button type="button" class="quantity-btn" onclick="increaseQuantity()"
+                                    th:attr="data-max=${product.stockQuantity}">+</button>
+                        </div>
+                        <span class="stock-available"
+                              th:text="${product.stockQuantity} + ' sản phẩm có sẵn'">
+                            0 sản phẩm có sẵn
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-primary"
+                            id="addToCartBtn"
+                            th:attr="data-id=${product.deviceId},
+                                     data-name=${product.name},
+                                     data-price=${@helper.calculateDiscountPrice(product.price, product.discountPercent)},
+                                     data-image=${product.imageUrl}"
+                            th:disabled="${product.status.name() != 'Còn_hàng'}">
+                        <i class="fas fa-cart-plus"></i>
+                        <span th:text="${product.status.name() == 'Còn_hàng'} ? 'Thêm vào giỏ hàng' : ${product.status.displayName}">
+                            Thêm vào giỏ hàng
+                        </span>
+                    </button>
+
+                    <button class="btn-secondary"
+                            th:if="${product.status.name() == 'Còn_hàng'}">
+                        Mua ngay
+                    </button>
+
+                    <button class="btn-icon" title="Thêm vào yêu thích">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+
+                <!-- Features -->
+                <div class="product-features">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Bảo hành <span th:text="${product.warrantyPeriod} ?: '12'">12</span> tháng</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-undo"></i>
+                        <span>Đổi trả trong 7 ngày</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-truck"></i>
+                        <span>Miễn phí vận chuyển</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Hàng chính hãng 100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="tabs-section">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="switchTab('description')">Mô tả</button>
+            <button class="tab-button" onclick="switchTab('specifications')">Thông số kỹ thuật</button>
+            <button class="tab-button" onclick="switchTab('reviews')">Đánh giá (0)</button>
+        </div>
+
+        <!-- Description Tab -->
+        <div id="description" class="tab-content active">
+            <div class="description-content">
+                <h3>Mô tả sản phẩm</h3>
+                <div th:utext="${product.description}">
+                    <p>Mô tả chi tiết sản phẩm sẽ được hiển thị ở đây...</p>
+                </div>
+
+                <h3 th:if="${product.usageInstruction}">Hướng dẫn sử dụng</h3>
+                <div th:if="${product.usageInstruction}" th:utext="${product.usageInstruction}">
+                    <p>Hướng dẫn sử dụng sản phẩm...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specifications Tab -->
+        <div id="specifications" class="tab-content">
+            <table class="specifications-table">
+                <tr th:if="${product.sku}">
+                    <td>Mã sản phẩm</td>
+                    <td th:text="${product.sku}">-</td>
+                </tr>
+                <tr th:if="${product.brand}">
+                    <td>Thương hiệu</td>
+                    <td th:text="${product.brand.name}">-</td>
+                </tr>
+                <tr th:if="${product.category}">
+                    <td>Danh mục</td>
+                    <td th:text="${product.category.name}">-</td>
+                </tr>
+                <tr th:if="${product.unit}">
+                    <td>Đơn vị</td>
+                    <td th:text="${product.unit}">-</td>
+                </tr>
+                <tr th:if="${product.weight}">
+                    <td>Khối lượng</td>
+                    <td th:text="${product.weight} + ' kg'">-</td>
+                </tr>
+                <tr th:if="${product.dimensions}">
+                    <td>Kích thước</td>
+                    <td th:text="${product.dimensions}">-</td>
+                </tr>
+                <tr th:if="${product.warrantyPeriod}">
+                    <td>Bảo hành</td>
+                    <td th:text="${product.warrantyPeriod} + ' tháng'">-</td>
+                </tr>
+                <tr th:if="${product.specification}">
+                    <td>Thông số kỹ thuật</td>
+                    <td th:utext="${product.specification}">-</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div id="reviews" class="tab-content">
+            <div class="reviews-summary" th:if="${!#lists.isEmpty(product.reviews)}">
+                <div class="rating-overview">
+                    <div class="rating-score">5.0</div>
+                    <div class="rating-stars-large">★★★★★</div>
+                    <div class="rating-total" th:text="${#lists.size(product.reviews)} + ' đánh giá'">0 đánh giá</div>
+                </div>
+
+                <div class="rating-breakdown">
+                    <div class="rating-bar">
+                        <div class="rating-bar-label">5 <i class="fas fa-star"></i></div>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: 100%"></div>
+                        </div>
+                        <div class="rating-bar-count">100%</div>
+                    </div>
+                    <div class="rating-bar">
+                        <div class="rating-bar-label">4 <i class="fas fa-star"></i></div>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="rating-bar-count">0%</div>
+                    </div>
+                    <div class="rating-bar">
+                        <div class="rating-bar-label">3 <i class="fas fa-star"></i></div>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="rating-bar-count">0%</div>
+                    </div>
+                    <div class="rating-bar">
+                        <div class="rating-bar-label">2 <i class="fas fa-star"></i></div>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="rating-bar-count">0%</div>
+                    </div>
+                    <div class="rating-bar">
+                        <div class="rating-bar-label">1 <i class="fas fa-star"></i></div>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="rating-bar-count">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-list" th:if="${!#lists.isEmpty(product.reviews)}">
+                <div class="review-item" th:each="review : ${product.reviews}">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar" th:text="${#strings.substring(review.customer.fullName, 0, 1)}">A</div>
+                            <div class="reviewer-details">
+                                <div class="reviewer-name" th:text="${review.customer.fullName}">Tên khách hàng</div>
+                                <div class="review-meta">
+                                    <span class="review-rating">
+                                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
+                                        <span th:each="i : ${#numbers.sequence(review.rating + 1, 5)}" style="color: #ddd;">★</span>
+                                    </span>
+                                    <span class="verified-badge" th:if="${review.isVerifiedPurchase}">
+                                        <i class="fas fa-check-circle"></i> Đã mua hàng
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}">01/01/2024</div>
+                    </div>
+                    <div class="review-content" th:text="${review.comment}">Nội dung đánh giá...</div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(product.reviews)}" style="text-align: center; padding: 40px; color: #999;">
+                <i class="fas fa-comment-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p>Chưa có đánh giá nào cho sản phẩm này</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products-section" th:if="${!#lists.isEmpty(relatedProducts)}">
+        <h2 class="section-title">Sản phẩm liên quan</h2>
+
+        <div class="related-products-grid">
+            <div class="product-card" th:each="related : ${relatedProducts}">
+                <div th:if="${related.discountPercent != null && related.discountPercent > 0}"
+                     class="badge-discount" style="position: absolute; top: 10px; right: 10px; z-index: 1;">
+                    -<span th:text="${related.discountPercent}">0</span>%
+                </div>
+
+                <div class="product-card-image">
+                    <a th:href="@{/products/{id}(id=${related.deviceId})}">
+                        <img th:if="${related.imageUrl}"
+                             th:src="${related.imageUrl}"
+                             th:alt="${related.name}">
+                        <i th:unless="${related.imageUrl}" class="fas fa-heartbeat" style="font-size: 48px; color: #ccc;"></i>
+                    </a>
+                </div>
+
+                <div class="product-card-info">
+                    <h4 class="product-card-name">
+                        <a th:href="@{/products/{id}(id=${related.deviceId})}" th:text="${related.name}">Sản phẩm</a>
+                    </h4>
+                    <div class="product-card-price"
+                         th:text="${@helper.formatPrice(@helper.calculateDiscountPrice(related.price.doubleValue(), related.discountPercent.doubleValue()))}">
+                        0đ
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Footer -->
+<div th:insert="~{frontend-fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // ==================== CART MANAGEMENT ====================
+    class CartManager {
+        constructor() {
+            this.cart = [];
+            this.loadCart();
+        }
+
+        loadCart() {
+            const cartData = sessionStorage.getItem('medicalCart');
+            if (cartData) {
+                try {
+                    this.cart = JSON.parse(cartData);
+                } catch (e) {
+                    console.error('Error loading cart:', e);
+                    this.cart = [];
+                }
+            }
+            this.updateBadge();
+        }
+
+        saveCart() {
+            try {
+                sessionStorage.setItem('medicalCart', JSON.stringify(this.cart));
+                this.updateBadge();
+            } catch (e) {
+                console.error('Error saving cart:', e);
+            }
+        }
+
+        addItem(product, quantity = 1) {
+            const existingItem = this.cart.find(item => item.id === product.id);
+
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                return {
+                    success: true,
+                    message: `Đã cập nhật số lượng "${product.name}" thành ${existingItem.quantity}`,
+                    isUpdate: true
+                };
+            } else {
+                this.cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image || null,
+                    quantity: quantity,
+                    addedAt: new Date().toISOString()
+                });
+                return {
+                    success: true,
+                    message: `Đã thêm "${product.name}" vào giỏ hàng`,
+                    isUpdate: false
+                };
+            }
+        }
+
+        getTotalItems() {
+            return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        updateBadge() {
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                const total = this.getTotalItems();
+                badge.textContent = total;
+                badge.style.animation = 'pulse 0.5s';
+                setTimeout(() => {
+                    badge.style.animation = '';
+                }, 500);
+            }
+        }
+    }
+
+    const cartManager = new CartManager();
+
+    // ==================== NOTIFICATION SYSTEM ====================
+    class NotificationManager {
+        show(message, type = 'success', title = null) {
+            const toast = document.createElement('div');
+            toast.className = `notification-toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"
+                   style="font-size: 24px; color: ${type === 'success' ? '#4CAF50' : '#ff4444'};"></i>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">
+                        ${title || (type === 'success' ? 'Thành công!' : 'Thông báo')}
+                    </div>
+                    <div style="font-size: 13px; color: #666;">${message}</div>
+                </div>
+                <i class="fas fa-times" style="cursor: pointer; color: #999;"
+                   onclick="this.parentElement.remove()"></i>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    }
+
+    const notificationManager = new NotificationManager();
+
+    // ==================== QUANTITY CONTROLS ====================
+    function increaseQuantity() {
+        const input = document.getElementById('quantity');
+        const max = parseInt(input.max);
+        const current = parseInt(input.value);
+
+        if (current < max) {
+            input.value = current + 1;
+        }
+    }
+
+    function decreaseQuantity() {
+        const input = document.getElementById('quantity');
+        const current = parseInt(input.value);
+
+        if (current > 1) {
+            input.value = current - 1;
+        }
+    }
+
+    // ==================== ADD TO CART ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', async function() {
+                if (this.disabled) {
+                    notificationManager.show('Sản phẩm hiện đang hết hàng!', 'error', 'Không thể thêm');
+                    return;
+                }
+
+                const productData = {
+                    id: this.dataset.id,
+                    name: this.dataset.name,
+                    price: parseFloat(this.dataset.price),
+                    image: this.dataset.image
+                };
+
+                const quantityInput = document.getElementById('quantity');
+                const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+                // Show loading
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="loading-spinner"></span> Đang thêm...';
+                this.disabled = true;
+
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Add to cart
+                const result = cartManager.addItem(productData, quantity);
+
+                if (result.success) {
+                    cartManager.saveCart();
+
+                    // Show success
+                    this.innerHTML = '<i class="fas fa-check"></i> Đã thêm!';
+                    this.style.background = '#4CAF50';
+
+                    notificationManager.show(
+                        result.message,
+                        'success',
+                        result.isUpdate ? 'Đã cập nhật' : 'Thành công!'
+                    );
+
+                    // Reset button
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.background = '';
+                        this.disabled = false;
+                    }, 1500);
+                } else {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    notificationManager.show(result.message || 'Có lỗi xảy ra', 'error', 'Lỗi');
+                }
+            });
+        }
+    });
+
+    // ==================== IMAGE GALLERY ====================
+    function changeImage(thumbnail) {
+        const mainImage = document.getElementById('mainProductImage');
+        const img = thumbnail.querySelector('img');
+
+        if (mainImage && img) {
+            mainImage.src = img.src;
+
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+    }
+
+    // ==================== TABS ====================
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Remove active from all buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        const selectedTab = document.getElementById(tabName);
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+        }
+
+        // Activate button
+        event.target.classList.add('active');
+    }
+
+    // ==================== WISHLIST ====================
+    document.querySelectorAll('.btn-icon').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const icon = this.querySelector('i');
+
+            if (this.classList.contains('active')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                notificationManager.show('Đã thêm vào danh sách yêu thích', 'success');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                notificationManager.show('Đã xóa khỏi danh sách yêu thích', 'success');
+            }
+        });
+    });
+
+    // ==================== BUY NOW ====================
+    document.querySelectorAll('.btn-secondary').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const productData = {
+                id: addToCartBtn.dataset.id,
+                name: addToCartBtn.dataset.name,
+                price: parseFloat(addToCartBtn.dataset.price),
+                image: addToCartBtn.dataset.image
+            };
+
+            const quantityInput = document.getElementById('quantity');
+            const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+            // Add to cart
+            const result = cartManager.addItem(productData, quantity);
+            cartManager.saveCart();
+
+            // Redirect to cart/checkout
+            notificationManager.show('Đang chuyển đến trang thanh toán...', 'success');
+            setTimeout(() => {
+                window.location.href = '/cart'; // Change to your cart URL
+            }, 1000);
+        });
+    });
+
+    console.log('Product detail page initialized');
+    console.log('Current cart items:', cartManager.getTotalItems());
+
+    /*]]>*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

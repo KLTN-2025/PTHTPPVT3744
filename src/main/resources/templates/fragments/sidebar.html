@@ -11,12 +11,15 @@
     <i class="fas fa-hospital-alt brand-image"></i> <span class="brand-text font-weight-light">Medical Supply</span>
 </a>
     <div class="sidebar"> <!-- User panel -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image"><img
-                    th:src="${currentEmployee.avatarUrl != null ? currentEmployee.avatarUrl : '/img/default-avatar.png'}"
-                    class="img-circle elevation-2" alt="User Image"></div>
-            <div class="info"><a href="#" class="d-block" th:text="${currentEmployee.fullName}">Admin</a> <small
-                    class="text-muted" th:text="${currentEmployee.position}">Quản lý</small></div>
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex" th:if="${currentEmployee != null}">
+            <div class="image">
+                <img th:src="${currentEmployee.avatarUrl != null ? currentEmployee.avatarUrl : '/img/default-avatar.png'}"
+                     class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="#" class="d-block" th:text="${currentEmployee.fullName}"></a>
+                <small class="text-muted" th:text="${currentEmployee.position}"></small>
+            </div>
         </div>
         <!-- Sidebar Menu -->
         <nav class="mt-2">

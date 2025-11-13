@@ -1,12 +1,15 @@
 package com.example.do_an_tot_nghiep.repository;
 
 import com.example.do_an_tot_nghiep.model.MedicalDevice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, String> {
@@ -85,4 +88,13 @@ public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, S
             "WHERE md.status != 'Ngừng_bán' " +
             "ORDER BY md.createdAt DESC")
     List<MedicalDevice> findAllActive();
+    Page<MedicalDevice> findByNameContainingIgnoreCaseOrSkuContainingIgnoreCase(
+            String name, String sku, Pageable pageable
+    );
+
+    Page<MedicalDevice> findByStatus(MedicalDevice.DeviceStatus status, Pageable pageable);
+
+    Page<MedicalDevice> findByBrandBrandId(Integer brandId, Pageable pageable);
+
+    Page<MedicalDevice> findByCategoryCategoryId(Integer categoryId, Pageable pageable);
 }

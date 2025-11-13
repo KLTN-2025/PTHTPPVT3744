@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Chỉnh sửa Khách Hàng</title>
+</head>
+
+<body>
+<h1 layout:fragment="page-title">✏️ Chỉnh sửa khách hàng</h1>
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item"><a href="/admin/customers">Khách hàng</a></li>
+    <li class="breadcrumb-item active">Chỉnh sửa</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+        <!-- Alert thông báo lỗi -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
+        <!-- Alert thông báo thành công -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-user-edit"></i> Cập nhật thông tin khách hàng
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <form th:action="@{/admin/customers/edit/{id}(id=${customer.customerId})}"
+                      th:object="${customer}"
+                      method="post">
+
+                    <!-- Thông tin hệ thống (Read-only) -->
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong><i class="fas fa-id-card"></i> Mã KH:</strong>
+                                <span th:text="${customer.customerCode}">CUST001</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong><i class="fas fa-calendar-plus"></i> Ngày tạo:</strong>
+                                <span th:text="${#temporals.format(customer.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong><i class="fas fa-shopping-cart"></i> Tổng đơn:</strong>
+                                <span th:text="${customer.totalOrders}">0</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong><i class="fas fa-coins"></i> Tổng chi tiêu:</strong>
+                                <span th:text="${#numbers.formatDecimal(customer.totalSpent, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin cơ bản -->
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-user-circle text-primary"></i> Thông tin cơ bản
+                    </h5>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{fullName}" class="form-control"
+                                   placeholder="Nhập họ và tên đầy đủ" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Email <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                </div>
+                                <input type="email" th:field="*{email}" class="form-control"
+                                       placeholder="example@email.com" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Số điện thoại <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                </div>
+                                <input type="text" th:field="*{phone}" class="form-control"
+                                       placeholder="0123456789" required pattern="[0-9]{10,11}">
+                            </div>
+                            <small class="form-text text-muted">Nhập 10-11 chữ số</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Địa chỉ</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                </div>
+                                <input type="text" th:field="*{address}" class="form-control"
+                                       placeholder="Nhập địa chỉ đầy đủ">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Ngày sinh</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
+                                </div>
+                                <input type="date" th:field="*{dateOfBirth}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Giới tính</label>
+                            <select th:field="*{gender}" class="form-control">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="MALE">Nam</option>
+                                <option value="FEMALE">Nữ</option>
+                                <option value="OTHER">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin tài khoản -->
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">
+                        <i class="fas fa-key text-primary"></i> Thông tin tài khoản
+                    </h5>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Tên đăng nhập</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <input type="text" th:field="*{username}" class="form-control" readonly>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-lock"></i> Không thể thay đổi username
+                            </small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Đổi mật khẩu mới (Bỏ trống nếu không đổi)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input type="password" id="passwordField" name="newPassword" class="form-control"
+                                       placeholder="Nhập mật khẩu mới (nếu muốn đổi)" minlength="6">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Tối thiểu 6 ký tự (hoặc để trống)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Provider</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-sign-in-alt"></i></span>
+                                </div>
+                                <input type="text" th:field="*{provider}" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Provider ID</label>
+                            <input type="text" th:field="*{providerId}" class="form-control" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Phân loại khách hàng -->
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">
+                        <i class="fas fa-crown text-primary"></i> Phân loại khách hàng
+                    </h5>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Cấp bậc (Tier)</label>
+                            <select th:field="*{customerTier}" class="form-control">
+                                <option th:each="tier : ${customerTiers}"
+                                        th:value="${tier}"
+                                        th:text="${tier.value}"
+                                        th:selected="${tier == customer.customerTier}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Trạng thái</label>
+                            <select th:field="*{status}" class="form-control">
+                                <option value="ACTIVE">✅ Hoạt động</option>
+                                <option value="INACTIVE">⏸️ Tạm ngưng</option>
+                                <option value="BLOCKED">🚫 Đã khóa</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Điểm tích lũy</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                                </div>
+                                <input type="number" th:field="*{loyaltyPoints}" class="form-control"
+                                       placeholder="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Mã giới thiệu (Referral Code)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                </div>
+                                <input type="text" th:field="*{referralCode}" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Lần đăng nhập cuối</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                </div>
+                                <input type="text"
+                                       th:value="${customer.lastLogin != null ? #temporals.format(customer.lastLogin, 'dd/MM/yyyy HH:mm') : 'Chưa đăng nhập'}"
+                                       class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Xác thực -->
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">
+                        <i class="fas fa-shield-alt text-primary"></i> Xác thực tài khoản
+                    </h5>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" th:field="*{emailVerified}" class="custom-control-input" id="emailVerified">
+                                <label class="custom-control-label" for="emailVerified">
+                                    <i class="fas fa-envelope-open-text text-success"></i> Email đã xác thực
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" th:field="*{phoneVerified}" class="custom-control-input" id="phoneVerified">
+                                <label class="custom-control-label" for="phoneVerified">
+                                    <i class="fas fa-phone-square text-success"></i> Số điện thoại đã xác thực
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div>
+                            <a href="/admin/customers" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                            </a>
+                            <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#deleteModal">
+                                <i class="fas fa-trash mr-1"></i> Xóa khách hàng
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Cập nhật thông tin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle"></i> Xác nhận xóa khách hàng
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-times fa-3x text-danger"></i>
+                    </div>
+                    <p class="text-center">Bạn có chắc chắn muốn xóa khách hàng:</p>
+                    <h5 class="text-center text-primary" th:text="${customer.fullName}">Tên khách hàng</h5>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <small>Hành động này không thể hoàn tác!</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Hủy
+                    </button>
+                    <form th:action="@{/admin/customers/delete/{id}(id=${customer.customerId})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash mr-1"></i>Xóa ngay
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script>
+        // Toggle password visibility
+        const toggleBtn = document.getElementById('togglePassword');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const passwordField = document.getElementById('passwordField');
+                const toggleIcon = document.getElementById('toggleIcon');
+
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
+            });
+        }
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</th:block>
+</body>
+</html>

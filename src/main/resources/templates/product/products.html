@@ -365,12 +365,23 @@
             color: #ccc;
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .product-image:hover {
+            opacity: 0.9;
         }
 
         .product-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .product-image:hover img {
+            transform: scale(1.05);
         }
 
         .product-info {
@@ -815,10 +826,10 @@
                             -<span th:text="${product.discountPercent}">0</span>%
                         </div>
 
-                        <div class="product-image">
+                        <a th:href="@{/products/{id}(id=${product.deviceId})}" class="product-image">
                             <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" th:alt="${product.name}">
                             <i th:unless="${product.imageUrl}" class="fas fa-heartbeat"></i>
-                        </div>
+                        </a>
 
                         <div class="product-info">
                             <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>

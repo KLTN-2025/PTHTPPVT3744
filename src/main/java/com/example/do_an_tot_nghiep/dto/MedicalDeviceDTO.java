@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class MedicalDeviceDTO {
     private String deviceId;
+    private Integer categoryId;
+    private Integer brandId;
     private String name;
     private String sku;
     private String categoryName;
@@ -31,4 +33,5 @@ public class MedicalDeviceDTO {
     private Long reviewCount;
     private Boolean isFeatured;
     private Boolean isNew;
+    private String description;
 }
