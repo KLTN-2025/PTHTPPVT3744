@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Quản lý Danh mục</title>
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #293a58;
+            border-color: #293a58;
+        }
+        .page-link {
+            color: #293a58;
+        }
+        .page-link:hover {
+            background-color: #e9ecef;
+        }
+        .category-image {
+            width: 50px !important;
+            height: 50px !important;
+            object-fit: cover !important;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">📁 Quản lý Danh mục</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item active">Danh mục</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+        <!-- Filter & Actions -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-inline" method="get" action="/admin/categories">
+                            <input type="text" name="search" class="form-control mr-2 mb-2"
+                                   placeholder="Tìm kiếm danh mục..." th:value="${searchKeyword}"
+                                   style="min-width: 250px;">
+
+                            <select name="isActive" class="form-control mr-2 mb-2">
+                                <option value="">-- Trạng thái --</option>
+                                <option value="true" th:selected="${isActive == true}">Đang hoạt động</option>
+                                <option value="false" th:selected="${isActive == false}">Ngừng hoạt động</option>
+                            </select>
+
+                            <button type="submit" class="btn btn-primary mr-2 mb-2">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                            <a href="/admin/categories" class="btn btn-secondary mr-2 mb-2">
+                                <i class="fas fa-redo"></i> Reset
+                            </a>
+                            <a href="/admin/categories/add" class="btn btn-success ml-auto mb-2">
+                                <i class="fas fa-plus"></i> Thêm danh mục
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0 d-flex align-items-center">
+                            Danh sách danh mục
+                            <span class="badge badge-primary ml-2" th:text="${totalItems}">0</span>
+                        </h3>
+                        <div class="d-flex align-items-center">
+                            <button id="deleteSelectedBtn" class="btn btn-danger btn-sm" disabled>
+                                <i class="fas fa-trash-alt mr-1"></i>
+                                Xóa đã chọn (<span id="selectedCount">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th>Hình ảnh</th>
+                                <th>Tên danh mục</th>
+                                <th>Slug</th>
+                                <th>Danh mục cha</th>
+                                <th>Thứ tự</th>
+                                <th>Trạng thái</th>
+                                <th class="text-center" style="width: 150px;">Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="category : ${categories}">
+                                <td>
+                                    <input type="checkbox" class="selectCategory"
+                                           th:value="${category.categoryId}"
+                                           th:attr="data-name=${category.name}">
+                                </td>
+                                <td>
+                                    <img th:src="${category.imageUrl != null ? category.imageUrl : '/img/no-image.png'}"
+                                         class="category-image"
+                                         th:alt="${category.name}">
+                                </td>
+                                <td>
+                                    <strong th:text="${category.name}">Tên danh mục</strong>
+                                    <div class="text-muted small" th:if="${category.description}"
+                                         th:text="${#strings.abbreviate(category.description, 50)}"></div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-secondary" th:text="${category.slug}"></span>
+                                </td>
+                                <td th:text="${category.parentName ?: '--'}"></td>
+                                <td>
+                                    <span class="badge badge-info" th:text="${category.displayOrder}">0</span>
+                                </td>
+                                <td>
+                                    <span th:class="${'badge ' + (category.isActive ? 'badge-success' : 'badge-secondary')}"
+                                          th:text="${category.isActive ? 'Hoạt động' : 'Ngừng hoạt động'}">
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <button type="button"
+                                                class="btn btn-sm btn-info btn-toggle-status"
+                                                th:attr="data-id=${category.categoryId}"
+                                                title="Bật/Tắt">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                        <a th:href="@{/admin/categories/edit/{id}(id=${category.categoryId})}"
+                                           class="btn btn-sm btn-warning"
+                                           title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger btn-delete"
+                                                th:attr="data-id=${category.categoryId},data-name=${category.name}"
+                                                title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(categories)}">
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p>Không tìm thấy danh mục nào</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <span>Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">1</strong></span>
+                                <span class="ml-2">Tổng số: <strong th:text="${totalItems}">0</strong> danh mục</span>
+                            </div>
+
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/categories(page=0, search=${searchKeyword}, isActive=${isActive})}">&laquo;</a>
+                                    </li>
+
+                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                        <a class="page-link"
+                                           th:href="@{/admin/categories(page=${currentPage - 1}, search=${searchKeyword}, isActive=${isActive})}">
+                                            Trước
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item"
+                                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                        th:classappend="${i == currentPage} ? 'active'">
+                                        <a class="page-link"
+                                           th:text="${i + 1}"
+                                           th:href="@{/admin/categories(page=${i}, search=${searchKeyword}, isActive=${isActive})}">
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                                        <a class="page-link"
+                                           th:href="@{/admin/categories(page=${currentPage + 1}, search=${searchKeyword}, isActive=${isActive})}">
+                                            Sau
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/categories(page=${totalPages - 1}, search=${searchKeyword}, isActive=${isActive})}">&raquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="deleteSingleModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa danh mục
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-folder-open fa-3x text-danger"></i>
+                    </div>
+                    <p class="text-center mb-2">Bạn có chắc chắn muốn xóa danh mục:</p>
+                    <h5 class="text-center text-primary" id="categoryNameToDelete"></h5>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <small>Hành động này không thể hoàn tác!</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Hủy
+                    </button>
+                    <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
+                        <i class="fas fa-trash mr-1"></i>Xóa ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteBatchModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa nhiều danh mục
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-folders fa-3x text-danger"></i>
+                    </div>
+                    <p class="text-center mb-3">
+                        Bạn đang chuẩn bị xóa <strong class="text-danger" id="batchDeleteCount">0</strong> danh mục:
+                    </p>
+                    <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                        <ul id="categoryListToDelete" class="mb-0 pl-3"></ul>
+                    </div>
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn tất cả danh mục đã chọn!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Hủy
+                    </button>
+                    <button type="button" id="confirmBatchDeleteBtn" class="btn btn-danger">
+                        <i class="fas fa-trash-alt mr-1"></i>Xóa tất cả
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-times-circle mr-2"></i>Lỗi xảy ra
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                    </div>
+                    <h5 class="text-center mb-3" id="errorTitle">Có lỗi xảy ra</h5>
+                    <div class="alert alert-danger">
+                        <p class="mb-0" id="errorMessage">Đã có lỗi xảy ra trong quá trình xử lý.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">
+                        <i class="fas fa-check mr-1"></i>Đã hiểu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let categoryToDelete = null;
+            let categoryNameToDelete = null;
+
+            function showErrorModal(title, message) {
+                document.getElementById('errorTitle').textContent = title;
+                document.getElementById('errorMessage').textContent = message;
+                $('#errorModal').modal('show');
+            }
+
+            function confirmDelete(id, name) {
+                categoryToDelete = id;
+                categoryNameToDelete = name;
+                document.getElementById('categoryNameToDelete').textContent = name;
+                $('#deleteSingleModal').modal('show');
+            }
+
+            // Single Delete
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function () {
+                    if (!categoryToDelete) return;
+
+                    const btn = this;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Đang xóa...';
+
+                    fetch('/admin/categories/delete/' + categoryToDelete, {
+                        method: 'DELETE',
+                        headers: {'Content-Type': 'application/json'}
+                    })
+                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message || 'Xóa thất bại'); }))
+                        .then(data => {
+                            $('#deleteSingleModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Danh mục "' + categoryNameToDelete + '" đã được xóa thành công.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        })
+                        .catch(err => {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-trash mr-1"></i>Xóa ngay';
+                            $('#deleteSingleModal').modal('hide');
+                            showErrorModal('Không thể xóa danh mục', err.message || 'Đã xảy ra lỗi khi xóa danh mục.');
+                        });
+                });
+            }
+
+            // Multiple Selection
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const categoryCheckboxes = document.querySelectorAll('.selectCategory');
+            const selectedCountSpan = document.getElementById('selectedCount');
+
+            function updateDeleteButton() {
+                const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
+                selectedCountSpan.textContent = checkedBoxes.length;
+                deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+            }
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function () {
+                    categoryCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+                    updateDeleteButton();
+                });
+            }
+
+            categoryCheckboxes.forEach(cb => cb.addEventListener('change', updateDeleteButton));
+
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.addEventListener('click', function () {
+                    const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
+                    const ids = checkedBoxes.map(cb => cb.value);
+                    const names = checkedBoxes.map(cb => cb.getAttribute('data-name'));
+
+                    if (ids.length === 0) return;
+
+                    document.getElementById('batchDeleteCount').textContent = ids.length;
+                    document.getElementById('categoryListToDelete').innerHTML = names.map(name =>
+                        `<li class="mb-1"><i class="fas fa-folder mr-2 text-muted"></i>${name}</li>`
+                    ).join('');
+
+                    $('#deleteBatchModal').modal('show');
+                });
+            }
+
+            // Batch Delete
+            const confirmBatchDeleteBtn = document.getElementById('confirmBatchDeleteBtn');
+            if (confirmBatchDeleteBtn) {
+                confirmBatchDeleteBtn.addEventListener('click', function () {
+                    const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
+                    const ids = checkedBoxes.map(cb => cb.value);
+
+                    if (ids.length === 0) return;
+
+                    const btn = this;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Đang xóa...';
+
+                    fetch('/admin/categories/delete-batch', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(ids)
+                    })
+                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message || 'Không thể xóa danh mục'); }))
+                        .then(data => {
+                            $('#deleteBatchModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Xóa thành công!',
+                                text: 'Đã xóa ' + data.deletedCount + ' danh mục.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        })
+                        .catch(err => {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i>Xóa tất cả';
+                            $('#deleteBatchModal').modal('hide');
+                            showErrorModal('Không thể xóa danh mục', err.message || 'Đã xảy ra lỗi khi xóa nhiều danh mục.');
+                        });
+                });
+            }
+
+            // Toggle Status
+            document.querySelectorAll('.btn-toggle-status').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+
+                    fetch('/admin/categories/toggle-status/' + id, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'}
+                    })
+                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message); }))
+                        .then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        })
+                        .catch(err => {
+                            showErrorModal('Không thể cập nhật', err.message);
+                        });
+                });
+            });
+
+            // Reset buttons on modal close
+            $('#deleteSingleModal, #deleteBatchModal').on('hidden.bs.modal', function () {
+                if (confirmDeleteBtn) {
+                    confirmDeleteBtn.disabled = false;
+                    confirmDeleteBtn.innerHTML = '<i class="fas fa-trash mr-1"></i>Xóa ngay';
+                }
+                if (confirmBatchDeleteBtn) {
+                    confirmBatchDeleteBtn.disabled = false;
+                    confirmBatchDeleteBtn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i>Xóa tất cả';
+                }
+            });
+
+            // Init delete buttons
+            document.querySelectorAll('.btn-delete').forEach(function(btn) {
+                const id = btn.getAttribute('data-id');
+                const name = btn.getAttribute('data-name');
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    confirmDelete(id, name);
+                });
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
