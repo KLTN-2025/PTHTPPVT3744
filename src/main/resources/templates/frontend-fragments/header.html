@@ -433,7 +433,14 @@
                     <i class="fas fa-phone-alt"></i>
                     <span>Hỗ trợ</span>
                 </a>
-                <a th:href="@{/cart}">
+
+                <!-- ✅ Chat Messages Icon -->
+                <a th:href="@{/contact/my-messages}" sec:authorize="isAuthenticated()" title="Tin nhắn của tôi">
+                    <i class="fas fa-comments"></i>
+                    <span>Tin nhắn</span>
+                </a>
+
+                <a th:href="@{/cart}" title="Giỏ hàng">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Giỏ hàng</span>
                     <span class="cart-badge" id="cartBadge">0</span>
@@ -510,7 +517,7 @@
     <script>
         // ==================== CART BADGE MANAGEMENT ====================
         function loadCartBadge() {
-            const cartData = sessionStorage.getItem('cart');
+            const cartData = sessionStorage.getItem('medicalCart');
             const badge = document.getElementById('cartBadge');
 
             if (!badge) return;
@@ -634,7 +641,7 @@
         // ==================== CART UPDATE LISTENERS ====================
         // Listen for storage events (cross-tab updates)
         window.addEventListener('storage', (e) => {
-            if (e.key === 'cart') {
+            if (e.key === 'medicalCart') {
                 loadCartBadge();
             }
         });
@@ -694,6 +701,6 @@
         });
 
         console.log('%c✓ Header Initialized', 'color: #0066cc; font-weight: bold; font-size: 14px;');
-        console.log('Features: Cart Badge, Logout Modal, Mobile Menu, Sticky Header, Search Shortcuts');
+        console.log('Features: Cart Badge, Messages Icon, Logout Modal, Mobile Menu, Sticky Header, Search Shortcuts');
     </script>
 </div>

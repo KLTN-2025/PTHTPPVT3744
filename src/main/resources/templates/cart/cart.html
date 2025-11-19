@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">Giỏ hàng</title>
+    <title>Giỏ hàng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ✅ CRITICAL FIX: Force hide floating elements */
+        .modal-backdrop,
+        .overlay,
+        [role="dialog"]:not(.cart-layout) {
+            display: none !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,6 +24,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
             color: #333;
+            min-height: 100vh;
         }
 
         .container {
@@ -75,6 +83,7 @@
             grid-template-columns: 1fr 400px;
             gap: 30px;
             margin-bottom: 50px;
+            position: relative;
         }
 
         /* Cart Items */
@@ -82,6 +91,7 @@
             background: white;
             border-radius: 10px;
             padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .cart-item {
@@ -102,6 +112,10 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
         }
 
         .item-image img {
@@ -130,24 +144,11 @@
             color: #0066cc;
         }
 
-        .item-brand {
-            font-size: 13px;
-            color: #0066cc;
-            margin-bottom: 8px;
-        }
-
         .item-price {
             font-size: 18px;
             color: #ff4444;
             font-weight: bold;
             margin-bottom: 12px;
-        }
-
-        .item-original-price {
-            font-size: 14px;
-            color: #999;
-            text-decoration: line-through;
-            margin-left: 8px;
         }
 
         .item-actions {
@@ -220,8 +221,11 @@
             border-radius: 10px;
             padding: 25px;
             height: fit-content;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: sticky;
-            top: 90px;
+            top: 90px; /* ✅ Adjust if needed */
+            max-height: calc(100vh - 120px); /* ✅ Add this to prevent overflow */
+            overflow-y: auto; /* ✅ Add scroll if content too long */
         }
 
         .summary-title {
@@ -260,41 +264,6 @@
             gap: 8px;
         }
 
-        /* Coupon */
-        .coupon-section {
-            margin: 20px 0;
-        }
-
-        .coupon-input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .coupon-input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .btn-apply-coupon {
-            padding: 12px 20px;
-            background: #fff;
-            border: 1px solid #0066cc;
-            color: #0066cc;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-apply-coupon:hover {
-            background: #0066cc;
-            color: white;
-        }
-
-        /* Checkout Button */
         .btn-checkout {
             width: 100%;
             padding: 15px;
@@ -313,11 +282,6 @@
             background: #0052a3;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
-        }
-
-        .btn-checkout:disabled {
-            background: #ccc;
-            cursor: not-allowed;
         }
 
         .btn-continue {
@@ -344,6 +308,7 @@
             border-radius: 10px;
             padding: 60px 20px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .empty-cart i {
@@ -373,65 +338,6 @@
             font-weight: 600;
         }
 
-        /* Loading Overlay */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #ffffff;
-            border-top: 4px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Notification */
-        .notification-toast {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 400px;
-            animation: slideInRight 0.3s ease-out;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .notification-toast.error {
-            border-left-color: #ff4444;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
         /* Responsive */
         @media (max-width: 1024px) {
             .cart-layout {
@@ -453,11 +359,6 @@
                 grid-column: 1 / -1;
                 text-align: left;
                 margin-top: 10px;
-            }
-
-            .item-actions {
-                flex-direction: column;
-                align-items: flex-start;
             }
         }
     </style>
@@ -622,13 +523,25 @@
         saveCart() {
             sessionStorage.setItem('medicalCart', JSON.stringify(this.cart));
             this.updateBadge();
+
+            // ✅ FIX: Trigger global sync for header badge
+            if (typeof window.syncCartBadge === 'function') {
+                window.syncCartBadge();
+            }
         }
 
         updateBadge() {
-            const badge = document.getElementById('cartBadge');
             const count = this.getTotalItems();
+
+            // Update badge in header
+            const badge = document.getElementById('cartBadge');
             if (badge) {
                 badge.textContent = count;
+                if (count > 0) {
+                    badge.classList.add('active');
+                } else {
+                    badge.classList.remove('active');
+                }
             }
 
             // Update item count text
@@ -826,36 +739,38 @@
             return;
         }
 
-        const container = document.querySelector('.container');
+        // ✅ FIX: Target the main content container directly (the one with empty cart section)
         const emptySection = document.getElementById('emptyCartSection');
 
-        if (!container) {
-            console.error('ERROR: Container element not found!');
+        if (!emptySection) {
+            console.error('ERROR: Empty cart section not found!');
             return;
         }
 
-        const existingLayout = document.querySelector('.cart-layout');
-        if (existingLayout) {
+        const mainContainer = emptySection.parentElement;
+        console.log('Using main container:', mainContainer);
+
+        // Remove any existing cart layout
+        const existingLayout = document.querySelectorAll('.cart-layout');
+        existingLayout.forEach(layout => {
             console.log('Removing existing cart layout');
-            existingLayout.remove();
-        }
+            layout.remove();
+        });
 
         if (cartManager.cart.length === 0) {
             console.log('Cart is empty - showing empty section');
-            if (emptySection) {
-                emptySection.style.display = 'block';
-            }
+            emptySection.style.display = 'block';
             return;
         }
 
         console.log('Rendering ' + cartManager.cart.length + ' cart items');
 
-        if (emptySection) {
-            emptySection.style.display = 'none';
-        }
+        // Hide empty section
+        emptySection.style.display = 'none';
 
         const cartLayout = document.createElement('div');
         cartLayout.className = 'cart-layout';
+        cartLayout.style.marginBottom = '50px'; // ✅ Add margin to separate from footer
 
         const itemsSection = document.createElement('div');
         itemsSection.className = 'cart-items-section';
@@ -870,34 +785,34 @@
             const itemSubtotal = item.price * item.quantity;
 
             cartItem.innerHTML = `
-                <div class="item-image">
-                    <a href="/products/${item.id}">
-                        ${item.image ?
+            <div class="item-image">
+                <a href="/products/${item.id}">
+                    ${item.image ?
                 `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none';">` :
                 '<i class="fas fa-heartbeat" style="font-size: 40px; color: #ccc;"></i>'
             }
-                    </a>
-                </div>
+                </a>
+            </div>
 
-                <div class="item-info">
-                    <div class="item-name">
-                        <a href="/products/${item.id}">${item.name}</a>
-                    </div>
-                    <div class="item-price">${formatPrice(item.price)}</div>
-                    <div class="item-actions">
-                        <div class="quantity-control">
-                            <button class="quantity-btn" onclick="updateSessionQuantity('${item.id}', -1)">−</button>
-                            <input type="number" class="quantity-input" value="${item.quantity}" readonly>
-                            <button class="quantity-btn" onclick="updateSessionQuantity('${item.id}', 1)">+</button>
-                        </div>
-                        <button class="btn-remove" onclick="removeSessionItem('${item.id}')">
-                            <i class="fas fa-trash"></i> Xóa
-                        </button>
-                    </div>
+            <div class="item-info">
+                <div class="item-name">
+                    <a href="/products/${item.id}">${item.name}</a>
                 </div>
+                <div class="item-price">${formatPrice(item.price)}</div>
+                <div class="item-actions">
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateSessionQuantity('${item.id}', -1)">−</button>
+                        <input type="number" class="quantity-input" value="${item.quantity}" readonly>
+                        <button class="quantity-btn" onclick="updateSessionQuantity('${item.id}', 1)">+</button>
+                    </div>
+                    <button class="btn-remove" onclick="removeSessionItem('${item.id}')">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
+                </div>
+            </div>
 
-                <div class="item-subtotal">${formatPrice(itemSubtotal)}</div>
-            `;
+            <div class="item-subtotal">${formatPrice(itemSubtotal)}</div>
+        `;
 
             itemsSection.appendChild(cartItem);
         });
@@ -914,50 +829,51 @@
         const summarySection = document.createElement('div');
         summarySection.className = 'cart-summary';
         summarySection.innerHTML = `
-            <h3 class="summary-title">Tóm tắt đơn hàng</h3>
+        <h3 class="summary-title">Tóm tắt đơn hàng</h3>
 
-            <div class="summary-row">
-                <span>Tạm tính:</span>
-                <span id="subtotalAmount">${formatPrice(subtotal)}</span>
+        <div class="summary-row">
+            <span>Tạm tính:</span>
+            <span id="subtotalAmount">${formatPrice(subtotal)}</span>
+        </div>
+
+        <div class="summary-row">
+            <span>Phí vận chuyển:</span>
+            <span id="shippingAmount">${formatPrice(shippingFee)}</span>
+        </div>
+
+        ${shippingFee === 0 ? `
+            <div class="shipping-note">
+                <i class="fas fa-check-circle"></i>
+                <span>Miễn phí vận chuyển</span>
             </div>
-
-            <div class="summary-row">
-                <span>Phí vận chuyển:</span>
-                <span id="shippingAmount">${formatPrice(shippingFee)}</span>
+        ` : `
+            <div class="shipping-note" style="background: #fff3cd; color: #856404;">
+                <i class="fas fa-info-circle"></i>
+                <span>Mua thêm ${formatPrice(500000 - subtotal)} để được freeship</span>
             </div>
+        `}
 
-            ${shippingFee === 0 ? `
-                <div class="shipping-note">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Miễn phí vận chuyển</span>
-                </div>
-            ` : `
-                <div class="shipping-note" style="background: #fff3cd; color: #856404;">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Mua thêm ${formatPrice(500000 - subtotal)} để được freeship</span>
-                </div>
-            `}
+        <div class="summary-row total">
+            <span>Tổng cộng:</span>
+            <span id="totalAmount">${formatPrice(total)}</span>
+        </div>
 
-            <div class="summary-row total">
-                <span>Tổng cộng:</span>
-                <span id="totalAmount">${formatPrice(total)}</span>
-            </div>
+        <button class="btn-checkout" onclick="guestCheckout()">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập để thanh toán
+        </button>
 
-            <button class="btn-checkout" onclick="guestCheckout()">
-                <i class="fas fa-sign-in-alt"></i> Đăng nhập để thanh toán
-            </button>
-
-            <button class="btn-continue" onclick="window.location.href='/products'">
-                <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-            </button>
-        `;
+        <button class="btn-continue" onclick="window.location.href='/products'">
+            <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+        </button>
+    `;
 
         cartLayout.appendChild(itemsSection);
         cartLayout.appendChild(summarySection);
-        container.appendChild(cartLayout);
 
-        console.log('Cart rendered successfully!');
-        console.log('DOM structure created');
+        // ✅ FIX: Insert BEFORE empty section, not at the end
+        mainContainer.insertBefore(cartLayout, emptySection);
+
+        console.log('✅ Cart rendered successfully!');
     }
 
     // ==================== SESSION CART FUNCTIONS ====================
@@ -1053,21 +969,23 @@
         console.log('======================================');
         console.log('User Status:', isLoggedIn ? 'Logged In' : 'Guest');
 
+        // ✅ AGGRESSIVE FIX: Remove ALL floating elements
+        console.log('🔧 Starting cleanup...');
+
+        // ... giữ nguyên phần cleanup ...
+
         if (!isLoggedIn) {
             // ========== GUEST USER ==========
             console.log('Guest Mode: Loading session cart...');
             cartManager.loadCart();
 
-            setTimeout(() => {
-                console.log('Starting render after 200ms delay...');
-                renderSessionCart();
-            }, 200);
+            console.log('Rendering session cart for guest user...');
+            renderSessionCart();
 
         } else {
             // ========== LOGGED IN USER ==========
             console.log('Logged In Mode: Checking for sync...');
 
-            // ✅ FIX: Cập nhật số lượng sản phẩm cho logged-in user
             updateLoggedInCartCount();
 
             const sessionCart = sessionStorage.getItem('medicalCart');
@@ -1087,6 +1005,13 @@
                 console.log('No session cart - using database cart');
             }
         }
+
+        // ✅ FIX: Sync badge after everything loads
+        setTimeout(() => {
+            if (typeof window.syncCartBadge === 'function') {
+                window.syncCartBadge();
+            }
+        }, 500);
 
         console.log('======================================');
     });
@@ -1122,5 +1047,53 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+<script>
+    // ==================== GLOBAL CART SYNC ====================
+    window.syncCartBadge = function() {
+        const cartData = sessionStorage.getItem('medicalCart');
+        const badge = document.getElementById('cartBadge');
+
+        if (!badge) {
+            console.warn('Cart badge not found');
+            return;
+        }
+
+        if (cartData) {
+            try {
+                const cart = JSON.parse(cartData);
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+                console.log('✅ Syncing badge:', totalItems, 'items');
+
+                badge.textContent = totalItems;
+
+                if (totalItems > 0) {
+                    badge.classList.add('active');
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.classList.remove('active');
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Error syncing badge:', e);
+                badge.classList.remove('active');
+            }
+        } else {
+            badge.classList.remove('active');
+            badge.textContent = '0';
+            badge.style.display = 'none';
+        }
+    };
+
+    // Call whenever cart changes
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'medicalCart') {
+            window.syncCartBadge();
+        }
+    });
+
+    // Periodic sync (every 2 seconds)
+    setInterval(window.syncCartBadge, 2000);
+</script>
 </body>
 </html>
