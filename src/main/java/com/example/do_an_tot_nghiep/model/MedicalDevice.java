@@ -109,6 +109,9 @@ public class MedicalDevice {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "image_public_id", length = 255)
+    private String imagePublicId;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
