@@ -572,7 +572,8 @@
     </div>
 
     <!-- Empty Cart (Guest or No Items) -->
-    <div class="empty-cart" id="emptyCartSection" style="display: none;">
+    <div class="empty-cart" id="emptyCartSection"
+         th:style="${isLoggedIn and #lists.isEmpty(cartItems)} ? 'display: block;' : 'display: none;'">
         <i class="fas fa-shopping-cart"></i>
         <h3>Giỏ hàng trống</h3>
         <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
@@ -603,19 +604,19 @@
 
         loadCart() {
             const cartData = sessionStorage.getItem('medicalCart');
-            console.log('📦 Loading cart from sessionStorage:', cartData);
+            console.log('Loading cart from sessionStorage:', cartData);
             if (cartData) {
                 try {
                     this.cart = JSON.parse(cartData);
-                    console.log('✅ Cart loaded successfully:', this.cart);
+                    console.log('Cart loaded successfully:', this.cart);
                 } catch (e) {
-                    console.error('❌ Error parsing cart:', e);
+                    console.error('Error parsing cart:', e);
                     this.cart = [];
                 }
             } else {
-                console.log('⚠️ No cart data found in sessionStorage');
+                console.log('No cart data found in sessionStorage');
             }
-            this.render();
+            this.updateBadge();
         }
 
         saveCart() {
@@ -639,22 +640,6 @@
 
         getTotalItems() {
             return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-        }
-
-        render() {
-            if (isLoggedIn) return; // Server-side rendering for logged in users
-
-            const container = document.querySelector('.cart-items-section');
-            const emptySection = document.getElementById('emptyCartSection');
-
-            if (this.cart.length === 0) {
-                if (emptySection) emptySection.style.display = 'block';
-                if (container) container.style.display = 'none';
-                return;
-            }
-
-            // Render cart items (JavaScript)
-            // This is handled by server-side for logged in users
         }
     }
 
@@ -773,7 +758,6 @@
 
     // ==================== CHECKOUT ====================
     function checkout() {
-        // Redirect to checkout page
         window.location.href = '/checkout';
     }
 
@@ -833,48 +817,68 @@
 
     // ==================== RENDER SESSION CART (FOR GUEST) ====================
     function renderSessionCart() {
-        if (isLoggedIn || cartManager.cart.length === 0) return;
+        console.log('[renderSessionCart] Starting render...');
+        console.log('isLoggedIn:', isLoggedIn);
+        console.log('Cart items:', cartManager.cart.length);
 
-        const emptySection = document.getElementById('emptyCartSection');
-
-        if (cartManager.cart.length === 0) {
-            if (emptySection) emptySection.style.display = 'block';
+        if (isLoggedIn) {
+            console.log('WARNING: User logged in - server handles cart rendering');
             return;
         }
 
-        // Hide empty section
-        if (emptySection) emptySection.style.display = 'none';
+        const container = document.querySelector('.container');
+        const emptySection = document.getElementById('emptyCartSection');
 
-        // Create cart layout if not exists
-        let cartLayout = document.querySelector('.cart-layout');
-        if (!cartLayout) {
-            const container = document.querySelector('.container');
-            cartLayout = document.createElement('div');
-            cartLayout.className = 'cart-layout';
-            container.appendChild(cartLayout);
+        if (!container) {
+            console.error('ERROR: Container element not found!');
+            return;
         }
 
-        // Clear existing content
-        cartLayout.innerHTML = '';
+        const existingLayout = document.querySelector('.cart-layout');
+        if (existingLayout) {
+            console.log('Removing existing cart layout');
+            existingLayout.remove();
+        }
 
-        // Render cart items
+        if (cartManager.cart.length === 0) {
+            console.log('Cart is empty - showing empty section');
+            if (emptySection) {
+                emptySection.style.display = 'block';
+            }
+            return;
+        }
+
+        console.log('Rendering ' + cartManager.cart.length + ' cart items');
+
+        if (emptySection) {
+            emptySection.style.display = 'none';
+        }
+
+        const cartLayout = document.createElement('div');
+        cartLayout.className = 'cart-layout';
+
         const itemsSection = document.createElement('div');
         itemsSection.className = 'cart-items-section';
 
-        cartManager.cart.forEach(item => {
+        cartManager.cart.forEach((item, index) => {
+            console.log('Item ' + (index + 1) + ': ' + item.name + ' | Qty: ' + item.quantity + ' | Price: ' + item.price);
+
             const cartItem = document.createElement('div');
             cartItem.className = 'cart-item';
             cartItem.setAttribute('data-product-id', item.id);
+
+            const itemSubtotal = item.price * item.quantity;
 
             cartItem.innerHTML = `
                 <div class="item-image">
                     <a href="/products/${item.id}">
                         ${item.image ?
-                `<img src="${item.image}" alt="${item.name}">` :
+                `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none';">` :
                 '<i class="fas fa-heartbeat" style="font-size: 40px; color: #ccc;"></i>'
             }
                     </a>
                 </div>
+
                 <div class="item-info">
                     <div class="item-name">
                         <a href="/products/${item.id}">${item.name}</a>
@@ -891,18 +895,22 @@
                         </button>
                     </div>
                 </div>
-                <div class="item-subtotal">${formatPrice(item.price * item.quantity)}</div>
+
+                <div class="item-subtotal">${formatPrice(itemSubtotal)}</div>
             `;
 
             itemsSection.appendChild(cartItem);
         });
 
-        // Calculate totals
         const subtotal = cartManager.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const shippingFee = subtotal >= 500000 ? 0 : 30000;
         const total = subtotal + shippingFee;
 
-        // Render summary
+        console.log('Financial Summary:');
+        console.log('  Subtotal: ' + formatPrice(subtotal));
+        console.log('  Shipping: ' + formatPrice(shippingFee));
+        console.log('  Total: ' + formatPrice(total));
+
         const summarySection = document.createElement('div');
         summarySection.className = 'cart-summary';
         summarySection.innerHTML = `
@@ -923,7 +931,12 @@
                     <i class="fas fa-check-circle"></i>
                     <span>Miễn phí vận chuyển</span>
                 </div>
-            ` : ''}
+            ` : `
+                <div class="shipping-note" style="background: #fff3cd; color: #856404;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Mua thêm ${formatPrice(500000 - subtotal)} để được freeship</span>
+                </div>
+            `}
 
             <div class="summary-row total">
                 <span>Tổng cộng:</span>
@@ -941,6 +954,10 @@
 
         cartLayout.appendChild(itemsSection);
         cartLayout.appendChild(summarySection);
+        container.appendChild(cartLayout);
+
+        console.log('Cart rendered successfully!');
+        console.log('DOM structure created');
     }
 
     // ==================== SESSION CART FUNCTIONS ====================
@@ -972,17 +989,132 @@
     }
 
     function guestCheckout() {
-        // Redirect to login with return URL
         showNotification('Vui lòng đăng nhập để tiếp tục', 'error');
         setTimeout(() => {
             window.location.href = '/login?returnUrl=/cart';
         }, 1500);
     }
 
-    // Initialize
-    if (!isLoggedIn) {
-        cartManager.loadCart();
-        renderSessionCart();
+    // ==================== AUTO SYNC AFTER LOGIN ====================
+    async function syncCartAfterLogin() {
+        const sessionCart = sessionStorage.getItem('medicalCart');
+
+        if (!sessionCart || !isLoggedIn) {
+            console.log('No cart to sync or user not logged in');
+            return;
+        }
+
+        console.log('Syncing session cart to database...');
+
+        try {
+            const cartItems = JSON.parse(sessionCart);
+            console.log('Items to sync:', cartItems.length);
+
+            const syncData = cartItems.map(item => ({
+                id: item.id,
+                quantity: item.quantity
+            }));
+
+            const response = await fetch('/cart/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(syncData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('Sync successful:', result.message);
+
+                sessionStorage.removeItem('medicalCart');
+                console.log('Session cart cleared');
+
+                showNotification('Đã đồng bộ giỏ hàng của bạn!', 'success');
+
+                setTimeout(() => {
+                    console.log('Reloading page to show DB cart...');
+                    window.location.reload();
+                }, 1500);
+            } else {
+                console.error('Sync failed:', result.message);
+                showNotification('Không thể đồng bộ giỏ hàng: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+            showNotification('Có lỗi xảy ra khi đồng bộ giỏ hàng', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('======================================');
+        console.log('CART PAGE INITIALIZED');
+        console.log('======================================');
+        console.log('User Status:', isLoggedIn ? 'Logged In' : 'Guest');
+
+        if (!isLoggedIn) {
+            // ========== GUEST USER ==========
+            console.log('Guest Mode: Loading session cart...');
+            cartManager.loadCart();
+
+            setTimeout(() => {
+                console.log('Starting render after 200ms delay...');
+                renderSessionCart();
+            }, 200);
+
+        } else {
+            // ========== LOGGED IN USER ==========
+            console.log('Logged In Mode: Checking for sync...');
+
+            // ✅ FIX: Cập nhật số lượng sản phẩm cho logged-in user
+            updateLoggedInCartCount();
+
+            const sessionCart = sessionStorage.getItem('medicalCart');
+
+            if (sessionCart) {
+                try {
+                    const items = JSON.parse(sessionCart);
+                    console.log('Found', items.length, 'items in session cart');
+                    console.log('Auto-syncing to database...');
+
+                    syncCartAfterLogin();
+                } catch (e) {
+                    console.error('Error parsing session cart:', e);
+                    sessionStorage.removeItem('medicalCart');
+                }
+            } else {
+                console.log('No session cart - using database cart');
+            }
+        }
+
+        console.log('======================================');
+    });
+
+    // ========== NEW FUNCTION: Update cart count for logged-in users ==========
+    function updateLoggedInCartCount() {
+        // Đếm số lượng cart items từ server-rendered HTML
+        const cartItems = document.querySelectorAll('.cart-item[data-cart-id]');
+        const totalQuantity = Array.from(cartItems).reduce((sum, item) => {
+            const quantityInput = item.querySelector('.quantity-input');
+            return sum + (quantityInput ? parseInt(quantityInput.value) : 0);
+        }, 0);
+
+        console.log('Logged-in user cart count:', totalQuantity);
+
+        // Update badge
+        const badge = document.getElementById('cartBadge');
+        if (badge) {
+            badge.textContent = totalQuantity;
+            console.log('Badge updated:', totalQuantity);
+        }
+
+        // Update text "Bạn đang có X sản phẩm"
+        const countText = document.getElementById('cartItemCount');
+        if (countText) {
+            countText.innerHTML = `Bạn đang có <strong>${totalQuantity}</strong> sản phẩm trong giỏ hàng`;
+            console.log('Cart count text updated:', totalQuantity);
+        }
     }
 
     /*]]>*/

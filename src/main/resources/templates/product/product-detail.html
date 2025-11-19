@@ -1306,14 +1306,13 @@
         }
     }
 
-    // ==================== ADD TO CART ====================
     document.addEventListener('DOMContentLoaded', function() {
         const addToCartBtn = document.getElementById('addToCartBtn');
 
         if (addToCartBtn) {
             addToCartBtn.addEventListener('click', async function() {
                 if (this.disabled) {
-                    notificationManager.show('Sản phẩm hiện đang hết hàng!', 'error', 'Không thể thêm');
+                    notificationManager.show('Sản phẩm hiện đang hết hàng!', 'error');
                     return;
                 }
 
@@ -1332,35 +1331,48 @@
                 this.innerHTML = '<span class="loading-spinner"></span> Đang thêm...';
                 this.disabled = true;
 
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 500));
+                try {
+                    // ========== GỌI API (CHO CẢ GUEST VÀ LOGGED IN) ==========
+                    const response = await fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            deviceId: productData.id,
+                            quantity: quantity
+                        })
+                    });
 
-                // Add to cart
-                const result = cartManager.addItem(productData, quantity);
+                    const result = await response.json();
 
-                if (result.success) {
-                    cartManager.saveCart();
+                    if (result.success) {
+                        // ✅ SUCCESS
+                        this.innerHTML = '<i class="fas fa-check"></i> Đã thêm!';
+                        this.style.background = '#4CAF50';
 
-                    // Show success
-                    this.innerHTML = '<i class="fas fa-check"></i> Đã thêm!';
-                    this.style.background = '#4CAF50';
+                        // Update badge
+                        cartManager.loadCart();
 
-                    notificationManager.show(
-                        result.message,
-                        'success',
-                        result.isUpdate ? 'Đã cập nhật' : 'Thành công!'
-                    );
+                        notificationManager.show(result.message, 'success');
 
-                    // Reset button
-                    setTimeout(() => {
+                        // Reset button
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.background = '';
+                            this.disabled = false;
+                        }, 1500);
+                    } else {
+                        // ❌ ERROR
                         this.innerHTML = originalText;
-                        this.style.background = '';
                         this.disabled = false;
-                    }, 1500);
-                } else {
+                        notificationManager.show(result.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('❌ Add to cart error:', error);
                     this.innerHTML = originalText;
                     this.disabled = false;
-                    notificationManager.show(result.message || 'Có lỗi xảy ra', 'error', 'Lỗi');
+                    notificationManager.show('Có lỗi xảy ra!', 'error');
                 }
             });
         }
