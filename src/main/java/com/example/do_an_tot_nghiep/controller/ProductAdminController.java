@@ -92,16 +92,23 @@ public class ProductAdminController {
     // THÊM METHOD NÀY - XỬ LÝ THÊM SẢN PHẨM MỚI
     @PostMapping("/add")
     public String addProduct(@ModelAttribute("product") MedicalDeviceDTO product,
+                             @RequestParam("imageFile") MultipartFile imageFile,
+                             @RequestParam(value = "galleryFiles", required = false) List<MultipartFile> galleryFiles,
                              RedirectAttributes redirectAttributes) {
+
         try {
-            // Validate ảnh đại diện
-            if (product.getImageUrl() == null || product.getImageUrl().isEmpty()) {
+            // Validate ảnh chính
+            if (imageFile == null || imageFile.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Vui lòng tải lên ảnh đại diện!");
                 redirectAttributes.addFlashAttribute("product", product);
                 return "redirect:/admin/products/add";
             }
 
-            // Tạo sản phẩm mới
+            // Bổ sung ảnh vào DTO
+            product.setImageFile(imageFile);
+            product.setGalleryFiles(galleryFiles);
+
+            // Gọi service
             deviceService.createProduct(product);
 
             redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm thành công!");
@@ -113,6 +120,7 @@ public class ProductAdminController {
             return "redirect:/admin/products/add";
         }
     }
+
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
@@ -132,16 +140,25 @@ public class ProductAdminController {
     public String updateProduct(@PathVariable String id,
                                 @ModelAttribute("product") MedicalDeviceDTO product,
                                 @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                                @RequestParam(value = "galleryFiles", required = false) List<MultipartFile> galleryFiles,
                                 RedirectAttributes redirectAttributes) {
         try {
+            // Set file vào DTO
+            product.setImageFile(imageFile);
+            product.setGalleryFiles(galleryFiles);
+
+            // Gọi service để update
             deviceService.updateProduct(id, product, imageFile);
+
             redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công!");
             return "redirect:/admin/products";
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
             return "redirect:/admin/products/edit/" + id;
         }
     }
+
 
     @DeleteMapping("/delete/{id}")
     @ResponseBody

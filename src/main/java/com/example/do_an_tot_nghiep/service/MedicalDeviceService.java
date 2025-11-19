@@ -166,33 +166,47 @@ public class MedicalDeviceService implements IMedicalDeviceService {
     @Transactional
     @Override
     public void createProduct(MedicalDeviceDTO productDTO) throws IOException {
+
+        // === 1. KHỞI TẠO ENTITY ===
         MedicalDevice device = new MedicalDevice();
 
-        // ID & SKU
-        String deviceId = productDTO.getDeviceId() != null ? productDTO.getDeviceId() : generateDeviceId();
+        // Generate ID & SKU
+        String deviceId = productDTO.getDeviceId() != null
+                ? productDTO.getDeviceId()
+                : generateDeviceId();
+
         device.setDeviceId(deviceId);
         device.setSku(productDTO.getSku() != null ? productDTO.getSku() : generateSKU());
         device.setSlug(generateSlug(productDTO.getName()));
 
-        // Thông tin cơ bản
+        // === 2. THÔNG TIN CHÍNH ===
         device.setName(productDTO.getName());
         device.setDescription(productDTO.getDescription());
         device.setSpecification(productDTO.getSpecification());
         device.setUsageInstruction(productDTO.getUsageInstruction());
+
         device.setPrice(productDTO.getPrice() != null ? BigDecimal.valueOf(productDTO.getPrice()) : BigDecimal.ZERO);
         device.setOriginalPrice(productDTO.getOriginalPrice() != null ? BigDecimal.valueOf(productDTO.getOriginalPrice()) : null);
         device.setDiscountPercent(productDTO.getDiscountPercent() != null ? productDTO.getDiscountPercent() : 0);
-        device.setStockQuantity(productDTO.getStockQuantity() != null ? productDTO.getStockQuantity() : 0);
-        device.setMinStockLevel(productDTO.getMinStockLevel() != null ? productDTO.getMinStockLevel() : 10);
-        device.setUnit(productDTO.getUnit() != null ? productDTO.getUnit() : "Cái");
+
+        device.setStockQuantity(Optional.ofNullable(productDTO.getStockQuantity()).orElse(0));
+        device.setMinStockLevel(Optional.ofNullable(productDTO.getMinStockLevel()).orElse(10));
+        device.setUnit(Optional.ofNullable(productDTO.getUnit()).orElse("Cái"));
         device.setWeight(productDTO.getWeight() != null ? BigDecimal.valueOf(productDTO.getWeight()) : null);
+
         device.setDimensions(productDTO.getDimensions());
         device.setWarrantyPeriod(productDTO.getWarrantyPeriod());
-        device.setStatus(productDTO.getStatus() != null ? productDTO.getStatus() : MedicalDevice.DeviceStatus.Còn_hàng);
-        device.setIsFeatured(productDTO.getIsFeatured() != null ? productDTO.getIsFeatured() : false);
-        device.setIsNew(productDTO.getIsNew() != null ? productDTO.getIsNew() : false);
 
-        // Category, Brand, Supplier
+        device.setStatus(
+                productDTO.getStatus() != null ?
+                        productDTO.getStatus() :
+                        MedicalDevice.DeviceStatus.Còn_hàng
+        );
+
+        device.setIsFeatured(Optional.ofNullable(productDTO.getIsFeatured()).orElse(false));
+        device.setIsNew(Optional.ofNullable(productDTO.getIsNew()).orElse(false));
+
+        // === 3. CATEGORY - BRAND - SUPPLIER ===
         if (productDTO.getCategoryId() != null) {
             device.setCategory(categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Category not found")));
@@ -205,36 +219,48 @@ public class MedicalDeviceService implements IMedicalDeviceService {
             device.setSupplier(supplierRepository.findById(productDTO.getSupplierId()).orElse(null));
         }
 
-        // Upload ảnh chính
+        // === 4. UPLOAD ẢNH CHÍNH ===
         if (productDTO.getImageFile() != null && !productDTO.getImageFile().isEmpty()) {
+
             Map<String, String> uploaded = cloudinaryService.uploadFile(
                     productDTO.getImageFile(),
                     "medical_devices/" + deviceId,
                     "main"
             );
+
             device.setImageUrl(uploaded.get("url"));
             device.setImagePublicId(uploaded.get("publicId"));
         }
 
-        // Upload gallery
+        // === 5. UPLOAD GALLERY ===
         if (productDTO.getGalleryFiles() != null && !productDTO.getGalleryFiles().isEmpty()) {
+
             List<String> galleryUrls = new ArrayList<>();
+
             for (MultipartFile file : productDTO.getGalleryFiles()) {
+
+                if (file.isEmpty()) continue;
+
                 Map<String, String> uploaded = cloudinaryService.uploadFile(
                         file,
                         "medical_devices/" + deviceId,
                         "gallery"
                 );
+
                 galleryUrls.add(uploaded.get("url"));
             }
+
             device.setGalleryUrlList(galleryUrls);
         }
 
+        // === 6. KHỞI TẠO GIÁ TRỊ MẶC ĐỊNH KHÁC ===
         device.setViewCount(0);
         device.setSoldCount(0);
 
+        // === 7. LƯU DATABASE ===
         deviceRepository.save(device);
     }
+
 
     @Transactional
     public int deleteProducts(List<String> ids) {

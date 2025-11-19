@@ -55,222 +55,91 @@
                 <span th:text="${error}"></span>
             </div>
 
-            <form th:action="@{/admin/products/add}"
-                  th:object="${product}"
-                  method="post"
-                  enctype="multipart/form-data">
+            <form th:action="@{/admin/products/add}" th:object="${product}" method="post" enctype="multipart/form-data">
                 <div class="card-body">
-                    <div class="row">
-                        <!-- Cột trái -->
-                        <div class="col-md-6">
-                            <!-- Tên sản phẩm -->
-                            <div class="form-group">
-                                <label for="name">Tên sản phẩm <span class="text-danger">*</span></label>
-                                <input type="text" th:field="*{name}" class="form-control"
-                                       id="name" placeholder="Nhập tên sản phẩm">
-                                <div th:if="${#fields.hasErrors('name')}"
-                                     class="text-danger" th:errors="*{name}"></div>
-                            </div>
 
-                            <!-- SKU -->
-                            <div class="form-group">
-                                <label for="sku">Mã SKU</label>
-                                <input type="text" th:field="*{sku}" class="form-control"
-                                       id="sku" placeholder="Tự động tạo nếu để trống">
-                            </div>
-
-                            <!-- Danh mục -->
-                            <div class="form-group">
-                                <label for="categoryId">Danh mục <span class="text-danger">*</span></label>
-                                <select th:field="*{categoryId}" class="form-control" id="categoryId">
-                                    <option value="">-- Chọn danh mục --</option>
-                                    <option th:each="cat : ${categories}"
-                                            th:value="${cat.categoryId}"
-                                            th:text="${cat.name}"></option>
-                                </select>
-                                <div th:if="${#fields.hasErrors('categoryId')}"
-                                     class="text-danger" th:errors="*{categoryId}"></div>
-                            </div>
-
-                            <!-- Thương hiệu -->
-                            <div class="form-group">
-                                <label for="brandId">Thương hiệu</label>
-                                <select th:field="*{brandId}" class="form-control" id="brandId">
-                                    <option value="">-- Chọn thương hiệu --</option>
-                                    <option th:each="brand : ${brands}"
-                                            th:value="${brand.brandId}"
-                                            th:text="${brand.name}"></option>
-                                </select>
-                            </div>
-
-                            <!-- Nhà cung cấp -->
-                            <div class="form-group">
-                                <label for="supplierId">Nhà cung cấp</label>
-                                <select th:field="*{supplierId}" class="form-control" id="supplierId">
-                                    <option value="">-- Chọn nhà cung cấp --</option>
-                                    <option th:each="supplier : ${suppliers}"
-                                            th:value="${supplier.supplierId}"
-                                            th:text="${supplier.name}"></option>
-                                </select>
-                            </div>
-
-                            <!-- Giá -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="price">Giá bán <span class="text-danger">*</span></label>
-                                        <input type="number" th:field="*{price}" class="form-control"
-                                               id="price" placeholder="0" step="0.01">
-                                        <div th:if="${#fields.hasErrors('price')}"
-                                             class="text-danger" th:errors="*{price}"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="originalPrice">Giá gốc</label>
-                                        <input type="number" th:field="*{originalPrice}" class="form-control"
-                                               id="originalPrice" placeholder="0" step="0.01">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Kho & đơn vị -->
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="stockQuantity">Số lượng</label>
-                                        <input type="number" th:field="*{stockQuantity}" class="form-control"
-                                               id="stockQuantity" placeholder="0">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="minStockLevel">Tồn kho tối thiểu</label>
-                                        <input type="number" th:field="*{minStockLevel}" class="form-control"
-                                               id="minStockLevel" placeholder="10">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="unit">Đơn vị</label>
-                                        <input type="text" th:field="*{unit}" class="form-control"
-                                               id="unit" placeholder="Cái">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cột phải -->
-                        <div class="col-md-6">
-                            <!-- Ảnh chính -->
-                            <div class="form-group">
-                                <label for="imageFile">Ảnh sản phẩm</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="imageFile"
-                                           name="imageFile" accept="image/*">
-                                    <label class="custom-file-label" for="imageFile">Chọn ảnh...</label>
-                                </div>
-                                <img id="imagePreview" class="image-preview" src="" alt="Preview">
-                            </div>
-
-                            <!-- Gallery -->
-                            <div class="form-group">
-                                <label for="galleryFiles">Ảnh gallery (nhiều ảnh)</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="galleryFiles"
-                                           name="galleryFiles" accept="image/*" multiple>
-                                    <label class="custom-file-label" for="galleryFiles">Chọn nhiều ảnh...</label>
-                                </div>
-                                <div id="galleryPreview" class="gallery-preview"></div>
-                            </div>
-
-                            <!-- Trạng thái -->
-                            <div class="form-group">
-                                <label for="status">Trạng thái</label>
-                                <select th:field="*{status}" class="form-control" id="status">
-                                    <option value="Còn_hàng">Còn hàng</option>
-                                    <option value="Hết_hàng">Hết hàng</option>
-                                    <option value="Ngừng_bán">Ngừng bán</option>
-                                </select>
-                            </div>
-
-                            <!-- Checkboxes -->
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" th:field="*{isFeatured}" class="custom-control-input" id="isFeatured">
-                                    <label class="custom-control-label" for="isFeatured">Sản phẩm nổi bật</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" th:field="*{isNew}" class="custom-control-input" id="isNew">
-                                    <label class="custom-control-label" for="isNew">Sản phẩm mới</label>
-                                </div>
-                            </div>
-
-                            <!-- Trọng lượng & kích thước -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="weight">Trọng lượng (kg)</label>
-                                        <input type="number" th:field="*{weight}" class="form-control"
-                                               id="weight" placeholder="0" step="0.01">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="dimensions">Kích thước</label>
-                                        <input type="text" th:field="*{dimensions}" class="form-control"
-                                               id="dimensions" placeholder="DxRxC (cm)">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Bảo hành -->
-                            <div class="form-group">
-                                <label for="warrantyPeriod">Thời gian bảo hành (tháng)</label>
-                                <input type="number" th:field="*{warrantyPeriod}" class="form-control"
-                                       id="warrantyPeriod" placeholder="12">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mô tả chi tiết (full width) -->
+                    <!-- Tên sản phẩm -->
                     <div class="form-group">
-                        <label for="description">Mô tả sản phẩm</label>
-                        <textarea th:field="*{description}" class="form-control" id="description"
-                                  rows="4" placeholder="Nhập mô tả chi tiết sản phẩm..."></textarea>
+                        <label for="name">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Nhập tên sản phẩm">
                     </div>
 
-                    <!-- Thông số kỹ thuật -->
+                    <!-- SKU -->
                     <div class="form-group">
-                        <label for="specification">Thông số kỹ thuật</label>
-                        <textarea th:field="*{specification}" class="form-control" id="specification"
-                                  rows="4" placeholder="Nhập thông số kỹ thuật..."></textarea>
+                        <label for="sku">Mã SKU</label>
+                        <input type="text" th:field="*{sku}" class="form-control" id="sku" placeholder="Tự động tạo nếu để trống">
                     </div>
 
-                    <!-- Hướng dẫn sử dụng -->
+                    <!-- Danh mục -->
                     <div class="form-group">
-                        <label for="usageInstruction">Hướng dẫn sử dụng</label>
-                        <textarea th:field="*{usageInstruction}" class="form-control" id="usageInstruction"
-                                  rows="4" placeholder="Nhập hướng dẫn sử dụng..."></textarea>
+                        <label for="categoryId">Danh mục <span class="text-danger">*</span></label>
+                        <select th:field="*{categoryId}" class="form-control" id="categoryId">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}"></option>
+                        </select>
                     </div>
 
-                    <!-- SEO -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="metaKeywords">Từ khóa SEO</label>
-                                <input type="text" th:field="*{metaKeywords}" class="form-control"
-                                       id="metaKeywords" placeholder="từ khóa 1, từ khóa 2">
-                            </div>
+                    <!-- Thương hiệu -->
+                    <div class="form-group">
+                        <label for="brandId">Thương hiệu</label>
+                        <select th:field="*{brandId}" class="form-control" id="brandId">
+                            <option value="">-- Chọn thương hiệu --</option>
+                            <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Giá -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="price">Giá bán <span class="text-danger">*</span></label>
+                            <input type="number" th:field="*{price}" class="form-control" id="price" step="0.01">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="metaDescription">Mô tả SEO</label>
-                                <input type="text" th:field="*{metaDescription}" class="form-control"
-                                       id="metaDescription" placeholder="Mô tả ngắn cho SEO">
-                            </div>
+                        <div class="form-group col-md-6">
+                            <label for="originalPrice">Giá gốc</label>
+                            <input type="number" th:field="*{originalPrice}" class="form-control" id="originalPrice" step="0.01">
                         </div>
                     </div>
+
+                    <!-- Ảnh chính -->
+                    <div class="form-group">
+                        <label for="imageFile">Ảnh sản phẩm <span class="text-danger">*</span></label>
+                        <input type="file" th:field="*{imageFile}" id="imageFile" accept="image/*" class="form-control-file">
+                        <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="form-group">
+                        <label for="galleryFiles">Ảnh gallery</label>
+                        <input type="file" th:field="*{galleryFiles}" id="galleryFiles" accept="image/*" multiple class="form-control-file">
+                        <div id="galleryPreview" class="gallery-preview"></div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="form-group">
+                        <label for="status">Trạng thái</label>
+                        <select th:field="*{status}" class="form-control" id="status">
+                            <option value="Còn_hàng">Còn hàng</option>
+                            <option value="Hết_hàng">Hết hàng</option>
+                            <option value="Ngừng_bán">Ngừng bán</option>
+                        </select>
+                    </div>
+                    <!-- Nổi bật & Mới -->
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isFeatured}" class="form-check-input">
+                        <label class="form-check-label">Nổi bật</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isNew}" class="form-check-input">
+                        <label class="form-check-label">Sản phẩm mới</label>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea th:field="*{description}" class="form-control" id="description" rows="4"></textarea>
+                    </div>
+
                 </div>
 
                 <div class="card-footer">
@@ -287,54 +156,32 @@
 </section>
 
 <script th:inline="javascript">
-    // Preview ảnh chính
-    document.getElementById('imageFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('imagePreview');
-        const label = e.target.nextElementSibling;
-
-        if (file) {
-            label.textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Preview gallery
-    document.getElementById('galleryFiles').addEventListener('change', function(e) {
-        const files = e.target.files;
-        const preview = document.getElementById('galleryPreview');
-        const label = e.target.nextElementSibling;
-
-        preview.innerHTML = '';
-
-        if (files.length > 0) {
-            label.textContent = files.length + ' ảnh đã chọn';
-
-            Array.from(files).forEach(file => {
+    document.addEventListener("DOMContentLoaded", function () {
+        const imageInput = document.getElementById('imageFile');
+        const imagePreview = document.getElementById('imagePreview');
+        imageInput?.addEventListener('change', function(e){
+            const file = e.target.files[0];
+            if(file){
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function(ev){ imagePreview.src = ev.target.result; imagePreview.style.display = 'block'; }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const galleryInput = document.getElementById('galleryFiles');
+        const galleryPreview = document.getElementById('galleryPreview');
+        galleryInput?.addEventListener('change', function(e){
+            const files = Array.from(e.target.files);
+            galleryPreview.innerHTML = '';
+            files.forEach(file=>{
+                const reader = new FileReader();
+                reader.onload = function(ev){
                     const img = document.createElement('img');
-                    img.src = e.target.result;
-                    preview.appendChild(img);
+                    img.src = ev.target.result;
+                    galleryPreview.appendChild(img);
                 }
                 reader.readAsDataURL(file);
             });
-        }
-    });
-
-    // Custom file input label
-    document.querySelectorAll('.custom-file-input').forEach(input => {
-        input.addEventListener('change', function(e) {
-            const fileName = e.target.files.length > 1
-                ? e.target.files.length + ' files selected'
-                : e.target.files[0]?.name || 'Choose file';
-            const label = e.target.nextElementSibling;
-            label.textContent = fileName;
         });
     });
 </script>

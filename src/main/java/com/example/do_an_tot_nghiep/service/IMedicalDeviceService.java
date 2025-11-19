@@ -31,4 +31,5 @@ public interface IMedicalDeviceService {
     void updateProduct(String id, MedicalDeviceDTO product, MultipartFile imageFile)throws IOException;
 
     void createProduct(MedicalDeviceDTO product)throws IOException ;
+
 }
