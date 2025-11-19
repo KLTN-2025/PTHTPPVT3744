@@ -17,10 +17,11 @@
         background-color: #e9ecef;
     }
     .product-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
+        width: 50px !important;
+        height: 50px !important;
+        object-fit: cover !important;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
     }
     .price-info {
         display: flex;
@@ -34,6 +35,22 @@
     .price-current {
         color: #dc3545;
         font-weight: bold;
+    }
+    table {
+        table-layout: fixed;
+    }
+    table td img.product-image {
+        width: 50px !important;
+        height: 50px !important;
+        max-width: 50px !important;
+        max-height: 50px !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+    td:nth-child(4) {
+        max-width: 300px;
+        white-space: normal !important;
+        word-break: break-word;
     }
 </style>
 <body>
@@ -115,7 +132,7 @@
                     </div>
 
                     <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap align-middle">
+                        <table class="table table-hover align-middle">
                             <thead>
                             <tr>
                                 <th style="width: 40px;">
@@ -123,10 +140,10 @@
                                 </th>
                                 <th>Hình ảnh</th>
                                 <th>Mã SP</th>
-                                <th>Tên sản phẩm</th>
+                                <th style="max-width: 300px;">Tên sản phẩm</th>
                                 <th>Danh mục</th>
                                 <th>Thương hiệu</th>
-                                <th>Giá</th>
+                                <th>Giá Bán - Giá Gốc</th>
                                 <th>Tồn kho</th>
                                 <th>Đã bán</th>
                                 <th>Trạng thái</th>
@@ -153,10 +170,10 @@
                                     <div>
                                         <strong th:text="${product.name}">Tên sản phẩm</strong>
                                         <div class="text-muted small" th:if="${product.isFeatured}">
-                                            <i class="fas fa-star text-warning"></i> Nổi bật
+                                            <i class="fas fa-star text-warning"></i>
                                         </div>
                                         <div class="text-muted small" th:if="${product.isNew}">
-                                            <i class="fas fa-certificate text-success"></i> Mới
+                                            <i class="fas fa-certificate text-success"></i>
                                         </div>
                                     </div>
                                 </td>
@@ -165,17 +182,14 @@
                                 <td>
                                     <div class="price-info">
                                         <span class="price-current" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
-                                            100,000 đ
                                         </span>
                                         <span class="price-original"
                                               th:if="${product.originalPrice != null && product.originalPrice > product.price}"
-                                              th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">
-                                            150,000 đ
+                                              th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ' ">
                                         </span>
                                         <span class="badge badge-danger badge-sm"
                                               th:if="${product.discountPercent != null && product.discountPercent > 0}"
                                               th:text="'-' + ${product.discountPercent} + '%'">
-                                            -20%
                                         </span>
                                     </div>
                                 </td>

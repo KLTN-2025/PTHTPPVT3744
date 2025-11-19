@@ -97,6 +97,7 @@ public class EmployeeService implements IEmployeeService {
                 .avatarUrl(employee.getAvatarUrl())
                 .roleId(employee.getRole().getRoleId())
                 .roleName(employee.getRole().getRoleName())
+                .citizenId(employee.getCitizenId())
                 .dateOfBirth(employee.getDateOfBirth())
                 .gender(employee.getGender() != null ? employee.getGender().name() : null)
                 .position(employee.getPosition())
