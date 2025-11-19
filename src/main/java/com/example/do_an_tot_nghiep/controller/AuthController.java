@@ -54,7 +54,7 @@ public class AuthController {
 
         String role = authentication.getAuthorities().iterator().next().getAuthority();
 
-        if (role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") || role.equals("ROLE_STAFF") || role.equals("ROLE_WAREHOUSE")) {
+        if (role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER") || role.equals("ROLE_STAFF")) {
             return "redirect:/admin/dashboard";
         } else if (role.equals("ROLE_CUSTOMER")) {
             return "redirect:/home";
