@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${promotion.promotionId != null ? 'Sửa khuyến mãi' : 'Tạo khuyến mãi mới'}">Form Khuyến Mãi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+  <style>
+    .section-card {
+      margin-bottom: 20px;
+      border-left: 4px solid #007bff;
+    }
+    .form-help {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 5px;
+    }
+    .preview-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .preview-discount {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <div class="content-wrapper">
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>
+              <i class="fas fa-edit"></i>
+              <span th:text="${promotion.promotionId != null ? 'Sửa khuyến mãi' : 'Tạo khuyến mãi mới'}"></span>
+            </h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="/admin/promotions">Khuyến mãi</a></li>
+              <li class="breadcrumb-item active">Form</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="container-fluid">
+        <form method="post" action="/admin/promotions/save" id="promotionForm">
+          <input type="hidden" name="promotionId" th:value="${promotion.promotionId}">
+
+          <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-8">
+              <!-- Basic Info -->
+              <div class="card section-card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-info-circle"></i> Thông tin cơ bản</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Mã khuyến mãi <span class="text-danger">*</span></label>
+                    <input type="text" name="code" class="form-control"
+                           th:value="${promotion.code}" required
+                           placeholder="VD: SUMMER2025">
+                    <small class="form-help">Mã duy nhất, viết hoa, không dấu</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Tên khuyến mãi <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control"
+                           th:value="${promotion.name}" required
+                           placeholder="VD: Giảm 20% mùa hè">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea name="description" class="form-control" rows="3"
+                              th:text="${promotion.description}"
+                              placeholder="Mô tả chi tiết về khuyến mãi..."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Discount Settings -->
+              <div class="card section-card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-percentage"></i> Cài đặt giảm giá</h3>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Loại giảm giá <span class="text-danger">*</span></label>
+                        <select name="discountType" class="form-control" id="discountType" required>
+                          <option th:each="type : ${discountTypes}"
+                                  th:value="${type.name()}"
+                                  th:text="${type.name() == 'Percent' ? 'Giảm theo %' : (type.name() == 'Fixed' ? 'Giảm cố định' : 'Miễn phí ship')}"
+                                  th:selected="${promotion.discountType?.name() == type.name()}">
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Giá trị giảm <span class="text-danger">*</span></label>
+                        <input type="number" name="discountValue" class="form-control"
+                               th:value="${promotion.discountValue}" required
+                               placeholder="VD: 20 hoặc 100000" id="discountValue">
+                        <small class="form-help">Nhập % hoặc số tiền tùy loại giảm giá</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Đơn hàng tối thiểu (VNĐ)</label>
+                        <input type="number" name="minOrderAmount" class="form-control"
+                               th:value="${promotion.minOrderAmount}"
+                               placeholder="VD: 200000">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Giảm tối đa (VNĐ)</label>
+                        <input type="number" name="maxDiscountAmount" class="form-control"
+                               th:value="${promotion.maxDiscountAmount}"
+                               placeholder="VD: 50000">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Applicable To -->
+              <div class="card section-card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-tags"></i> Áp dụng cho</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Đối tượng áp dụng</label>
+                    <select name="applicableTo" class="form-control" id="applicableTo">
+                      <option th:each="opt : ${applicableToOptions}"
+                              th:value="${opt.name()}"
+                              th:text="${opt.name() == 'All' ? 'Tất cả sản phẩm' : (opt.name() == 'Category' ? 'Theo danh mục' : 'Theo sản phẩm')}"
+                              th:selected="${promotion.applicableTo?.name() == opt.name()}">
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Categories Selection -->
+                  <div class="form-group" id="categoriesGroup" style="display:none;">
+                    <label>Chọn danh mục</label>
+                    <select name="categoryIds" class="form-control select2" multiple>
+                      <option th:each="cat : ${categories}"
+                              th:value="${cat.categoryId}"
+                              th:text="${cat.name}"
+                              th:selected="${selectedCategories != null && selectedCategories.contains(cat)}">
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Products Selection -->
+                  <div class="form-group" id="productsGroup" style="display:none;">
+                    <label>Chọn sản phẩm</label>
+                    <select name="productIds" class="form-control select2" multiple>
+                      <option th:each="prod : ${products}"
+                              th:value="${prod.deviceId}"
+                              th:text="${prod.name}"
+                              th:selected="${selectedProducts != null && selectedProducts.contains(prod)}">
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4">
+              <!-- Preview -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-eye"></i> Xem trước</h3>
+                </div>
+                <div class="card-body">
+                  <div class="preview-box">
+                    <div class="preview-discount" id="previewDiscount">20%</div>
+                    <h5 id="previewName">Tên khuyến mãi</h5>
+                    <p id="previewCode">CODE</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Time Settings -->
+              <div class="card section-card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-calendar"></i> Thời gian</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Bắt đầu <span class="text-danger">*</span></label>
+                    <input type="datetime-local" name="startDateStr" class="form-control"
+                           th:value="${#temporals.format(promotion.startDate, 'yyyy-MM-dd\'T\'HH:mm')}" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Kết thúc <span class="text-danger">*</span></label>
+                    <input type="datetime-local" name="endDateStr" class="form-control"
+                           th:value="${#temporals.format(promotion.endDate, 'yyyy-MM-dd\'T\'HH:mm')}" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Usage Limits -->
+              <div class="card section-card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-users"></i> Giới hạn</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Hạng khách hàng</label>
+                    <select name="customerTier" class="form-control">
+                      <option th:each="tier : ${customerTiers}"
+                              th:value="${tier.name()}"
+                              th:text="${tier.name()}"
+                              th:selected="${promotion.customerTier?.name() == tier.name()}">
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Tổng số lần sử dụng</label>
+                    <input type="number" name="usageLimit" class="form-control"
+                           th:value="${promotion.usageLimit}"
+                           placeholder="Để trống = không giới hạn">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Số lần/khách hàng</label>
+                    <input type="number" name="usagePerCustomer" class="form-control"
+                           th:value="${promotion.usagePerCustomer}"
+                           placeholder="Mặc định: 1">
+                  </div>
+
+                  <div class="form-group">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input"
+                             name="isActive" id="isActive" value="true"
+                             th:checked="${promotion.isActive}">
+                      <label class="custom-control-label" for="isActive">Kích hoạt</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="card">
+                <div class="card-body">
+                  <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-save"></i> Lưu khuyến mãi
+                  </button>
+                  <a href="/admin/promotions" class="btn btn-secondary btn-block">
+                    <i class="fas fa-times"></i> Hủy
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    // Initialize Select2
+    $('.select2').select2({
+      theme: 'default',
+      width: '100%'
+    });
+
+    // Toggle category/product selection
+    function toggleApplicableTo() {
+      const val = $('#applicableTo').val();
+      $('#categoriesGroup').hide();
+      $('#productsGroup').hide();
+
+      if (val === 'Category') {
+        $('#categoriesGroup').show();
+      } else if (val === 'Product') {
+        $('#productsGroup').show();
+      }
+    }
+
+    $('#applicableTo').on('change', toggleApplicableTo);
+    toggleApplicableTo();
+
+    // Live preview
+    function updatePreview() {
+      const code = $('input[name="code"]').val() || 'CODE';
+      const name = $('input[name="name"]').val() || 'Tên khuyến mãi';
+      const type = $('#discountType').val();
+      const value = $('#discountValue').val() || '0';
+
+      $('#previewCode').text(code);
+      $('#previewName').text(name);
+
+      if (type === 'Percent') {
+        $('#previewDiscount').text(value + '%');
+      } else if (type === 'Fixed') {
+        $('#previewDiscount').text(parseInt(value).toLocaleString('vi-VN') + 'đ');
+      } else {
+        $('#previewDiscount').html('<i class="fas fa-shipping-fast"></i>');
+      }
+    }
+
+    $('input[name="code"], input[name="name"], #discountType, #discountValue').on('input change', updatePreview);
+    updatePreview();
+  });
+</script>
+</body>
+</html>

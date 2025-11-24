@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý khuyến mãi - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+  <style>
+    .promotion-card {
+      transition: all 0.3s;
+      border-left: 4px solid #007bff;
+    }
+    .promotion-card:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .promotion-card.expired {
+      border-left-color: #dc3545;
+      opacity: 0.7;
+    }
+    .promotion-card.upcoming {
+      border-left-color: #ffc107;
+    }
+    .promotion-card.inactive {
+      border-left-color: #6c757d;
+    }
+    .discount-badge {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .stats-box {
+      text-align: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+  <!-- Navbar -->
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <!-- Sidebar -->
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Content Header -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1><i class="fas fa-percentage"></i> Quản lý khuyến mãi</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+              <li class="breadcrumb-item active">Khuyến mãi</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Alerts -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
+
+        <!-- Filter & Actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tìm kiếm & Lọc</h3>
+            <div class="card-tools">
+              <a href="/admin/promotions/create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Tạo khuyến mãi mới
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <form method="get" action="/admin/promotions">
+              <div class="row">
+                <div class="col-md-4">
+                  <input type="text" name="search" class="form-control"
+                         placeholder="Tìm theo mã hoặc tên..." th:value="${search}">
+                </div>
+                <div class="col-md-3">
+                  <select name="status" class="form-control">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="active" th:selected="${status == 'active'}">Đang hoạt động</option>
+                    <option value="upcoming" th:selected="${status == 'upcoming'}">Sắp diễn ra</option>
+                    <option value="expired" th:selected="${status == 'expired'}">Đã hết hạn</option>
+                    <option value="inactive" th:selected="${status == 'inactive'}">Đã vô hiệu hóa</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-info btn-block">
+                    <i class="fas fa-search"></i> Tìm
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <a href="/admin/promotions" class="btn btn-secondary btn-block">
+                    <i class="fas fa-redo"></i> Reset
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Promotions Grid -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  Tìm thấy <strong th:text="${totalPromotions}">0</strong> khuyến mãi
+                </h3>
+              </div>
+              <div class="card-body">
+                <div th:if="${#lists.isEmpty(promotions)}" class="text-center text-muted py-5">
+                  <i class="fas fa-inbox fa-3x mb-3"></i>
+                  <p>Không có khuyến mãi nào</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(promotions)}" class="row">
+                  <div class="col-md-6 col-lg-4" th:each="promo : ${promotions}">
+                    <div class="card promotion-card"
+                         th:classappend="${promo.endDate != null && promo.endDate.isBefore(T(java.time.LocalDateTime).now())} ? 'expired' :
+                                                            (${promo.startDate != null && promo.startDate.isAfter(T(java.time.LocalDateTime).now())} ? 'upcoming' :
+                                                            (${!promo.isActive} ? 'inactive' : ''))">
+                      <div class="card-body">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <div class="discount-badge text-primary">
+                                                        <span th:if="${promo.discountType.name() == 'Percent'}"
+                                                              th:text="${promo.discountValue} + '%'">20%</span>
+                            <span th:if="${promo.discountType.name() == 'Fixed'}"
+                                  th:text="${#numbers.formatInteger(promo.discountValue, 0, 'COMMA')} + 'đ'">100,000đ</span>
+                            <span th:if="${promo.discountType.name() == 'FreeShip'}">
+                                                            <i class="fas fa-shipping-fast"></i>
+                                                        </span>
+                          </div>
+                          <div>
+                            <span th:if="${promo.isActive}" class="badge badge-success">Active</span>
+                            <span th:unless="${promo.isActive}" class="badge badge-secondary">Inactive</span>
+                          </div>
+                        </div>
+
+                        <!-- Code -->
+                        <h5 class="mb-2">
+                          <strong th:text="${promo.code}">CODE</strong>
+                        </h5>
+
+                        <!-- Name -->
+                        <p class="text-muted mb-3" th:text="${promo.name}">Promotion Name</p>
+
+                        <!-- Stats -->
+                        <div class="row mb-3">
+                          <div class="col-6">
+                            <div class="stats-box">
+                              <small class="text-muted">Đã dùng</small>
+                              <div class="font-weight-bold" th:text="${promo.usedCount}">0</div>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="stats-box">
+                              <small class="text-muted">Còn lại</small>
+                              <div class="font-weight-bold"
+                                   th:text="${promo.usageLimit != null ? (promo.usageLimit - promo.usedCount) : '∞'}">∞</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Dates -->
+                        <p class="small mb-2">
+                          <i class="far fa-calendar-alt"></i>
+                          <span th:text="${#temporals.format(promo.startDate, 'dd/MM/yyyy')}"></span>
+                          -
+                          <span th:text="${#temporals.format(promo.endDate, 'dd/MM/yyyy')}"></span>
+                        </p>
+
+                        <!-- Actions -->
+                        <div class="btn-group btn-block">
+                          <a th:href="@{/admin/promotions/detail/{id}(id=${promo.promotionId})}"
+                             class="btn btn-sm btn-info" title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <a th:href="@{/admin/promotions/edit/{id}(id=${promo.promotionId})}"
+                             class="btn btn-sm btn-primary" title="Chỉnh sửa">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <button type="button"
+                                  th:onclick="'toggleStatus(' + ${promo.promotionId} + ')'"
+                                  class="btn btn-sm btn-warning"
+                                  title="Bật/Tắt">
+                            <i class="fas fa-power-off"></i>
+                          </button>
+                          <button type="button"
+                                  th:onclick="'deletePromotion(' + ${promo.promotionId} + ')'"
+                                  class="btn btn-sm btn-danger"
+                                  title="Xóa">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function toggleStatus(id) {
+    Swal.fire({
+      title: 'Thay đổi trạng thái?',
+      text: 'Bạn muốn bật/tắt khuyến mãi này?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: '/admin/promotions/toggle-status/' + id,
+          type: 'POST',
+          success: function(response) {
+            if (response.success) {
+              Swal.fire('Thành công!', response.message, 'success')
+                      .then(() => location.reload());
+            } else {
+              Swal.fire('Lỗi!', response.message, 'error');
+            }
+          },
+          error: function() {
+            Swal.fire('Lỗi!', 'Có lỗi xảy ra!', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  function deletePromotion(id) {
+    Swal.fire({
+      title: 'Xóa khuyến mãi?',
+      text: 'Hành động này không thể hoàn tác!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/promotions/delete/' + id;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>
+</body>
+</html>

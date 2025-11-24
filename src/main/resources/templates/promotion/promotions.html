@@ -344,7 +344,7 @@
       <div class="filter-group">
         <h3><i class="fas fa-filter"></i> Danh mục</h3>
         <div class="filter-option">
-          <a th:href="@{/promotions}" th:classappend="${selectedCategoryId == null ? 'active' : ''}">
+          <a th:href="@{/templates/admin/promotions}" th:classappend="${selectedCategoryId == null ? 'active' : ''}">
             <i class="fas fa-th"></i> Tất cả
           </a>
         </div>
@@ -423,7 +423,7 @@
               </div>
 
               <!-- Link -->
-              <a th:href="@{/promotions/{id}(id=${promotion.promotionId})}"
+              <a th:href="@{/templates/admin/promotions/{id}(id=${promotion.promotionId})}"
                  class="promotion-link">
                 Xem chi tiết <i class="fas fa-arrow-right"></i>
               </a>
@@ -434,25 +434,25 @@
         <!-- Pagination -->
         <div class="pagination" th:if="${totalPages > 1}">
           <a th:if="${currentPage > 1}"
-             th:href="@{/promotions(page=1, categoryId=${selectedCategoryId})}"
+             th:href="@{/templates/admin/promotions(page=1, categoryId=${selectedCategoryId})}"
              class="first"><i class="fas fa-step-backward"></i></a>
           <a th:if="${currentPage > 1}"
-             th:href="@{/promotions(page=${currentPage - 1}, categoryId=${selectedCategoryId})}"
+             th:href="@{/templates/admin/promotions(page=${currentPage - 1}, categoryId=${selectedCategoryId})}"
              class="prev"><i class="fas fa-chevron-left"></i></a>
 
           <span th:each="i : ${#numbers.sequence(1, totalPages)}"
                 th:if="${(i - currentPage) <= 2 and (i - currentPage) >= -2 or i == 1 or i == totalPages}">
             <span th:if="${i == currentPage}" class="active" th:text="${i}">1</span>
             <a th:unless="${i == currentPage}"
-               th:href="@{/promotions(page=${i}, categoryId=${selectedCategoryId})}"
+               th:href="@{/templates/admin/promotions(page=${i}, categoryId=${selectedCategoryId})}"
                th:text="${i}">1</a>
           </span>
 
           <a th:if="${currentPage < totalPages}"
-             th:href="@{/promotions(page=${currentPage + 1}, categoryId=${selectedCategoryId})}"
+             th:href="@{/templates/admin/promotions(page=${currentPage + 1}, categoryId=${selectedCategoryId})}"
              class="next"><i class="fas fa-chevron-right"></i></a>
           <a th:if="${currentPage < totalPages}"
-             th:href="@{/promotions(page=${totalPages}, categoryId=${selectedCategoryId})}"
+             th:href="@{/templates/admin/promotions(page=${totalPages}, categoryId=${selectedCategoryId})}"
              class="last"><i class="fas fa-step-forward"></i></a>
         </div>
       </div>
