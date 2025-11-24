@@ -108,4 +108,9 @@ public class EmployeeDetails implements UserDetails {
     public Employee getEmployee() {
         return employee;
     }
+
+    public boolean hasRole(String admin) {
+        if (roleName == null || roleName.isEmpty()) return false;
+        return this.roleName.equalsIgnoreCase(roleName);
+    }
 }

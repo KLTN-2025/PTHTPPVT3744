@@ -1,286 +1,189 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/admin-layout}">
 <head>
-    <title>Thêm Khách Hàng</title>
+    <title>Thêm mới sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+        }
+        .gallery-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .gallery-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+    </style>
 </head>
-
 <body>
-<h1 layout:fragment="page-title">👤 Thêm khách hàng mới</h1>
+<h1 layout:fragment="page-title">Thêm mới sản phẩm</h1>
+
 <ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
-    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
-    <li class="breadcrumb-item"><a href="/admin/customers">Khách hàng</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/products}">Sản phẩm</a></li>
     <li class="breadcrumb-item active">Thêm mới</li>
 </ol>
 
-<section layout:fragment="content">
+<section class="content" layout:fragment="content">
     <div class="container-fluid">
-        <!-- Alert thông báo lỗi -->
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <span th:text="${error}"></span>
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-        </div>
-
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h3 class="card-title mb-0">
-                    <i class="fas fa-user-plus"></i> Thông tin khách hàng mới
-                </h3>
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Thông tin sản phẩm</h3>
             </div>
 
-            <div class="card-body">
-                <form th:action="@{/admin/customers/add}" th:object="${customer}" method="post">
-
-                    <!-- Thông tin cơ bản -->
-                    <h5 class="border-bottom pb-2 mb-3">
-                        <i class="fas fa-user-circle text-primary"></i> Thông tin cơ bản
-                    </h5>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Họ tên <span class="text-danger">*</span></label>
-                            <input type="text" th:field="*{fullName}" class="form-control"
-                                   placeholder="Nhập họ và tên đầy đủ" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Email <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                </div>
-                                <input type="email" th:field="*{email}" class="form-control"
-                                       placeholder="example@email.com" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Số điện thoại <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                </div>
-                                <input type="text" th:field="*{phone}" class="form-control"
-                                       placeholder="0123456789" required pattern="[0-9]{10,11}">
-                            </div>
-                            <small class="form-text text-muted">Nhập 10-11 chữ số</small>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Địa chỉ</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                </div>
-                                <input type="text" th:field="*{address}" class="form-control"
-                                       placeholder="Nhập địa chỉ đầy đủ">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Ngày sinh</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
-                                </div>
-                                <input type="date" th:field="*{dateOfBirth}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Giới tính</label>
-                            <select th:field="*{gender}" class="form-control">
-                                <option value="">-- Chọn giới tính --</option>
-                                <option value="MALE">Nam</option>
-                                <option value="FEMALE">Nữ</option>
-                                <option value="OTHER">Khác</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Thông tin tài khoản -->
-                    <h5 class="border-bottom pb-2 mb-3 mt-4">
-                        <i class="fas fa-key text-primary"></i> Thông tin tài khoản
-                    </h5>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Tên đăng nhập <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                </div>
-                                <input type="text" th:field="*{username}" class="form-control"
-                                       placeholder="Tên đăng nhập" required minlength="4">
-                            </div>
-                            <small class="form-text text-muted">Tối thiểu 4 ký tự</small>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Mật khẩu <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                </div>
-                                <input type="password" id="passwordField" name="password" class="form-control"
-                                       placeholder="Nhập mật khẩu" required minlength="6">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                        <i class="fas fa-eye" id="toggleIcon"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <small class="form-text text-muted">Tối thiểu 6 ký tự</small>
-                        </div>
-                    </div>
-
-                    <!-- Phân loại khách hàng -->
-                    <h5 class="border-bottom pb-2 mb-3 mt-4">
-                        <i class="fas fa-crown text-primary"></i> Phân loại khách hàng
-                    </h5>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Cấp bậc (Tier)</label>
-                            <select th:field="*{customerTier}" class="form-control">
-                                <option value="BRONZE">🥉 Bronze (Đồng)</option>
-                                <option value="SILVER">🥈 Silver (Bạc)</option>
-                                <option value="GOLD">🥇 Gold (Vàng)</option>
-                                <option value="PLATINUM">💎 Platinum (Bạch kim)</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Trạng thái</label>
-                            <select th:field="*{status}" class="form-control">
-                                <option value="ACTIVE">✅ Hoạt động</option>
-                                <option value="INACTIVE">⏸️ Tạm ngưng</option>
-                                <option value="BLOCKED">🚫 Đã khóa</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Điểm tích lũy</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
-                                </div>
-                                <input type="number" th:field="*{loyaltyPoints}" class="form-control"
-                                       placeholder="0" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Mã giới thiệu (Referral Code)</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                                </div>
-                                <input type="text" th:field="*{referralCode}" class="form-control"
-                                       placeholder="Tự động tạo nếu bỏ trống" readonly>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="generateRefCode">
-                                        <i class="fas fa-sync-alt"></i> Tạo mới
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Xác thực -->
-                    <h5 class="border-bottom pb-2 mb-3 mt-4">
-                        <i class="fas fa-shield-alt text-primary"></i> Xác thực tài khoản
-                    </h5>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" th:field="*{emailVerified}" class="custom-control-input" id="emailVerified">
-                                <label class="custom-control-label" for="emailVerified">
-                                    <i class="fas fa-envelope-open-text text-success"></i> Email đã xác thực
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" th:field="*{phoneVerified}" class="custom-control-input" id="phoneVerified">
-                                <label class="custom-control-label" for="phoneVerified">
-                                    <i class="fas fa-phone-square text-success"></i> Số điện thoại đã xác thực
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                        <a href="/admin/customers" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save mr-1"></i> Lưu khách hàng
-                        </button>
-                    </div>
-                </form>
+            <!-- Hiển thị thông báo -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span th:text="${success}"></span>
             </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/admin/products/add}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <div class="card-body">
+
+                    <!-- Tên sản phẩm -->
+                    <div class="form-group">
+                        <label for="name">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Nhập tên sản phẩm">
+                    </div>
+
+                    <!-- SKU -->
+                    <div class="form-group">
+                        <label for="sku">Mã SKU</label>
+                        <input type="text" th:field="*{sku}" class="form-control" id="sku" placeholder="Tự động tạo nếu để trống">
+                    </div>
+
+                    <!-- Danh mục -->
+                    <div class="form-group">
+                        <label for="categoryId">Danh mục <span class="text-danger">*</span></label>
+                        <select th:field="*{categoryId}" class="form-control" id="categoryId">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Thương hiệu -->
+                    <div class="form-group">
+                        <label for="brandId">Thương hiệu</label>
+                        <select th:field="*{brandId}" class="form-control" id="brandId">
+                            <option value="">-- Chọn thương hiệu --</option>
+                            <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Giá -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="price">Giá bán <span class="text-danger">*</span></label>
+                            <input type="number" th:field="*{price}" class="form-control" id="price" step="0.01">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="originalPrice">Giá gốc</label>
+                            <input type="number" th:field="*{originalPrice}" class="form-control" id="originalPrice" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Ảnh chính -->
+                    <div class="form-group">
+                        <label for="imageFile">Ảnh sản phẩm <span class="text-danger">*</span></label>
+                        <input type="file" th:field="*{imageFile}" id="imageFile" accept="image/*" class="form-control-file">
+                        <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="form-group">
+                        <label for="galleryFiles">Ảnh gallery</label>
+                        <input type="file" th:field="*{galleryFiles}" id="galleryFiles" accept="image/*" multiple class="form-control-file">
+                        <div id="galleryPreview" class="gallery-preview"></div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="form-group">
+                        <label for="status">Trạng thái</label>
+                        <select th:field="*{status}" class="form-control" id="status">
+                            <option value="Còn_hàng">Còn hàng</option>
+                            <option value="Hết_hàng">Hết hàng</option>
+                            <option value="Ngừng_bán">Ngừng bán</option>
+                        </select>
+                    </div>
+                    <!-- Nổi bật & Mới -->
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isFeatured}" class="form-check-input">
+                        <label class="form-check-label">Nổi bật</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isNew}" class="form-check-input">
+                        <label class="form-check-label">Sản phẩm mới</label>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea th:field="*{description}" class="form-control" id="description" rows="4"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Thêm sản phẩm
+                    </button>
+                    <a th:href="@{/admin/products}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </section>
 
-<th:block layout:fragment="scripts">
-    <script>
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordField = document.getElementById('passwordField');
-            const toggleIcon = document.getElementById('toggleIcon');
-
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const imageInput = document.getElementById('imageFile');
+        const imagePreview = document.getElementById('imagePreview');
+        imageInput?.addEventListener('change', function(e){
+            const file = e.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(ev){ imagePreview.src = ev.target.result; imagePreview.style.display = 'block'; }
+                reader.readAsDataURL(file);
             }
         });
 
-        // Generate referral code
-        document.getElementById('generateRefCode').addEventListener('click', function() {
-            const refCodeField = document.querySelector('input[name="referralCode"]');
-            const randomCode = 'REF' + Math.floor(Math.random() * 1000000);
-            refCodeField.value = randomCode;
+        const galleryInput = document.getElementById('galleryFiles');
+        const galleryPreview = document.getElementById('galleryPreview');
+        galleryInput?.addEventListener('change', function(e){
+            const files = Array.from(e.target.files);
+            galleryPreview.innerHTML = '';
+            files.forEach(file=>{
+                const reader = new FileReader();
+                reader.onload = function(ev){
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    galleryPreview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
         });
-
-        // Auto-generate username from email
-        const emailField = document.querySelector('input[name="email"]');
-        const usernameField = document.querySelector('input[name="username"]');
-
-        emailField.addEventListener('blur', function() {
-            if (!usernameField.value) {
-                const emailPrefix = this.value.split('@')[0];
-                usernameField.value = emailPrefix;
-            }
-        });
-
-        // Form validation
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
-    </script>
-</th:block>
+    });
+</script>
 </body>
 </html>

@@ -1,22 +1,36 @@
 package com.example.do_an_tot_nghiep.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.do_an_tot_nghiep.dto.EmployeeDTO;
 import com.example.do_an_tot_nghiep.dto.RoleDTO;
+import com.example.do_an_tot_nghiep.model.Employee;
+import com.example.do_an_tot_nghiep.model.Role;
+import com.example.do_an_tot_nghiep.repository.*;
 import com.example.do_an_tot_nghiep.security.EmployeeDetails;
 import com.example.do_an_tot_nghiep.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin/employees")
@@ -24,7 +38,14 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
-
+    @Autowired
+    private IEmployeeRepository employeeRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private Cloudinary cloudinary;
+    @Autowired
+    private IRoleRepository roleRepository;
     /**
      * Hiển thị danh sách nhân viên với filter và pagination
      */
@@ -84,22 +105,23 @@ public class EmployeeController {
         model.addAttribute("employee", new EmployeeDTO());
         model.addAttribute("roles", employeeService.getAllRoles());
         model.addAttribute("departments", employeeService.getAllDepartments());
-        return "employee/employee-form";
+        return "employee/employee-edit";
     }
 
     /**
      * Hiển thị form chỉnh sửa nhân viên
      */
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable Integer id,@AuthenticationPrincipal EmployeeDetails currentUser, Model model) {
         EmployeeDTO employee = employeeService.getEmployeeById(id);
         if (employee == null) {
             return "redirect:/admin/employees?error=notfound";
         }
         model.addAttribute("employee", employee);
         model.addAttribute("roles", employeeService.getAllRoles());
+        model.addAttribute("currentEmployee", currentUser);
         model.addAttribute("departments", employeeService.getAllDepartments());
-        return "employee/employee-form";
+        return "employee/employee-edit";
     }
 
     /**
@@ -229,7 +251,7 @@ public class EmployeeController {
             model.addAttribute("employee", employeeDTO);
             model.addAttribute("roles", employeeService.getAllRoles());
             model.addAttribute("departments", employeeService.getAllDepartments());
-            return "employee/employee-form";
+            return "employee/employee-edit";
         }
     }
 
@@ -269,6 +291,226 @@ public class EmployeeController {
             response.put("success", false);
             response.put("message", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    /**
+     * Xem profile của nhân viên đang đăng nhập
+     */
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+        // Lấy thông tin user đang đăng nhập từ Security Context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Tìm employee theo username
+        Employee employee = employeeRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên"));
+
+        // Thêm employee vào model
+        model.addAttribute("employee", employee);
+
+        return "employee/employee-profile";
+    }
+
+    /**
+     * Xem profile của nhân viên khác (dành cho admin/manager)
+     */
+    @GetMapping("/profile/{id}")
+    public String viewEmployeeProfile(@PathVariable Integer id, Model model) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+
+        model.addAttribute("employee", employee);
+
+        return "employee/employee-profile";
+    }
+
+    /**
+     * Upload avatar
+     */
+    @PostMapping("/profile/upload-avatar")
+    @ResponseBody
+    public ResponseEntity<?> uploadAvatar(
+            @RequestParam("avatar") MultipartFile file,
+            @RequestParam(required = false) Integer employeeId) { // nhận employeeId từ frontend
+
+        try {
+            // Validate file
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "File không được để trống"));
+            }
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Chỉ chấp nhận file ảnh"));
+            }
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Kích thước file không được vượt quá 5MB"));
+            }
+
+            // Lấy employee cần cập nhật
+            Employee employee;
+            if (employeeId != null) {
+                // Kiểm tra quyền admin
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                boolean isAdmin = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+                if (!isAdmin) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(Map.of("success", false, "message", "Bạn không có quyền thay đổi avatar nhân viên khác"));
+                }
+
+                // Lấy employee theo ID
+                employee = employeeRepository.findById(employeeId)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+            } else {
+                // Nếu không có employeeId → upload cho chính mình
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                employee = employeeRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+            }
+
+            // Upload avatar lên Cloudinary
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", "avatars",
+                    "public_id", "emp_" + employee.getEmployeeId() + "_" + UUID.randomUUID(),
+                    "overwrite", true,
+                    "resource_type", "image"
+            ));
+            String imageUrl = uploadResult.get("secure_url").toString();
+
+            // Xóa avatar cũ nếu có
+            if (employee.getAvatarUrl() != null && !employee.getAvatarUrl().isEmpty()) {
+                try {
+                    String oldPublicId = employee.getAvatarUrl()
+                            .substring(employee.getAvatarUrl().lastIndexOf("/") + 1)
+                            .split("\\.")[0];
+                    cloudinary.uploader().destroy("avatars/" + oldPublicId, ObjectUtils.emptyMap());
+                } catch (Exception ignored) {}
+            }
+
+            employee.setAvatarUrl(imageUrl);
+            employeeRepository.save(employee);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Cập nhật ảnh đại diện thành công",
+                    "avatarUrl", imageUrl
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Lỗi khi upload: " + e.getMessage()));
+        }
+    }
+
+
+    /**
+     * Cập nhật thông tin profile
+     */
+    @PostMapping("/update/{id}")
+    public String updateProfile(
+            @PathVariable("id") Integer id,
+            @RequestParam String fullName,
+            @RequestParam String phone,
+            @RequestParam String address,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateOfBirth,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String citizenId,
+            @RequestParam(required = false) String position,
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate hireDate,
+            @RequestParam(required = false) Double salary,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long roleId,
+            @AuthenticationPrincipal EmployeeDetails currentUser,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Employee employee = employeeRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+
+            // Cập nhật thông tin cá nhân
+            employee.setFullName(fullName);
+            employee.setPhone(phone);
+            employee.setAddress(address);
+            if (dateOfBirth != null) employee.setDateOfBirth(dateOfBirth);
+            if (gender != null && !gender.isEmpty()) employee.setGender(Employee.Gender.valueOf(gender));
+            if (citizenId != null && !citizenId.isEmpty()) employee.setCitizenId(citizenId);
+
+            // Chỉ admin mới update thông tin công việc
+            if (currentUser.hasRole("ADMIN")) {
+                if (position != null) employee.setPosition(position);
+                if (department != null) employee.setDepartment(department);
+                if (hireDate != null) employee.setHireDate(hireDate);
+                if (salary != null) employee.setSalary(BigDecimal.valueOf(salary));
+                if (status != null && !status.isEmpty()) employee.setStatus(Employee.EmployeeStatus.valueOf(status));
+
+                // Update role từ roleId
+                if (roleId != null) {
+                    Role role = roleRepository.findById(Math.toIntExact(roleId))
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy role"));
+                    employee.setRole(role);
+                }
+            }
+
+            employeeRepository.save(employee);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật: " + e.getMessage());
+        }
+
+        return "redirect:/admin/employees/edit/" + id;
+    }
+
+
+    /**
+     * Đổi mật khẩu
+     */
+    @PostMapping("/profile/change-password")
+    @ResponseBody
+    public ResponseEntity<?> changePassword(
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword) {
+
+        try {
+            // Validate passwords match
+            if (!newPassword.equals(confirmPassword)) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Mật khẩu mới không khớp"));
+            }
+
+            // Validate password strength
+            if (newPassword.length() < 6) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Mật khẩu phải có ít nhất 6 ký tự"));
+            }
+
+            // Get current user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            Employee employee = employeeRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+
+            // Verify current password
+            if (!passwordEncoder.matches(currentPassword, employee.getPasswordHash())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Mật khẩu hiện tại không đúng"));
+            }
+
+            // Update password
+            employee.setPasswordHash(passwordEncoder.encode(newPassword));
+            employeeRepository.save(employee);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Đổi mật khẩu thành công"
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Lỗi: " + e.getMessage()));
         }
     }
 }

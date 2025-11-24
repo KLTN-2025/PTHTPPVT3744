@@ -80,10 +80,6 @@ public class DashboardController {
         List<MedicalDeviceDTO> lowStockProducts = Optional.ofNullable(deviceService.getLowStockProducts())
                 .orElse(Collections.emptyList());
 
-        Long unreadNotifications = 0L;
-        if (currentEmployee != null) {
-            unreadNotifications = notificationService.getUnreadCountByEmployee(currentEmployee.getEmployeeId());
-        }
 
         model.addAttribute("stats", stats);
         model.addAttribute("revenueData", revenueData);
@@ -91,7 +87,6 @@ public class DashboardController {
         model.addAttribute("recentOrders", recentOrders);
         model.addAttribute("topCustomers", topCustomers);
         model.addAttribute("lowStockProducts", lowStockProducts);
-        model.addAttribute("unreadNotifications", unreadNotifications);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
@@ -102,4 +97,5 @@ public class DashboardController {
     public String redirectToDashboard() {
         return "redirect:/admin/dashboard";
     }
+
 }

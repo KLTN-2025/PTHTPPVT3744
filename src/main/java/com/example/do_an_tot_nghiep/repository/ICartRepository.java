@@ -21,4 +21,6 @@ public interface ICartRepository extends JpaRepository<Cart, Integer> {
 
     @Query("SELECT COUNT(c) FROM Cart c WHERE c.customer = :customer")
     Long countByCustomer(@Param("customer") Customer customer);
+
+
 }

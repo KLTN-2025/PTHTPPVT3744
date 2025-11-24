@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +89,39 @@ public class ProductAdminController {
         return "product/product-add";
     }
 
+    // THÊM METHOD NÀY - XỬ LÝ THÊM SẢN PHẨM MỚI
+    @PostMapping("/add")
+    public String addProduct(@ModelAttribute("product") MedicalDeviceDTO product,
+                             @RequestParam("imageFile") MultipartFile imageFile,
+                             @RequestParam(value = "galleryFiles", required = false) List<MultipartFile> galleryFiles,
+                             RedirectAttributes redirectAttributes) {
+
+        try {
+            // Validate ảnh chính
+            if (imageFile == null || imageFile.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Vui lòng tải lên ảnh đại diện!");
+                redirectAttributes.addFlashAttribute("product", product);
+                return "redirect:/admin/products/add";
+            }
+
+            // Bổ sung ảnh vào DTO
+            product.setImageFile(imageFile);
+            product.setGalleryFiles(galleryFiles);
+
+            // Gọi service
+            deviceService.createProduct(product);
+
+            redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm thành công!");
+            return "redirect:/admin/products";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("product", product);
+            return "redirect:/admin/products/add";
+        }
+    }
+
+
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
         MedicalDeviceDTO product = deviceService.getDeviceById(id);
@@ -101,13 +135,31 @@ public class ProductAdminController {
         model.addAttribute("isEdit", true);
         return "product/product-edit";
     }
+
     @PostMapping("/edit/{id}")
     public String updateProduct(@PathVariable String id,
                                 @ModelAttribute("product") MedicalDeviceDTO product,
-                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
-        deviceService.updateProduct(id, product, imageFile);
-        return "redirect:/admin/products?success=updated";
+                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                                @RequestParam(value = "galleryFiles", required = false) List<MultipartFile> galleryFiles,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            // Set file vào DTO
+            product.setImageFile(imageFile);
+            product.setGalleryFiles(galleryFiles);
+
+            // Gọi service để update
+            deviceService.updateProduct(id, product, imageFile);
+
+            redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công!");
+            return "redirect:/admin/products";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products/edit/" + id;
+        }
     }
+
+
     @DeleteMapping("/delete/{id}")
     @ResponseBody
     public ResponseEntity<?> deleteProduct(@PathVariable String id) {

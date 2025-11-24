@@ -3,109 +3,61 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/admin-layout}">
 <head>
-    <title>Quản lý Sản phẩm</title>
+    <title>Quản lý Danh mục</title>
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #293a58;
+            border-color: #293a58;
+        }
+        .page-link {
+            color: #293a58;
+        }
+        .page-link:hover {
+            background-color: #e9ecef;
+        }
+        .category-image {
+            width: 50px !important;
+            height: 50px !important;
+            object-fit: cover !important;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
 </head>
-<style>
-    .pagination .page-item.active .page-link {
-        background-color: #293a58;
-        border-color: #293a58;
-    }
-    .page-link {
-        color: #293a58;
-    }
-    .page-link:hover {
-        background-color: #e9ecef;
-    }
-    .product-image {
-        width: 50px !important;
-        height: 50px !important;
-        object-fit: cover !important;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-    }
-    .price-info {
-        display: flex;
-        flex-direction: column;
-    }
-    .price-original {
-        text-decoration: line-through;
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-    .price-current {
-        color: #dc3545;
-        font-weight: bold;
-    }
-    table {
-        table-layout: fixed;
-    }
-    table td img.product-image {
-        width: 50px !important;
-        height: 50px !important;
-        object-fit: cover !important;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-    }
-    td:nth-child(4) {
-        max-width: 300px;
-        white-space: normal !important;
-        word-break: break-word;
-    }
-</style>
 <body>
-<h1 layout:fragment="page-title">📦 Quản lý Sản phẩm</h1>
+<h1 layout:fragment="page-title">📁 Quản lý Danh mục</h1>
 
 <ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
     <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
-    <li class="breadcrumb-item active">Sản phẩm</li>
+    <li class="breadcrumb-item active">Danh mục</li>
 </ol>
 
 <section layout:fragment="content">
     <div class="container-fluid">
-
         <!-- Filter & Actions -->
         <div class="row mb-3">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form class="form-inline" method="get" action="/admin/products" id="filterForm">
+                        <form class="form-inline" method="get" action="/admin/categories">
                             <input type="text" name="search" class="form-control mr-2 mb-2"
-                                   placeholder="Tìm theo tên, SKU..." th:value="${searchKeyword}"
+                                   placeholder="Tìm kiếm danh mục..." th:value="${searchKeyword}"
                                    style="min-width: 250px;">
 
-                            <select name="categoryId" class="form-control mr-2 mb-2">
-                                <option value="">-- Danh mục --</option>
-                                <option th:each="cat : ${categories}"
-                                        th:value="${cat.categoryId}"
-                                        th:text="${cat.name}"
-                                        th:selected="${categoryId == cat.categoryId}">
-                                </option>
-                            </select>
-
-                            <select name="brandId" class="form-control mr-2 mb-2">
-                                <option value="">-- Thương hiệu --</option>
-                                <option th:each="brand : ${brands}"
-                                        th:value="${brand.brandId}"
-                                        th:text="${brand.name}"
-                                        th:selected="${brandId == brand.brandId}">
-                                </option>
-                            </select>
-
-                            <select name="status" class="form-control mr-2 mb-2">
+                            <select name="isActive" class="form-control mr-2 mb-2">
                                 <option value="">-- Trạng thái --</option>
-                                <option value="Còn_hàng" th:selected="${status == 'Còn_hàng'}">Còn hàng</option>
-                                <option value="Hết_hàng" th:selected="${status == 'Hết_hàng'}">Hết hàng</option>
-                                <option value="Ngừng_bán" th:selected="${status == 'Ngừng_bán'}">Ngừng bán</option>
+                                <option value="true" th:selected="${isActive == true}">Đang hoạt động</option>
+                                <option value="false" th:selected="${isActive == false}">Ngừng hoạt động</option>
                             </select>
 
                             <button type="submit" class="btn btn-primary mr-2 mb-2">
                                 <i class="fas fa-search"></i> Tìm kiếm
                             </button>
-                            <a href="/admin/products" class="btn btn-secondary mr-2 mb-2">
+                            <a href="/admin/categories" class="btn btn-secondary mr-2 mb-2">
                                 <i class="fas fa-redo"></i> Reset
                             </a>
-                            <a href="/admin/products/add" class="btn btn-success ml-auto mb-2">
-                                <i class="fas fa-plus"></i> Thêm sản phẩm
+                            <a href="/admin/categories/add" class="btn btn-success ml-auto mb-2">
+                                <i class="fas fa-plus"></i> Thêm danh mục
                             </a>
                         </form>
                     </div>
@@ -113,13 +65,13 @@
             </div>
         </div>
 
-        <!-- Products Table -->
+        <!-- Categories Table -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0 d-flex align-items-center">
-                            Danh sách sản phẩm
+                            Danh sách danh mục
                             <span class="badge badge-primary ml-2" th:text="${totalItems}">0</span>
                         </h3>
                         <div class="d-flex align-items-center">
@@ -138,89 +90,59 @@
                                     <input type="checkbox" id="selectAll">
                                 </th>
                                 <th>Hình ảnh</th>
-                                <th>Mã SP</th>
-                                <th style="max-width: 300px;">Tên sản phẩm</th>
-                                <th>Danh mục</th>
-                                <th>Thương hiệu</th>
-                                <th>Giá Bán - Giá Gốc</th>
-                                <th>Tồn kho</th>
-                                <th>Đã bán</th>
+                                <th>Tên danh mục</th>
+                                <th>Slug</th>
+                                <th>Danh mục cha</th>
+                                <th>Thứ tự</th>
                                 <th>Trạng thái</th>
-                                <th class="text-center" style="width: 100px;">Thao tác</th>
+                                <th class="text-center" style="width: 150px;">Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="product : ${products}">
+                            <tr th:each="category : ${categories}">
                                 <td>
-                                    <input type="checkbox"
-                                           class="selectProduct"
-                                           th:value="${product.deviceId}"
-                                           th:attr="data-name=${product.name}">
+                                    <input type="checkbox" class="selectCategory"
+                                           th:value="${category.categoryId}"
+                                           th:attr="data-name=${category.name}">
                                 </td>
                                 <td>
-                                    <img th:src="${product.imageUrl != null ? product.imageUrl : '/img/no-image.png'}"
-                                         class="product-image"
-                                         th:alt="${product.name}">
+                                    <img th:src="${category.imageUrl != null ? category.imageUrl : '/img/no-image.png'}"
+                                         class="category-image"
+                                         th:alt="${category.name}">
                                 </td>
                                 <td>
-                                    <span class="badge badge-secondary" th:text="${product.sku}"></span>
+                                    <strong th:text="${category.name}">Tên danh mục</strong>
+                                    <div class="text-muted small" th:if="${category.description}"
+                                         th:text="${#strings.abbreviate(category.description, 50)}"></div>
                                 </td>
                                 <td>
-                                    <div>
-                                        <strong th:text="${product.name}">Tên sản phẩm</strong>
-                                        <div class="text-muted small" th:if="${product.isFeatured}">
-                                            <i class="fas fa-star text-warning"></i>
-                                        </div>
-                                        <div class="text-muted small" th:if="${product.isNew}">
-                                            <i class="fas fa-certificate text-success"></i>
-                                        </div>
-                                    </div>
+                                    <span class="badge badge-secondary" th:text="${category.slug}"></span>
                                 </td>
-                                <td th:text="${product.categoryName ?: 'N/A'}"></td>
-                                <td th:text="${product.brandName ?: 'N/A'}"></td>
+                                <td th:text="${category.parentName ?: '--'}"></td>
                                 <td>
-                                    <div class="price-info">
-                                        <span class="price-current" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
-                                        </span>
-                                        <span class="price-original"
-                                              th:if="${product.originalPrice != null && product.originalPrice > product.price}"
-                                              th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ' ">
-                                        </span>
-                                        <span class="badge badge-danger badge-sm"
-                                              th:if="${product.discountPercent != null && product.discountPercent > 0}"
-                                              th:text="'-' + ${product.discountPercent} + '%'">
-                                        </span>
-                                    </div>
+                                    <span class="badge badge-info" th:text="${category.displayOrder}">0</span>
                                 </td>
                                 <td>
-                                    <span th:class="${'badge ' + (product.stockQuantity <= product.minStockLevel ? 'badge-danger' : 'badge-success')}"
-                                          th:text="${product.stockQuantity}">
-                                        50
+                                    <span th:class="${'badge ' + (category.isActive ? 'badge-success' : 'badge-secondary')}"
+                                          th:text="${category.isActive ? 'Hoạt động' : 'Ngừng hoạt động'}">
                                     </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-info" th:text="${product.soldCount ?: 0}">0</span>
-                                </td>
-                                <td>
-                                    <span th:class="${'badge ' +
-                                        (product.status == 'Còn_hàng' ? 'badge-success' :
-                                         (product.status == 'Hết_hàng' ? 'badge-warning' :
-                                         'badge-secondary'))}"
-                                          th:text="${product.status ?: 'N/A'}">
-                                        Còn hàng
-                                    </span>
-
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
-                                        <a th:href="@{/admin/products/edit/{id}(id=${product.deviceId})}"
+                                        <button type="button"
+                                                class="btn btn-sm btn-info btn-toggle-status"
+                                                th:attr="data-id=${category.categoryId}"
+                                                title="Bật/Tắt">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                        <a th:href="@{/admin/categories/edit/{id}(id=${category.categoryId})}"
                                            class="btn btn-sm btn-warning"
                                            title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button"
                                                 class="btn btn-sm btn-danger btn-delete"
-                                                th:attr="data-id=${product.deviceId},data-name=${product.name}"
+                                                th:attr="data-id=${category.categoryId},data-name=${category.name}"
                                                 title="Xóa">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -228,10 +150,10 @@
                                 </td>
                             </tr>
 
-                            <tr th:if="${#lists.isEmpty(products)}">
-                                <td colspan="11" class="text-center text-muted py-5">
-                                    <i class="fas fa-box-open fa-3x mb-3"></i>
-                                    <p>Không tìm thấy sản phẩm nào</p>
+                            <tr th:if="${#lists.isEmpty(categories)}">
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p>Không tìm thấy danh mục nào</p>
                                 </td>
                             </tr>
                             </tbody>
@@ -241,18 +163,18 @@
                         <div class="card-footer d-flex justify-content-between align-items-center">
                             <div>
                                 <span>Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">1</strong></span>
-                                <span class="ml-2">Tổng số: <strong th:text="${totalItems}">0</strong> sản phẩm</span>
+                                <span class="ml-2">Tổng số: <strong th:text="${totalItems}">0</strong> danh mục</span>
                             </div>
 
                             <nav>
                                 <ul class="pagination mb-0">
                                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/products(page=0, search=${searchKeyword}, categoryId=${categoryId}, brandId=${brandId}, status=${status})}">&laquo;</a>
+                                        <a class="page-link" th:href="@{/admin/categories(page=0, search=${searchKeyword}, isActive=${isActive})}">&laquo;</a>
                                     </li>
 
                                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                                         <a class="page-link"
-                                           th:href="@{/admin/products(page=${currentPage - 1}, search=${searchKeyword}, categoryId=${categoryId}, brandId=${brandId}, status=${status})}">
+                                           th:href="@{/admin/categories(page=${currentPage - 1}, search=${searchKeyword}, isActive=${isActive})}">
                                             Trước
                                         </a>
                                     </li>
@@ -262,46 +184,45 @@
                                         th:classappend="${i == currentPage} ? 'active'">
                                         <a class="page-link"
                                            th:text="${i + 1}"
-                                           th:href="@{/admin/products(page=${i}, search=${searchKeyword}, categoryId=${categoryId}, brandId=${brandId}, status=${status})}">
+                                           th:href="@{/admin/categories(page=${i}, search=${searchKeyword}, isActive=${isActive})}">
                                         </a>
                                     </li>
 
                                     <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
                                         <a class="page-link"
-                                           th:href="@{/admin/products(page=${currentPage + 1}, search=${searchKeyword}, categoryId=${categoryId}, brandId=${brandId}, status=${status})}">
+                                           th:href="@{/admin/categories(page=${currentPage + 1}, search=${searchKeyword}, isActive=${isActive})}">
                                             Sau
                                         </a>
                                     </li>
 
                                     <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/products(page=${totalPages - 1}, search=${searchKeyword}, categoryId=${categoryId}, brandId=${brandId}, status=${status})}">&raquo;</a>
+                                        <a class="page-link" th:href="@{/admin/categories(page=${totalPages - 1}, search=${searchKeyword}, isActive=${isActive})}">&raquo;</a>
                                     </li>
                                 </ul>
                             </nav>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal xóa đơn -->
+    <!-- Modals -->
     <div class="modal fade" id="deleteSingleModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa sản phẩm
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa danh mục
                     </h5>
                     <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center mb-3">
-                        <i class="fas fa-box-open fa-3x text-danger"></i>
+                        <i class="fas fa-folder-open fa-3x text-danger"></i>
                     </div>
-                    <p class="text-center mb-2">Bạn có chắc chắn muốn xóa sản phẩm:</p>
-                    <h5 class="text-center text-primary" id="productNameToDelete"></h5>
+                    <p class="text-center mb-2">Bạn có chắc chắn muốn xóa danh mục:</p>
+                    <h5 class="text-center text-primary" id="categoryNameToDelete"></h5>
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-info-circle mr-2"></i>
                         <small>Hành động này không thể hoàn tác!</small>
@@ -319,30 +240,28 @@
         </div>
     </div>
 
-    <!-- Modal xóa nhiều -->
     <div class="modal fade" id="deleteBatchModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa nhiều sản phẩm
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa nhiều danh mục
                     </h5>
                     <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center mb-3">
-                        <i class="fas fa-boxes fa-3x text-danger"></i>
+                        <i class="fas fa-folders fa-3x text-danger"></i>
                     </div>
                     <p class="text-center mb-3">
-                        Bạn đang chuẩn bị xóa <strong class="text-danger" id="batchDeleteCount">0</strong> sản phẩm:
+                        Bạn đang chuẩn bị xóa <strong class="text-danger" id="batchDeleteCount">0</strong> danh mục:
                     </p>
                     <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
-                        <ul id="productListToDelete" class="mb-0 pl-3">
-                        </ul>
+                        <ul id="categoryListToDelete" class="mb-0 pl-3"></ul>
                     </div>
                     <div class="alert alert-danger mt-3 mb-0">
                         <i class="fas fa-exclamation-circle mr-2"></i>
-                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn tất cả sản phẩm đã chọn và không thể hoàn tác!
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn tất cả danh mục đã chọn!
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -357,7 +276,6 @@
         </div>
     </div>
 
-    <!-- Modal thông báo lỗi -->
     <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -393,10 +311,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            'use strict';
-
-            let productToDelete = null;
-            let productNameToDelete = null;
+            let categoryToDelete = null;
+            let categoryNameToDelete = null;
 
             function showErrorModal(title, message) {
                 document.getElementById('errorTitle').textContent = title;
@@ -405,9 +321,9 @@
             }
 
             function confirmDelete(id, name) {
-                productToDelete = id;
-                productNameToDelete = name;
-                document.getElementById('productNameToDelete').textContent = name;
+                categoryToDelete = id;
+                categoryNameToDelete = name;
+                document.getElementById('categoryNameToDelete').textContent = name;
                 $('#deleteSingleModal').modal('show');
             }
 
@@ -415,13 +331,13 @@
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             if (confirmDeleteBtn) {
                 confirmDeleteBtn.addEventListener('click', function () {
-                    if (!productToDelete) return;
+                    if (!categoryToDelete) return;
 
                     const btn = this;
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Đang xóa...';
 
-                    fetch('/admin/products/delete/' + productToDelete, {
+                    fetch('/admin/categories/delete/' + categoryToDelete, {
                         method: 'DELETE',
                         headers: {'Content-Type': 'application/json'}
                     })
@@ -431,7 +347,7 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Đã xóa!',
-                                text: 'Sản phẩm "' + productNameToDelete + '" đã được xóa thành công.',
+                                text: 'Danh mục "' + categoryNameToDelete + '" đã được xóa thành công.',
                                 timer: 2000,
                                 showConfirmButton: false
                             }).then(() => location.reload());
@@ -440,7 +356,7 @@
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fas fa-trash mr-1"></i>Xóa ngay';
                             $('#deleteSingleModal').modal('hide');
-                            showErrorModal('Không thể xóa sản phẩm', err.message || 'Đã xảy ra lỗi khi xóa sản phẩm.');
+                            showErrorModal('Không thể xóa danh mục', err.message || 'Đã xảy ra lỗi khi xóa danh mục.');
                         });
                 });
             }
@@ -448,35 +364,35 @@
             // Multiple Selection
             const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
             const selectAllCheckbox = document.getElementById('selectAll');
-            const productCheckboxes = document.querySelectorAll('.selectProduct');
+            const categoryCheckboxes = document.querySelectorAll('.selectCategory');
             const selectedCountSpan = document.getElementById('selectedCount');
 
             function updateDeleteButton() {
-                const checkedBoxes = Array.from(productCheckboxes).filter(cb => cb.checked);
+                const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
                 selectedCountSpan.textContent = checkedBoxes.length;
                 deleteSelectedBtn.disabled = checkedBoxes.length === 0;
             }
 
             if (selectAllCheckbox) {
                 selectAllCheckbox.addEventListener('change', function () {
-                    productCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+                    categoryCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
                     updateDeleteButton();
                 });
             }
 
-            productCheckboxes.forEach(cb => cb.addEventListener('change', updateDeleteButton));
+            categoryCheckboxes.forEach(cb => cb.addEventListener('change', updateDeleteButton));
 
             if (deleteSelectedBtn) {
                 deleteSelectedBtn.addEventListener('click', function () {
-                    const checkedBoxes = Array.from(productCheckboxes).filter(cb => cb.checked);
+                    const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
                     const ids = checkedBoxes.map(cb => cb.value);
                     const names = checkedBoxes.map(cb => cb.getAttribute('data-name'));
 
                     if (ids.length === 0) return;
 
                     document.getElementById('batchDeleteCount').textContent = ids.length;
-                    document.getElementById('productListToDelete').innerHTML = names.map(name =>
-                        `<li class="mb-1"><i class="fas fa-box mr-2 text-muted"></i>${name}</li>`
+                    document.getElementById('categoryListToDelete').innerHTML = names.map(name =>
+                        `<li class="mb-1"><i class="fas fa-folder mr-2 text-muted"></i>${name}</li>`
                     ).join('');
 
                     $('#deleteBatchModal').modal('show');
@@ -487,7 +403,7 @@
             const confirmBatchDeleteBtn = document.getElementById('confirmBatchDeleteBtn');
             if (confirmBatchDeleteBtn) {
                 confirmBatchDeleteBtn.addEventListener('click', function () {
-                    const checkedBoxes = Array.from(productCheckboxes).filter(cb => cb.checked);
+                    const checkedBoxes = Array.from(categoryCheckboxes).filter(cb => cb.checked);
                     const ids = checkedBoxes.map(cb => cb.value);
 
                     if (ids.length === 0) return;
@@ -496,18 +412,18 @@
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Đang xóa...';
 
-                    fetch('/admin/products/delete-batch', {
+                    fetch('/admin/categories/delete-batch', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(ids)
                     })
-                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message || 'Không thể xóa sản phẩm'); }))
+                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message || 'Không thể xóa danh mục'); }))
                         .then(data => {
                             $('#deleteBatchModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Xóa thành công!',
-                                text: 'Đã xóa ' + data.deletedCount + ' sản phẩm.',
+                                text: 'Đã xóa ' + data.deletedCount + ' danh mục.',
                                 timer: 2000,
                                 showConfirmButton: false
                             }).then(() => location.reload());
@@ -516,10 +432,35 @@
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i>Xóa tất cả';
                             $('#deleteBatchModal').modal('hide');
-                            showErrorModal('Không thể xóa sản phẩm', err.message || 'Đã xảy ra lỗi khi xóa nhiều sản phẩm.');
+                            showErrorModal('Không thể xóa danh mục', err.message || 'Đã xảy ra lỗi khi xóa nhiều danh mục.');
                         });
                 });
             }
+
+            // Toggle Status
+            document.querySelectorAll('.btn-toggle-status').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+
+                    fetch('/admin/categories/toggle-status/' + id, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'}
+                    })
+                        .then(res => res.ok ? res.json() : res.json().then(err => { throw new Error(err.message); }))
+                        .then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        })
+                        .catch(err => {
+                            showErrorModal('Không thể cập nhật', err.message);
+                        });
+                });
+            });
 
             // Reset buttons on modal close
             $('#deleteSingleModal, #deleteBatchModal').on('hidden.bs.modal', function () {
