@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+  <title th:text="${isEdit ? 'Chỉnh sửa Thương hiệu' : 'Thêm Thương hiệu'}">Quản lý Thương hiệu</title>
+  <style>
+    .logo-preview {
+      max-width: 200px;
+      max-height: 200px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      background: white;
+      object-fit: contain;
+    }
+    .form-group label.required::after {
+      content: " *";
+      color: red;
+    }
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .loading-content {
+      text-align: center;
+      color: white;
+    }
+    .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+<h1 layout:fragment="page-title" th:text="${isEdit ? '✏️ Chỉnh sửa Thương hiệu' : '➕ Thêm Thương hiệu mới'}">Thương hiệu</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+  <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+  <li class="breadcrumb-item"><a href="/admin/brands">Thương hiệu</a></li>
+  <li class="breadcrumb-item active" th:text="${isEdit ? 'Chỉnh sửa' : 'Thêm mới'}">Thêm mới</li>
+</ol>
+
+<section layout:fragment="content">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <h3>Đang tải logo lên Cloudinary...</h3>
+      <p>Vui lòng đợi trong giây lát</p>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title" th:text="${isEdit ? 'Cập nhật thông tin thương hiệu' : 'Thông tin thương hiệu mới'}"></h3>
+          </div>
+
+          <form th:action="${isEdit ? '/admin/brands/edit/' + brand.brandId : '/admin/brands/add'}"
+                method="post"
+                enctype="multipart/form-data"
+                th:object="${brand}"
+                id="brandForm">
+
+            <div class="card-body">
+              <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="name" class="required">Tên thương hiệu</label>
+                    <input type="text"
+                           class="form-control"
+                           id="name"
+                           th:field="*{name}"
+                           placeholder="Nhập tên thương hiệu"
+                           required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="slug">Slug (URL thân thiện)</label>
+                    <input type="text"
+                           class="form-control"
+                           id="slug"
+                           th:field="*{slug}"
+                           placeholder="vd: johnson-johnson">
+                    <small class="form-text text-muted">Để trống để tự động tạo từ tên thương hiệu</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="country">Quốc gia</label>
+                    <input type="text"
+                           class="form-control"
+                           id="country"
+                           th:field="*{country}"
+                           placeholder="VD: Việt Nam, USA, Japan">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="website">Website</label>
+                    <input type="url"
+                           class="form-control"
+                           id="website"
+                           th:field="*{website}"
+                           placeholder="https://www.example.com">
+                  </div>
+
+                  <div class="form-group">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox"
+                             class="custom-control-input"
+                             id="isActive"
+                             th:field="*{isActive}">
+                      <label class="custom-control-label" for="isActive">Kích hoạt thương hiệu</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="description">Mô tả</label>
+                    <textarea class="form-control"
+                              id="description"
+                              th:field="*{description}"
+                              rows="6"
+                              placeholder="Mô tả về thương hiệu"></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="logoFile">Logo thương hiệu</label>
+                    <div class="custom-file">
+                      <input type="file"
+                             class="custom-file-input"
+                             id="logoFile"
+                             name="logoFile"
+                             accept="image/*"
+                             onchange="previewLogo(this)">
+                      <label class="custom-file-label" for="logoFile">Chọn logo...</label>
+                    </div>
+                    <small class="form-text text-muted">
+                      <i class="fas fa-info-circle"></i>
+                      Logo sẽ tự động được tối ưu và lưu trên Cloudinary
+                    </small>
+                    <div id="logoPreviewContainer" th:if="${brand.logoUrl}">
+                      <img th:src="${brand.logoUrl}"
+                           class="logo-preview"
+                           id="logoPreview"
+                           alt="Preview">
+                    </div>
+                    <div id="logoPreviewContainer" th:unless="${brand.logoUrl}" style="display: none;">
+                      <img class="logo-preview"
+                           id="logoPreview"
+                           alt="Preview">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i th:class="${isEdit ? 'fas fa-save' : 'fas fa-plus'}"></i>
+                <span th:text="${isEdit ? 'Cập nhật' : 'Thêm mới'}"></span>
+              </button>
+              <a href="/admin/brands" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Hủy
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block layout:fragment="scripts">
+  <script>
+    // Auto generate slug from name
+    document.getElementById('name').addEventListener('input', function() {
+      const slugInput = document.getElementById('slug');
+      if (!slugInput.value || slugInput.dataset.autoGenerated === 'true') {
+        const slug = this.value
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+
+        slugInput.value = slug;
+        slugInput.dataset.autoGenerated = 'true';
+      }
+    });
+
+    document.getElementById('slug').addEventListener('input', function() {
+      if (this.value) {
+        this.dataset.autoGenerated = 'false';
+      }
+    });
+
+    // Preview logo
+    function previewLogo(input) {
+      const previewContainer = document.getElementById('logoPreviewContainer');
+      const preview = document.getElementById('logoPreview');
+      const label = document.querySelector('.custom-file-label');
+
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          previewContainer.style.display = 'block';
+        };
+
+        reader.readAsDataURL(input.files[0]);
+        label.textContent = input.files[0].name;
+      }
+    }
+
+    // Show loading when form is submitted with logo
+    document.getElementById('brandForm').addEventListener('submit', function(e) {
+      const logoFile = document.getElementById('logoFile');
+
+      if (logoFile.files && logoFile.files[0]) {
+        document.getElementById('loadingOverlay').classList.add('active');
+        document.getElementById('submitBtn').disabled = true;
+      }
+    });
+
+    // Update file input label
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'Chọn logo...';
+      const label = e.target.nextElementSibling;
+      label.textContent = fileName;
+    });
+  </script>
+</th:block>
+</body>
+</html>
