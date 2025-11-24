@@ -44,5 +44,6 @@ public class Brand {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
 }
 

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+  <title>Quản lý Đánh giá</title>
+  <style>
+    .rating-stars {
+      color: #ffc107;
+    }
+    .review-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+    .stats-card {
+      border-left: 4px solid #007bff;
+    }
+    .product-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">⭐ Quản lý Đánh giá</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+  <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+  <li class="breadcrumb-item active">Đánh giá</li>
+</ol>
+
+<section layout:fragment="content">
+  <div class="container-fluid">
+    <!-- Statistics -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <div class="card stats-card">
+          <div class="card-body">
+            <h5>Tổng đánh giá</h5>
+            <h2 th:text="${stats.total}">0</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card" style="border-color: #ffc107;">
+          <div class="card-body">
+            <h5>Chờ duyệt</h5>
+            <h2 class="text-warning" th:text="${stats.pending}">0</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card" style="border-color: #28a745;">
+          <div class="card-body">
+            <h5>Đã duyệt</h5>
+            <h2 class="text-success" th:text="${stats.approved}">0</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stats-card" style="border-color: #dc3545;">
+          <div class="card-body">
+            <h5>Đã từ chối</h5>
+            <h2 class="text-danger" th:text="${stats.rejected}">0</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <form class="form-inline" method="get" action="/admin/reviews">
+              <input type="text" name="search" class="form-control mr-2 mb-2"
+                     placeholder="Tìm kiếm..." th:value="${searchKeyword}"
+                     style="min-width: 250px;">
+
+              <select name="status" class="form-control mr-2 mb-2">
+                <option value="">-- Trạng thái --</option>
+                <option value="PENDING" th:selected="${filterStatus == 'PENDING'}">Chờ duyệt</option>
+                <option value="APPROVED" th:selected="${filterStatus == 'APPROVED'}">Đã duyệt</option>
+                <option value="REJECTED" th:selected="${filterStatus == 'REJECTED'}">Đã từ chối</option>
+              </select>
+
+              <select name="rating" class="form-control mr-2 mb-2">
+                <option value="">-- Đánh giá --</option>
+                <option value="5" th:selected="${filterRating == 5}">⭐⭐⭐⭐⭐ (5 sao)</option>
+                <option value="4" th:selected="${filterRating == 4}">⭐⭐⭐⭐ (4 sao)</option>
+                <option value="3" th:selected="${filterRating == 3}">⭐⭐⭐ (3 sao)</option>
+                <option value="2" th:selected="${filterRating == 2}">⭐⭐ (2 sao)</option>
+                <option value="1" th:selected="${filterRating == 1}">⭐ (1 sao)</option>
+              </select>
+
+              <button type="submit" class="btn btn-primary mr-2 mb-2">
+                <i class="fas fa-search"></i> Tìm kiếm
+              </button>
+              <a href="/admin/reviews" class="btn btn-secondary mb-2">
+                <i class="fas fa-redo"></i> Reset
+              </a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">
+              Danh sách đánh giá
+              <span class="badge badge-primary ml-2" th:text="${totalItems}">0</span>
+            </h3>
+            <button id="deleteSelectedBtn" class="btn btn-danger btn-sm" disabled>
+              <i class="fas fa-trash-alt"></i>
+              Xóa đã chọn (<span id="selectedCount">0</span>)
+            </button>
+          </div>
+
+          <div class="card-body table-responsive p-0">
+            <table class="table table-hover align-middle">
+              <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" id="selectAll">
+                </th>
+                <th>Sản phẩm</th>
+                <th>Khách hàng</th>
+                <th>Đánh giá</th>
+                <th>Nội dung</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th class="text-center" style="width: 200px;">Thao tác</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="review : ${reviews}">
+                <td>
+                  <input type="checkbox" class="selectReview"
+                         th:value="${review.reviewId}">
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img th:src="${review.deviceImage}"
+                         class="product-thumb mr-2"
+                         alt="Product">
+                    <div>
+                      <strong th:text="${#strings.abbreviate(review.deviceName, 30)}">Product</strong>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <strong th:text="${review.customerName}">Customer</strong>
+                    <div class="text-muted small" th:text="${review.customerEmail}"></div>
+                    <span th:if="${review.isVerifiedPurchase}"
+                          class="badge badge-success badge-sm">
+                                            <i class="fas fa-check-circle"></i> Đã mua
+                                        </span>
+                  </div>
+                </td>
+                <td>
+                  <div class="rating-stars">
+                    <span th:each="i : ${#numbers.sequence(1, review.rating)}">⭐</span>
+                  </div>
+                  <small th:text="${review.rating} + '/5'">5/5</small>
+                </td>
+                <td>
+                  <div th:text="${#strings.abbreviate(review.comment, 80)}">Comment</div>
+                  <div th:if="${review.imageList != null && !review.imageList.isEmpty()}" class="mt-2">
+                    <img th:each="img : ${review.imageList}"
+                         th:src="${img}"
+                         class="review-image"
+                         alt="Review">
+                  </div>
+                </td>
+                <td>
+                                    <span th:class="${'badge ' +
+                                            (review.status.name() == 'PENDING' ? 'badge-warning' :
+                                            review.status.name() == 'APPROVED' ? 'badge-success' : 'badge-danger')}"
+                                          th:text="${review.statusDisplay}">
+                                    </span>
+                </td>
+                <td>
+                  <small th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">Date</small>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group-vertical btn-group-sm" role="group">
+                    <button type="button"
+                            class="btn btn-success btn-approve"
+                            th:attr="data-id=${review.reviewId}"
+                            th:if="${review.status.name() != 'APPROVED'}"
+                            title="Duyệt">
+                      <i class="fas fa-check"></i> Duyệt
+                    </button>
+                    <button type="button"
+                            class="btn btn-warning btn-reject"
+                            th:attr="data-id=${review.reviewId}"
+                            th:if="${review.status.name() != 'REJECTED'}"
+                            title="Từ chối">
+                      <i class="fas fa-times"></i> Từ chối
+                    </button>
+                    <a th:href="@{/admin/reviews/{id}(id=${review.reviewId})}"
+                       class="btn btn-info"
+                       title="Chi tiết">
+                      <i class="fas fa-eye"></i> Chi tiết
+                    </a>
+                    <button type="button"
+                            class="btn btn-danger btn-delete"
+                            th:attr="data-id=${review.reviewId}"
+                            title="Xóa">
+                      <i class="fas fa-trash"></i> Xóa
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(reviews)}">
+                <td colspan="8" class="text-center text-muted py-5">
+                  <i class="fas fa-star fa-3x mb-3"></i>
+                  <p>Không tìm thấy đánh giá nào</p>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div>
+                <span>Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">1</strong></span>
+                <span class="ml-2">Tổng: <strong th:text="${totalItems}">0</strong> đánh giá</span>
+              </div>
+
+              <nav>
+                <ul class="pagination mb-0">
+                  <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/reviews(page=0, search=${searchKeyword}, status=${filterStatus}, rating=${filterRating})}">&laquo;</a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/reviews(page=${currentPage - 1}, search=${searchKeyword}, status=${filterStatus}, rating=${filterRating})}">Trước</a>
+                  </li>
+                  <li class="page-item"
+                      th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                      th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i + 1}"
+                       th:href="@{/admin/reviews(page=${i}, search=${searchKeyword}, status=${filterStatus}, rating=${filterRating})}"></a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/reviews(page=${currentPage + 1}, search=${searchKeyword}, status=${filterStatus}, rating=${filterRating})}">Sau</a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/reviews(page=${totalPages - 1}, search=${searchKeyword}, status=${filterStatus}, rating=${filterRating})}">&raquo;</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block layout:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Select all
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const reviewCheckboxes = document.querySelectorAll('.selectReview');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectedCountSpan = document.getElementById('selectedCount');
+
+    function updateDeleteButton() {
+      const checkedBoxes = Array.from(reviewCheckboxes).filter(cb => cb.checked);
+      selectedCountSpan.textContent = checkedBoxes.length;
+      deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+    }
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function () {
+        reviewCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+        updateDeleteButton();
+      });
+    }
+
+    reviewCheckboxes.forEach(cb => cb.addEventListener('change', updateDeleteButton));
+
+    // Approve
+    document.querySelectorAll('.btn-approve').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+
+        Swal.fire({
+          title: 'Duyệt đánh giá?',
+          text: 'Đánh giá này sẽ hiển thị công khai',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Duyệt',
+          cancelButtonText: 'Hủy'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch('/admin/reviews/approve/' + id, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'}
+            })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (data.success) {
+                        Swal.fire('Thành công!', data.message, 'success')
+                                .then(() => location.reload());
+                      } else {
+                        Swal.fire('Lỗi!', data.message, 'error');
+                      }
+                    });
+          }
+        });
+      });
+    });
+
+    // Reject
+    document.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+
+        Swal.fire({
+          title: 'Từ chối đánh giá?',
+          text: 'Đánh giá này sẽ bị ẩn',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Từ chối',
+          cancelButtonText: 'Hủy'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch('/admin/reviews/reject/' + id, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'}
+            })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (data.success) {
+                        Swal.fire('Đã từ chối!', data.message, 'success')
+                                .then(() => location.reload());
+                      } else {
+                        Swal.fire('Lỗi!', data.message, 'error');
+                      }
+                    });
+          }
+        });
+      });
+    });
+
+    // Delete
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+
+        Swal.fire({
+          title: 'Xóa đánh giá?',
+          text: 'Hành động này không thể hoàn tác!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Xóa',
+          cancelButtonText: 'Hủy'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch('/admin/reviews/delete/' + id, {
+              method: 'DELETE',
+              headers: {'Content-Type': 'application/json'}
+            })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (data.success) {
+                        Swal.fire('Đã xóa!', data.message, 'success')
+                                .then(() => location.reload());
+                      } else {
+                        Swal.fire('Lỗi!', data.message, 'error');
+                      }
+                    });
+          }
+        });
+      });
+    });
+
+    // Batch delete
+    deleteSelectedBtn.addEventListener('click', function() {
+      const checkedBoxes = Array.from(reviewCheckboxes).filter(cb => cb.checked);
+      const ids = checkedBoxes.map(cb => cb.value);
+
+      if (ids.length === 0) return;
+
+      Swal.fire({
+        title: 'Xóa ' + ids.length + ' đánh giá?',
+        text: 'Hành động này không thể hoàn tác!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Xóa tất cả',
+        cancelButtonText: 'Hủy'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch('/admin/reviews/delete-batch', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(ids)
+          })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.success) {
+                      Swal.fire('Đã xóa!', 'Đã xóa ' + data.deletedCount + ' đánh giá', 'success')
+                              .then(() => location.reload());
+                    } else {
+                      Swal.fire('Lỗi!', data.message, 'error');
+                    }
+                  });
+        }
+      });
+    });
+  </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+  <title>Quản lý Thương hiệu</title>
+  <style>
+    .pagination .page-item.active .page-link {
+      background-color: #293a58;
+      border-color: #293a58;
+    }
+    .brand-logo {
+      width: 80px !important;
+      height: 80px !important;
+      object-fit: contain !important;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 5px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">🏢 Quản lý Thương hiệu</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+  <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+  <li class="breadcrumb-item active">Thương hiệu</li>
+</ol>
+
+<section layout:fragment="content">
+  <div class="container-fluid">
+    <!-- Filter -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <form class="form-inline" method="get" action="/admin/brands">
+              <input type="text" name="search" class="form-control mr-2 mb-2"
+                     placeholder="Tìm kiếm thương hiệu..." th:value="${searchKeyword}"
+                     style="min-width: 250px;">
+
+              <select name="isActive" class="form-control mr-2 mb-2">
+                <option value="">-- Trạng thái --</option>
+                <option value="true" th:selected="${isActive == true}">Đang hoạt động</option>
+                <option value="false" th:selected="${isActive == false}">Ngừng hoạt động</option>
+              </select>
+
+              <button type="submit" class="btn btn-primary mr-2 mb-2">
+                <i class="fas fa-search"></i> Tìm kiếm
+              </button>
+              <a href="/admin/brands" class="btn btn-secondary mr-2 mb-2">
+                <i class="fas fa-redo"></i> Reset
+              </a>
+              <a href="/admin/brands/add" class="btn btn-success ml-auto mb-2">
+                <i class="fas fa-plus"></i> Thêm thương hiệu
+              </a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">
+              Danh sách thương hiệu
+              <span class="badge badge-primary ml-2" th:text="${totalItems}">0</span>
+            </h3>
+            <button id="deleteSelectedBtn" class="btn btn-danger btn-sm" disabled>
+              <i class="fas fa-trash-alt"></i>
+              Xóa đã chọn (<span id="selectedCount">0</span>)
+            </button>
+          </div>
+
+          <div class="card-body table-responsive p-0">
+            <table class="table table-hover align-middle">
+              <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" id="selectAll">
+                </th>
+                <th>Logo</th>
+                <th>Tên thương hiệu</th>
+                <th>Quốc gia</th>
+                <th>Website</th>
+                <th>Sản phẩm</th>
+                <th>Trạng thái</th>
+                <th class="text-center" style="width: 150px;">Thao tác</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="brand : ${brands}">
+                <td>
+                  <input type="checkbox" class="selectBrand"
+                         th:value="${brand.brandId}"
+                         th:attr="data-name=${brand.name}">
+                </td>
+                <td>
+                  <img th:src="${brand.logoUrl != null ? brand.logoUrl : '/img/no-logo.png'}"
+                       class="brand-logo"
+                       th:alt="${brand.name}">
+                </td>
+                <td>
+                  <strong th:text="${brand.name}">Brand Name</strong>
+                  <div class="text-muted small" th:if="${brand.description}"
+                       th:text="${#strings.abbreviate(brand.description, 60)}"></div>
+                </td>
+                <td>
+                  <span th:if="${brand.country}" th:text="${brand.country}"></span>
+                  <span th:unless="${brand.country}" class="text-muted">--</span>
+                </td>
+                <td>
+                  <a th:if="${brand.website}"
+                     th:href="${brand.website}"
+                     target="_blank"
+                     class="btn btn-sm btn-link">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                  <span th:unless="${brand.website}" class="text-muted">--</span>
+                </td>
+                <td>
+                  <span class="badge badge-info" th:text="${brand.productCount}">0</span>
+                </td>
+                <td>
+                                    <span th:class="${'badge ' + (brand.isActive ? 'badge-success' : 'badge-secondary')}"
+                                          th:text="${brand.isActive ? 'Hoạt động' : 'Ngừng'}">
+                                    </span>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-info btn-toggle-status"
+                            th:attr="data-id=${brand.brandId}"
+                            title="Bật/Tắt">
+                      <i class="fas fa-power-off"></i>
+                    </button>
+                    <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandId})}"
+                       class="btn btn-sm btn-warning"
+                       title="Chỉnh sửa">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button"
+                            class="btn btn-sm btn-danger btn-delete"
+                            th:attr="data-id=${brand.brandId},data-name=${brand.name}"
+                            title="Xóa">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(brands)}">
+                <td colspan="8" class="text-center text-muted py-5">
+                  <i class="fas fa-copyright fa-3x mb-3"></i>
+                  <p>Không tìm thấy thương hiệu nào</p>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div>
+                <span>Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${totalPages}">1</strong></span>
+                <span class="ml-2">Tổng: <strong th:text="${totalItems}">0</strong> thương hiệu</span>
+              </div>
+
+              <nav>
+                <ul class="pagination mb-0">
+                  <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/brands(page=0, search=${searchKeyword}, isActive=${isActive})}">&laquo;</a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/brands(page=${currentPage - 1}, search=${searchKeyword}, isActive=${isActive})}">Trước</a>
+                  </li>
+                  <li class="page-item"
+                      th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                      th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i + 1}"
+                       th:href="@{/admin/brands(page=${i}, search=${searchKeyword}, isActive=${isActive})}"></a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/brands(page=${currentPage + 1}, search=${searchKeyword}, isActive=${isActive})}">Sau</a>
+                  </li>
+                  <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/brands(page=${totalPages - 1}, search=${searchKeyword}, isActive=${isActive})}">&raquo;</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals (tương tự category) -->
+</section>
+
+<th:block layout:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Tương tự category-list.html scripts
+    // Toggle status, featured, delete, batch delete...
+  </script>
+</th:block>
+</body>
+</html>
