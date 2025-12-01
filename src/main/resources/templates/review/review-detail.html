@@ -163,7 +163,6 @@
                                 <div class="info-label">Ngày đánh giá:</div>
                                 <div class="info-value"
                                      th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm:ss')}">
-                                    01/01/2024 10:00:00
                                 </div>
                             </div>
                         </div>
@@ -241,7 +240,7 @@
                              class="product-image mb-3"
                              alt="Product">
                         <h5 th:text="${review.deviceName}">Tên sản phẩm</h5>
-                        <a th:href="@{/admin/products/{id}(id=${review.deviceId})}"
+                        <a th:href="@{/admin/products/edit/{id}(id=${review.deviceId})}"
                            class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-external-link-alt"></i> Xem sản phẩm
                         </a>
@@ -264,9 +263,8 @@
                         </div>
                         <div class="info-label">Email:</div>
                         <div class="info-value mb-2" th:text="${review.customerEmail}">
-                            customer@email.com
                         </div>
-                        <a th:href="@{/admin/customers/{id}(id=${review.customerId})}"
+                        <a th:href="@{/admin/customers/edit/{id}(id=${review.customerId})}"
                            class="btn btn-sm btn-outline-success btn-block">
                             <i class="fas fa-external-link-alt"></i> Xem thông tin
                         </a>
