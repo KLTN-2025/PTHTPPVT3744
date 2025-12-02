@@ -95,12 +95,10 @@ public class EmployeeDetails implements UserDetails {
         return avatarUrl;
     }
 
-    // ✅ THÊM GETTER NÀY
     public String getPosition() {
         return position;
     }
 
-    // ✅ BONUS: Thêm getter cho email nếu cần
     public String getEmail() {
         return email;
     }
@@ -109,8 +107,12 @@ public class EmployeeDetails implements UserDetails {
         return employee;
     }
 
-    public boolean hasRole(String admin) {
-        if (roleName == null || roleName.isEmpty()) return false;
-        return this.roleName.equalsIgnoreCase(roleName);
+    // ✅ FIX: Sửa lỗi logic trong method hasRole
+    public boolean hasRole(String role) {
+        if (this.roleName == null || this.roleName.isEmpty()) {
+            return false;
+        }
+        // So sánh roleName hiện tại với role được truyền vào
+        return this.roleName.equalsIgnoreCase(role);
     }
 }

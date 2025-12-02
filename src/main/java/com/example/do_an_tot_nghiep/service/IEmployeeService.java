@@ -17,6 +17,7 @@ public interface IEmployeeService {
     // Basic CRUD operations
     EmployeeDTO getEmployeeById(Integer employeeId);
     List<EmployeeDTO> getAllEmployees();
+    List<Employee> findAll(); // Thêm method này
     void createEmployee(EmployeeDTO dto);
     void updateEmployee(EmployeeDTO dto);
     void deleteEmployee(Integer id);
@@ -47,11 +48,19 @@ public interface IEmployeeService {
     List<RoleDTO> getAllRoles();
     List<String> getAllDepartments();
 
-    boolean existsByPhone(@NotBlank(message = "Số điện thoại không được để trống") @Pattern(regexp = "^[0-9]{10,11}$", message = "Số điện thoại phải có 10-11 số") String phone);
+    // Check existence
+    boolean existsByPhone(@NotBlank(message = "Số điện thoại không được để trống")
+                          @Pattern(regexp = "^[0-9]{10,11}$", message = "Số điện thoại phải có 10-11 số")
+                          String phone);
 
-    boolean existsByEmail(@NotBlank(message = "Email không được để trống") @Email(message = "Email không hợp lệ") String email);
+    boolean existsByEmail(@NotBlank(message = "Email không được để trống")
+                          @Email(message = "Email không hợp lệ")
+                          String email);
 
-    boolean existsByUsername(@NotBlank(message = "Tên đăng nhập không được để trống") @Size(min = 4, max = 100, message = "Tên đăng nhập phải từ 4-100 ký tự") String username);
+    boolean existsByUsername(@NotBlank(message = "Tên đăng nhập không được để trống")
+                             @Size(min = 4, max = 100, message = "Tên đăng nhập phải từ 4-100 ký tự")
+                             String username);
 
+    // Find by ID
     Employee findByEmployeeId(Integer employeeId);
 }

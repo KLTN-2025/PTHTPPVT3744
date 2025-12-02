@@ -37,6 +37,8 @@ public class AdminPromotionController {
     @Autowired
     private IPromotionUsageRepository promotionUsageRepository;
 
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
     /**
      * Hiển thị danh sách khuyến mãi
      */
@@ -96,12 +98,23 @@ public class AdminPromotionController {
      */
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("promotion", new Promotion());
+        Promotion promotion = new Promotion();
+        // Set default dates để tránh null trong form
+        LocalDateTime now = LocalDateTime.now();
+        promotion.setStartDate(now);
+        promotion.setEndDate(now.plusDays(30));
+
+        model.addAttribute("promotion", promotion);
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("products", deviceRepository.findAll());
         model.addAttribute("discountTypes", Promotion.DiscountType.values());
         model.addAttribute("customerTiers", Promotion.CustomerTier.values());
         model.addAttribute("applicableToOptions", Promotion.ApplicableTo.values());
+
+        // Add formatted dates
+        model.addAttribute("startDateFormatted", promotion.getStartDate().format(DATETIME_FORMATTER));
+        model.addAttribute("endDateFormatted", promotion.getEndDate().format(DATETIME_FORMATTER));
+
         return "admin/promotions/form";
     }
 
@@ -109,11 +122,11 @@ public class AdminPromotionController {
      * Hiển thị form chỉnh sửa khuyến mãi
      */
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Promotion> promotionOpt = promotionRepository.findById(id);
 
         if (!promotionOpt.isPresent()) {
-            model.addAttribute("error", "Khuyến mãi không tồn tại!");
+            redirectAttributes.addFlashAttribute("error", "Khuyến mãi không tồn tại!");
             return "redirect:/admin/promotions";
         }
 
@@ -139,6 +152,12 @@ public class AdminPromotionController {
         model.addAttribute("customerTiers", Promotion.CustomerTier.values());
         model.addAttribute("applicableToOptions", Promotion.ApplicableTo.values());
 
+        // Add formatted dates
+        model.addAttribute("startDateFormatted",
+                promotion.getStartDate() != null ? promotion.getStartDate().format(DATETIME_FORMATTER) : "");
+        model.addAttribute("endDateFormatted",
+                promotion.getEndDate() != null ? promotion.getEndDate().format(DATETIME_FORMATTER) : "");
+
         return "admin/promotions/form";
     }
 
@@ -152,13 +171,22 @@ public class AdminPromotionController {
             @RequestParam(value = "productIds", required = false) List<String> productIds,
             @RequestParam(value = "startDateStr") String startDateStr,
             @RequestParam(value = "endDateStr") String endDateStr,
+            @RequestParam(value = "isActive", required = false, defaultValue = "false") Boolean isActive,
             RedirectAttributes redirectAttributes) {
 
         try {
             // Parse dates
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-            promotion.setStartDate(LocalDateTime.parse(startDateStr, formatter));
-            promotion.setEndDate(LocalDateTime.parse(endDateStr, formatter));
+            promotion.setStartDate(LocalDateTime.parse(startDateStr, DATETIME_FORMATTER));
+            promotion.setEndDate(LocalDateTime.parse(endDateStr, DATETIME_FORMATTER));
+
+            // Set isActive (checkbox only sends value when checked)
+            promotion.setIsActive(isActive);
+
+            // Validate dates
+            if (promotion.getEndDate().isBefore(promotion.getStartDate())) {
+                redirectAttributes.addFlashAttribute("error", "Ngày kết thúc phải sau ngày bắt đầu!");
+                return "redirect:/admin/promotions/create";
+            }
 
             // Save promotion
             Promotion savedPromotion = promotionRepository.save(promotion);
@@ -216,11 +244,11 @@ public class AdminPromotionController {
      * Xem chi tiết khuyến mãi
      */
     @GetMapping("/detail/{id}")
-    public String viewDetail(@PathVariable Integer id, Model model) {
+    public String viewDetail(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Promotion> promotionOpt = promotionRepository.findById(id);
 
         if (!promotionOpt.isPresent()) {
-            model.addAttribute("error", "Khuyến mãi không tồn tại!");
+            redirectAttributes.addFlashAttribute("error", "Khuyến mãi không tồn tại!");
             return "redirect:/admin/promotions";
         }
 
@@ -302,13 +330,18 @@ public class AdminPromotionController {
             Promotion promotion = promotionOpt.get();
 
             // Check if used
-            Long usageCount = promotionUsageRepository.countByPromotionAndCustomer(promotion, null);
-            if (usageCount > 0) {
+            List<PromotionUsage> usages = promotionUsageRepository.findByPromotion(promotion);
+            if (!usages.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error",
                         "Không thể xóa khuyến mãi đã được sử dụng!");
                 return "redirect:/admin/promotions";
             }
 
+            // Delete relationships first
+            promotionCategoryRepository.deleteByPromotion(promotion);
+            promotionProductRepository.deleteByPromotion(promotion);
+
+            // Delete promotion
             promotionRepository.delete(promotion);
             redirectAttributes.addFlashAttribute("success", "Xóa khuyến mãi thành công!");
 

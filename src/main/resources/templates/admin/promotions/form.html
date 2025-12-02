@@ -108,8 +108,10 @@
                         <select name="discountType" class="form-control" id="discountType" required>
                           <option th:each="type : ${discountTypes}"
                                   th:value="${type.name()}"
-                                  th:text="${type.name() == 'Percent' ? 'Giảm theo %' : (type.name() == 'Fixed' ? 'Giảm cố định' : 'Miễn phí ship')}"
-                                  th:selected="${promotion.discountType?.name() == type.name()}">
+                                  th:selected="${promotion.discountType != null && promotion.discountType.name() == type.name()}">
+                            <span th:if="${type.name() == 'Percent'}">Giảm theo %</span>
+                            <span th:if="${type.name() == 'Fixed'}">Giảm cố định</span>
+                            <span th:if="${type.name() == 'FreeShip'}">Miễn phí ship</span>
                           </option>
                         </select>
                       </div>
@@ -157,8 +159,10 @@
                     <select name="applicableTo" class="form-control" id="applicableTo">
                       <option th:each="opt : ${applicableToOptions}"
                               th:value="${opt.name()}"
-                              th:text="${opt.name() == 'All' ? 'Tất cả sản phẩm' : (opt.name() == 'Category' ? 'Theo danh mục' : 'Theo sản phẩm')}"
-                              th:selected="${promotion.applicableTo?.name() == opt.name()}">
+                              th:selected="${promotion.applicableTo != null && promotion.applicableTo.name() == opt.name()}">
+                        <span th:if="${opt.name() == 'All'}">Tất cả sản phẩm</span>
+                        <span th:if="${opt.name() == 'Category'}">Theo danh mục</span>
+                        <span th:if="${opt.name() == 'Product'}">Theo sản phẩm</span>
                       </option>
                     </select>
                   </div>
@@ -215,13 +219,13 @@
                   <div class="form-group">
                     <label>Bắt đầu <span class="text-danger">*</span></label>
                     <input type="datetime-local" name="startDateStr" class="form-control"
-                           th:value="${#temporals.format(promotion.startDate, 'yyyy-MM-dd\'T\'HH:mm')}" required>
+                           th:value="${startDateFormatted}" required>
                   </div>
 
                   <div class="form-group">
                     <label>Kết thúc <span class="text-danger">*</span></label>
                     <input type="datetime-local" name="endDateStr" class="form-control"
-                           th:value="${#temporals.format(promotion.endDate, 'yyyy-MM-dd\'T\'HH:mm')}" required>
+                           th:value="${endDateFormatted}" required>
                   </div>
                 </div>
               </div>
@@ -238,7 +242,7 @@
                       <option th:each="tier : ${customerTiers}"
                               th:value="${tier.name()}"
                               th:text="${tier.name()}"
-                              th:selected="${promotion.customerTier?.name() == tier.name()}">
+                              th:selected="${promotion.customerTier != null && promotion.customerTier.name() == tier.name()}">
                       </option>
                     </select>
                   </div>

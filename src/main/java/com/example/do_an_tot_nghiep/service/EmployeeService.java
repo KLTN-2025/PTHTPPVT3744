@@ -117,6 +117,11 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
+    }
+
+    @Override
     public long getActiveCount() {
         return employeeRepository.countByStatus(Employee.EmployeeStatus.ACTIVE);
     }
