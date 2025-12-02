@@ -30,6 +30,37 @@ public class ContactMessageService implements IContactMessageService {
     @Autowired
     private IEmployeeRepository employeeRepository;
 
+    /**
+     * Helper method: Chuyển String sang MessageStatus Enum
+     */
+    private MessageStatus convertToEnum(String status) {
+        if (status == null || status.isEmpty()) {
+            return MessageStatus.New;
+        }
+        try {
+            // Thử convert trực tiếp (hỗ trợ: "New", "Processing", "Resolved", "Closed")
+            return MessageStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            // Fallback: convert từ lowercase hoặc các format khác
+            switch (status.toLowerCase()) {
+                case "new":
+                case "mới":
+                    return MessageStatus.New;
+                case "processing":
+                case "đang xử lý":
+                    return MessageStatus.Processing;
+                case "resolved":
+                case "đã giải quyết":
+                    return MessageStatus.Resolved;
+                case "closed":
+                case "đã đóng":
+                    return MessageStatus.Closed;
+                default:
+                    throw new RuntimeException("Trạng thái không hợp lệ: " + status);
+            }
+        }
+    }
+
     @Override
     public ContactMessage saveContactMessage(ContactMessageDTO dto) {
         ContactMessage contactMessage = new ContactMessage();
@@ -58,12 +89,14 @@ public class ContactMessageService implements IContactMessageService {
 
     @Override
     public List<ContactMessage> findAll() {
-        return contactMessageRepository.findAll();
+        return contactMessageRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @Override
     public List<ContactMessage> findByStatus(String status) {
-        return contactMessageRepository.findByStatus(status);
+        // Convert String to Enum
+        MessageStatus messageStatus = convertToEnum(status);
+        return contactMessageRepository.findByStatusOrderByCreatedAtDesc(messageStatus);
     }
 
     @Override
@@ -73,8 +106,9 @@ public class ContactMessageService implements IContactMessageService {
 
     @Override
     public List<ContactMessage> findPendingMessages() {
+        // Sử dụng Enum thay vì String
         return contactMessageRepository.findByStatusInOrderByCreatedAtDesc(
-                Arrays.asList("New", "Processing")
+                Arrays.asList(MessageStatus.New, MessageStatus.Processing)
         );
     }
 
@@ -83,7 +117,9 @@ public class ContactMessageService implements IContactMessageService {
         Optional<ContactMessage> messageOpt = contactMessageRepository.findById(messageId);
         if (messageOpt.isPresent()) {
             ContactMessage message = messageOpt.get();
-            message.setStatus(MessageStatus.valueOf(newStatus));
+            // Convert String to Enum
+            MessageStatus status = convertToEnum(newStatus);
+            message.setStatus(status);
             contactMessageRepository.save(message);
         } else {
             throw new RuntimeException("Không tìm thấy tin nhắn với ID: " + messageId);
@@ -124,7 +160,8 @@ public class ContactMessageService implements IContactMessageService {
 
     @Override
     public long countNewMessages() {
-        return contactMessageRepository.countByStatus("New");
+        // Convert String to Enum
+        return contactMessageRepository.countByStatus(MessageStatus.New);
     }
 
     @Override

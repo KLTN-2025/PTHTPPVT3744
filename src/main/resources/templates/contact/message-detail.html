@@ -374,10 +374,10 @@
                 <div class="meta-item">
                     <i class="fas fa-tag"></i>
                     <th:block th:switch="${message.status.name()}">
-                        <span class="message-status status-new" th:case="'NEW'">Mới</span>
-                        <span class="message-status status-processing" th:case="'PROCESSING'">Đang xử lý</span>
-                        <span class="message-status status-resolved" th:case="'RESOLVED'">Đã giải quyết</span>
-                        <span class="message-status status-closed" th:case="*">Đã đóng</span>
+                        <span class="message-status status-new" th:case="'New'">Mới</span>
+                        <span class="message-status status-processing" th:case="'Processing'">Đang xử lý</span>
+                        <span class="message-status status-resolved" th:case="'Resolved'">Đã giải quyết</span>
+                        <span class="message-status status-closed" th:case="'Closed'">Đã đóng</span>
                     </th:block>
                 </div>
             </div>
