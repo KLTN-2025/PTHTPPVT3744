@@ -45,4 +45,6 @@ public interface IOrderService {
     Map<String, Long> getStatusCounts();
 
     OrderStatsDTO getStats();
+
+    void deleteBatch(List<Integer> ids);
 }

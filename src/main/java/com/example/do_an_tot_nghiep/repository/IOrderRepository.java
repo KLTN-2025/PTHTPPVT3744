@@ -18,23 +18,12 @@ import java.util.Optional;
 
 @Repository
 public interface IOrderRepository extends JpaRepository<Order, Integer> {
-    Optional<Order> findByOrderCode(String orderCode);
-
-    List<Order> findByCustomer(Customer customer);
-
     List<Order> findByStatus(Order.OrderStatus status);
-
-    List<Order> findByPaymentStatus(Order.PaymentStatus paymentStatus);
-
-    List<Order> findByAssignedTo(Employee employee);
 
     @Query("SELECT o FROM Order o WHERE o.customer = :customer " +
             "ORDER BY o.createdAt DESC")
     List<Order> findByCustomerOrderByCreatedAtDesc(@Param("customer") Customer customer);
 
-    @Query("SELECT o FROM Order o WHERE o.status = :status " +
-            "ORDER BY o.createdAt ASC")
-    List<Order> findPendingOrders(@Param("status") Order.OrderStatus status);
 
     @Query("SELECT o FROM Order o WHERE o.createdAt BETWEEN :startDate AND :endDate")
     List<Order> findByDateRange(@Param("startDate") java.time.LocalDateTime startDate,
@@ -81,11 +70,11 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
 
     @Query(value = """
     SELECT 
-        COUNT(*) AS totalOrders,
-        SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pendingOrders,
-        SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedOrders,
-        SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelledOrders,
-        SUM(CASE WHEN status = 'RETURNED' THEN 1 ELSE 0 END) AS returnedOrders
+        CAST(COUNT(*) AS UNSIGNED) AS totalOrders,
+        CAST(SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS UNSIGNED) AS pendingOrders,
+        CAST(SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS UNSIGNED) AS completedOrders,
+        CAST(SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) AS UNSIGNED) AS cancelledOrders,
+        CAST(SUM(CASE WHEN status = 'RETURNED' THEN 1 ELSE 0 END) AS UNSIGNED) AS returnedOrders
     FROM `order`
 """, nativeQuery = true)
     OrderStatsDTO getOrderStats();

@@ -44,10 +44,15 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private IEmployeeRepository employeeRepository;
+
     @Autowired
     private NotificationService notificationService;
+
     @Autowired
     private IOrderStatusHistoryRepository orderStatusHistoryRepository;
+
+    @Autowired
+    private IReviewRepository reviewRepository;
 
     @Transactional
     @Override
@@ -336,9 +341,15 @@ public class OrderService implements IOrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
+        // Kiểm tra đơn hàng có review hay không
+        if (reviewRepository.existsByOrder_OrderId(id)) {
+            throw new RuntimeException("Không thể xoá đơn vì đã có đánh giá!");
+        }
+
         // Sau đó xóa order
         orderRepository.delete(order);
     }
+
 
     public Map<String, Long> getStatusCounts() {
         // Tạo map trạng thái chuẩn
@@ -369,6 +380,11 @@ public class OrderService implements IOrderService {
     @Override
     public OrderStatsDTO getStats() {
         return orderRepository.getOrderStats();
+    }
+
+    @Override
+    public void deleteBatch(List<Integer> ids) {
+        orderRepository.deleteAllById(ids);
     }
 
     // Hàm helper convert ENUM → String

@@ -12,6 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/orders")
@@ -97,15 +101,33 @@ public class OrderController {
     // ==========================
     //   📌 Xóa đơn hàng
     // ==========================
-    @GetMapping("/delete/{id}")
-    public String deleteOrder(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/delete/{id}")
+    @ResponseBody
+    public Map<String, Object> deleteOrder(@PathVariable Integer id) {
+        Map<String, Object> res = new HashMap<>();
         try {
             orderService.deleteOrder(id);
-            redirectAttributes.addFlashAttribute("success", "Xóa đơn hàng thành công!");
-            return "redirect:/admin/orders";
+            res.put("success", true);
+            res.put("message", "Xóa đơn hàng thành công!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-            return "redirect:/admin/orders";
+            res.put("success", false);
+            res.put("message", e.getMessage());
         }
+        return res;
     }
+    @PostMapping("/delete-batch")
+    @ResponseBody
+    public Map<String, Object> deleteBatch(@RequestBody List<Integer> ids) {
+        Map<String, Object> res = new HashMap<>();
+        try {
+            orderService.deleteBatch(ids);
+            res.put("success", true);
+            res.put("message", "Đã xóa " + ids.size() + " đơn hàng.");
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("message", e.getMessage());
+        }
+        return res;
+    }
+
 }
