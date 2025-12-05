@@ -370,6 +370,169 @@
             white-space: pre-wrap;
         }
 
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Modal Container */
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal Header */
+        .modal-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #fee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .modal-icon i {
+            font-size: 32px;
+            color: #e74c3c;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Modal Body */
+        .modal-body {
+            padding: 24px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box p {
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .warning-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .message-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* Modal Footer */
+        .modal-footer {
+            padding: 20px 24px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #f8f9fa;
+            border-color: #999;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .detail-grid {
@@ -385,6 +548,20 @@
 
             .main-content {
                 margin-left: 0;
+            }
+
+            .modal-container {
+                width: 95%;
+                margin: 20px;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -579,22 +756,87 @@
                     </form>
                 </div>
 
-                <!-- Delete Card -->
+                <!-- Delete Card với Modal -->
                 <div class="actions-card">
                     <h3><i class="fas fa-trash"></i> Xóa tin nhắn</h3>
-                    <form th:action="@{/admin/contact-messages/{id}/delete(id=${message.messageId})}"
-                          method="post"
-                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin nhắn này?');">
-                        <button type="submit" class="btn btn-danger btn-block">
-                            <i class="fas fa-trash-alt"></i>
-                            Xóa tin nhắn
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-danger btn-block" onclick="openDeleteModal()">
+                        <i class="fas fa-trash-alt"></i>
+                        Xóa tin nhắn
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-container">
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title">Xác nhận xóa tin nhắn</h2>
+            <p class="modal-subtitle">Bạn có chắc chắn muốn xóa tin nhắn này?</p>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Warning -->
+            <div class="warning-box">
+                <strong><i class="fas fa-info-circle"></i> Lưu ý quan trọng</strong>
+                <p>Hành động này không thể hoàn tác. Tin nhắn và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
+            </div>
+
+            <!-- Message Info -->
+            <div class="message-info">
+                <div class="info-row">
+                    <span class="info-label">Mã tin nhắn:</span>
+                    <span class="info-value" th:text="'#' + ${message.messageId}">#13</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Người gửi:</span>
+                    <span class="info-value" th:text="${message.name}">Hoàng Thái Đăng Ngọc</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Chủ đề:</span>
+                    <span class="info-value" th:text="${message.subject}">phản ánh lần 3</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trạng thái:</span>
+                    <span class="info-value">
+                        <th:block th:switch="${message.status.name()}">
+                            <span th:case="'New'">Mới</span>
+                            <span th:case="'Processing'">Đang xử lý</span>
+                            <span th:case="'Resolved'">Đã giải quyết</span>
+                            <span th:case="'Closed'">Đã đóng</span>
+                        </th:block>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+                Hủy
+            </button>
+            <button class="btn btn-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash-alt"></i>
+                Xóa tin nhắn
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Delete Form -->
+<form id="deleteForm"
+      th:action="@{/admin/contact-messages/{id}/delete(id=${message.messageId})}"
+      method="post"
+      style="display: none;">
+</form>
 
 <script>
     // Auto hide alerts
@@ -606,6 +848,37 @@
                 setTimeout(() => alert.remove(), 300);
             }, 5000);
         });
+    });
+
+    // Modal Functions
+    function openDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function confirmDelete() {
+        document.getElementById('deleteForm').submit();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
     });
 </script>
 </body>

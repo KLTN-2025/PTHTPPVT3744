@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit} ? 'Chỉnh sửa nhà cung cấp' : 'Thêm nhà cung cấp mới'">Form nhà cung cấp - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <style>
+        .required-label::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>
+                            <i th:class="${isEdit} ? 'fas fa-edit' : 'fas fa-plus'"></i>
+                            <span th:text="${isEdit} ? 'Chỉnh sửa nhà cung cấp' : 'Thêm nhà cung cấp mới'">Form</span>
+                        </h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/suppliers">Nhà cung cấp</a></li>
+                            <li class="breadcrumb-item active" th:text="${isEdit} ? 'Chỉnh sửa' : 'Thêm mới'">Form</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <!-- Error Alert -->
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Form -->
+                <form th:attr="action=${isEdit} ? '/admin/suppliers/' + ${supplier.supplierId} + '/update' : '/admin/suppliers'"
+                      th:object="${supplier}"
+                      method="post">
+
+
+                    <div class="row">
+                        <!-- Left Column -->
+                        <div class="col-md-6">
+                            <!-- Basic Information -->
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-info-circle"></i> Thông tin cơ bản
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Supplier Name -->
+                                    <div class="form-group">
+                                        <label for="name" class="required-label">Tên nhà cung cấp</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                                               id="name"
+                                               th:field="*{name}"
+                                               placeholder="Nhập tên nhà cung cấp"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+                                             th:errors="*{name}">
+                                            Lỗi tên
+                                        </div>
+                                    </div>
+
+                                    <!-- Contact Person -->
+                                    <div class="form-group">
+                                        <label for="contactPerson">Người liên hệ</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            </div>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('contactPerson')} ? 'is-invalid'"
+                                                   id="contactPerson"
+                                                   th:field="*{contactPerson}"
+                                                   placeholder="Nhập tên người liên hệ">
+                                        </div>
+                                        <div class="invalid-feedback d-block"
+                                             th:if="${#fields.hasErrors('contactPerson')}"
+                                             th:errors="*{contactPerson}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="form-group">
+                                        <label for="address">Địa chỉ</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i
+                                                        class="fas fa-map-marker-alt"></i></span>
+                                            </div>
+                                            <textarea class="form-control"
+                                                      th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'"
+                                                      id="address"
+                                                      th:field="*{address}"
+                                                      rows="3"
+                                                      placeholder="Nhập địa chỉ"></textarea>
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('address')}"
+                                             th:errors="*{address}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="form-group">
+                                        <label for="phone">Điện thoại</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            </div>
+                                            <input type="tel"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'"
+                                                   id="phone"
+                                                   th:field="*{phone}"
+                                                   placeholder="0123456789"
+                                                   pattern="[0-9]{10,11}">
+                                        </div>
+                                        <small class="form-text text-muted">Nhập 10-11 chữ số</small>
+                                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('phone')}"
+                                             th:errors="*{phone}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            </div>
+                                            <input type="email"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                                                   id="email"
+                                                   th:field="*{email}"
+                                                   placeholder="email@example.com">
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('email')}"
+                                             th:errors="*{email}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <!-- Financial Information -->
+                            <div class="card card-success">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-money-bill-wave"></i> Thông tin tài chính
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Tax Code -->
+                                    <div class="form-group">
+                                        <label for="taxCode">Mã số thuế</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i
+                                                        class="fas fa-file-invoice"></i></span>
+                                            </div>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('taxCode')} ? 'is-invalid'"
+                                                   id="taxCode"
+                                                   th:field="*{taxCode}"
+                                                   placeholder="0123456789">
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('taxCode')}"
+                                             th:errors="*{taxCode}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Bank Account -->
+                                    <div class="form-group">
+                                        <label for="bankAccount">Số tài khoản</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                            </div>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('bankAccount')} ? 'is-invalid'"
+                                                   id="bankAccount"
+                                                   th:field="*{bankAccount}"
+                                                   placeholder="1234567890">
+                                        </div>
+                                        <div class="invalid-feedback d-block"
+                                             th:if="${#fields.hasErrors('bankAccount')}"
+                                             th:errors="*{bankAccount}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Bank Name -->
+                                    <div class="form-group">
+                                        <label for="bankName">Tên ngân hàng</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-university"></i></span>
+                                            </div>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('bankName')} ? 'is-invalid'"
+                                                   id="bankName"
+                                                   th:field="*{bankName}"
+                                                   placeholder="Vietcombank, Techcombank...">
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('bankName')}"
+                                             th:errors="*{bankName}">
+                                            Lỗi
+                                        </div>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="form-group">
+                                        <label for="status">Trạng thái</label>
+                                        <select class="form-control" id="status" th:field="*{status}">
+                                            <option value="ACTIVE">Đang hoạt động</option>
+                                            <option value="INACTIVE">Không hoạt động</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="form-group">
+                                        <label for="description">Ghi chú</label>
+                                        <textarea class="form-control"
+                                                  id="description"
+                                                  th:field="*{description}"
+                                                  rows="5"
+                                                  placeholder="Nhập ghi chú về nhà cung cấp"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <a href="/admin/suppliers" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-primary float-right">
+                                        <i th:class="${isEdit} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                                        <span th:text="${isEdit} ? 'Cập nhật' : 'Tạo mới'">Lưu</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Help Card -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-outline card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-lightbulb"></i> Hướng dẫn
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <ul class="mb-0">
+                                    <li>Các trường có dấu <span class="text-danger">*</span> là bắt buộc</li>
+                                    <li>Số điện thoại phải có 10-11 chữ số</li>
+                                    <li>Email phải đúng định dạng (example@domain.com)</li>
+                                    <li>Tên nhà cung cấp và mã số thuế không được trùng lặp</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
