@@ -1,5 +1,6 @@
 package com.example.do_an_tot_nghiep.repository;
 
+import com.example.do_an_tot_nghiep.dto.OrderDetailDTO;
 import com.example.do_an_tot_nghiep.dto.OrderStatsDTO;
 import com.example.do_an_tot_nghiep.model.Customer;
 import com.example.do_an_tot_nghiep.model.Employee;
@@ -78,4 +79,19 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
     FROM `order`
 """, nativeQuery = true)
     OrderStatsDTO getOrderStats();
+
+    @Query("""
+    SELECT new com.example.do_an_tot_nghiep.dto.OrderDetailDTO(
+        CONCAT(od.device.deviceId, ''),
+        od.deviceName,
+        od.deviceImage,
+        od.quantity,
+        od.unitPrice,
+        od.totalPrice
+    )
+    FROM OrderDetail od
+    WHERE od.order.orderId = :orderId
+""")
+    List<OrderDetailDTO> getOrderItemsByOrderId(Integer orderId);
+
 }

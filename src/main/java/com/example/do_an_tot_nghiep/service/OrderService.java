@@ -387,6 +387,11 @@ public class OrderService implements IOrderService {
         orderRepository.deleteAllById(ids);
     }
 
+    @Override
+    public List<OrderDetailDTO> getOrderItems(Integer id) {
+        return orderRepository.getOrderItemsByOrderId(id);
+    }
+
     // Hàm helper convert ENUM → String
     private String convertStatusToVN(Order.OrderStatus status) {
         return switch (status) {
@@ -425,7 +430,7 @@ public class OrderService implements IOrderService {
                 .totalPrice(order.getTotalPrice())
                 .paymentMethod(order.getPaymentMethod().name())
                 .paymentStatus(order.getPaymentStatus().name())
-                .status(order.getStatus().name())
+                .status(Order.OrderStatus.valueOf(order.getStatus().name()))
                 .createdAt(order.getCreatedAt())
                 .items(detailDTOs)
                 .build();

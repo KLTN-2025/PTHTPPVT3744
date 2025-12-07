@@ -1,5 +1,6 @@
 package com.example.do_an_tot_nghiep.controller;
 
+import com.example.do_an_tot_nghiep.dto.OrderDetailDTO;
 import com.example.do_an_tot_nghiep.dto.OrderResponse;
 import com.example.do_an_tot_nghiep.dto.OrderStatsDTO;
 import com.example.do_an_tot_nghiep.model.Order;
@@ -30,9 +31,9 @@ public class OrderController {
     public String listOrders(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String paymentMethod,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) String payment,
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
             @RequestParam(defaultValue = "0") int page,
             Model model
     ) {
@@ -40,9 +41,9 @@ public class OrderController {
         Page<Order> orderPage = orderService.searchOrders(
                 keyword,
                 status,
-                paymentMethod,
-                fromDate,
-                toDate,
+                payment,
+                from,
+                to,
                 PageRequest.of(page, 10)
         );
         model.addAttribute("stats", stats);
@@ -57,9 +58,9 @@ public class OrderController {
         // Giữ lại giá trị filter để trả về view
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
-        model.addAttribute("paymentMethod", paymentMethod);
-        model.addAttribute("fromDate", fromDate);
-        model.addAttribute("toDate", toDate);
+        model.addAttribute("paymentMethod", payment);
+        model.addAttribute("fromDate", from);
+        model.addAttribute("toDate", to);
 
         return "order/orders-list";
     }
@@ -71,9 +72,10 @@ public class OrderController {
     @GetMapping("/view/{id}")
     public String viewOrder(@PathVariable Integer id, Model model) {
         OrderResponse order = orderService.getOrderById(id);
-
+        List<OrderDetailDTO> items = orderService.getOrderItems(id);
         model.addAttribute("order", order);
-        return "admin/orders/order-detail"; // trang chi tiết bạn tạo sau
+        model.addAttribute("orderItems", items);
+        return "order/order-detail"; // trang chi tiết bạn tạo sau
     }
 
     // ==========================
@@ -129,5 +131,29 @@ public class OrderController {
         }
         return res;
     }
+    @PostMapping("/update-status")
+    public String updateOrderStatus(
+            @RequestParam Integer orderId,
+            @RequestParam Order.OrderStatus status,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            orderService.updateStatus(orderId, status);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi cập nhật: " + e.getMessage());
+        }
+        return "redirect:/admin/orders/view/" + orderId;
+    }
+    @GetMapping("/invoice/{id}")
+    public String printInvoice(@PathVariable("id") Integer id, Model model) {
+        OrderResponse order = orderService.getOrderById(id);
 
+        if (order == null) {
+            return "redirect:/admin/orders";
+        }
+
+        model.addAttribute("order", order);
+        return "invoice/invoice";
+    }
 }

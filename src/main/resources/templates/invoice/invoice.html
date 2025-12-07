@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hóa đơn - <span th:text="${order.orderCode}"></span></title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .company-info h1 {
+            color: #007bff;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .company-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .invoice-title p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .detail-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .detail-box h3 {
+            color: #007bff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+        }
+
+        .detail-box p {
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .detail-box strong {
+            color: #555;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table thead {
+            background: #007bff;
+            color: white;
+        }
+
+        .items-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .items-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .total-box {
+            width: 300px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .total-row:last-child {
+            border-bottom: none;
+            border-top: 2px solid #007bff;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+
+        .invoice-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-preparing { background: #e2e3e5; color: #383d41; }
+        .status-shipping { background: #cce5ff; color: #004085; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .print-button:hover {
+            background: #0056b3;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="print-button" onclick="window.print()">
+    🖨️ In hóa đơn
+</button>
+
+<div class="invoice-container">
+    <!-- HEADER -->
+    <div class="invoice-header">
+        <div class="company-info">
+            <h1>Medical Supply</h1>
+            <p>Địa chỉ: 123 Đường ABC, Quận XYZ</p>
+            <p>Điện thoại: 0964772715</p>
+            <p>Email: contact@company.com</p>
+        </div>
+
+        <div class="invoice-title">
+            <h2>HÓA ĐƠN</h2>
+            <p><strong>Mã đơn:</strong> <span th:text="${order.orderCode}"></span></p>
+            <p><strong>Ngày:</strong> <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}"></span></p>
+        </div>
+    </div>
+
+    <!-- THÔNG TIN ĐơN HÀNG VÀ KHÁCH HÀNG -->
+    <div class="invoice-details">
+        <div class="detail-box">
+            <h3>Thông tin khách hàng</h3>
+            <p><strong>Họ tên:</strong> <span th:text="${order.customerName}"></span></p>
+            <p><strong>Email:</strong> <span th:text="${order.customerEmail}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${order.customerPhone}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${order.customerAddress}"></span></p>
+        </div>
+
+        <div class="detail-box">
+            <h3>Thông tin đơn hàng</h3>
+            <p>
+                <strong>Trạng thái:</strong>
+                <span class="status-badge"
+                      th:classappend="${'status-' + order.status.name().toLowerCase()}"
+                      th:text="${order.status.value}">
+                    </span>
+            </p>
+            <p><strong>Thanh toán:</strong> <span th:text="${order.paymentMethod}"></span></p>
+            <p><strong>TT Thanh toán:</strong> <span th:text="${order.paymentStatus}"></span></p>
+            <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
+    </div>
+
+    <!-- BẢNG SẢN PHẨM -->
+    <table class="items-table">
+        <thead>
+        <tr>
+            <th>STT</th>
+            <th>Sản phẩm</th>
+            <th class="text-center">Số lượng</th>
+            <th class="text-right">Đơn giá</th>
+            <th class="text-right">Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item, iterStat : ${order.items}">
+            <td th:text="${iterStat.count}"></td>
+            <td th:text="${item.deviceName}"></td>
+            <td class="text-center" th:text="${item.quantity}"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(order.items)}">
+            <td colspan="5" class="text-center" style="padding: 30px; color: #999;">
+                Không có sản phẩm nào
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- TỔNG TIỀN -->
+    <div class="total-section">
+        <div class="total-box">
+            <div class="total-row">
+                <span>Tạm tính:</span>
+                <span th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
+            </div>
+            <div class="total-row">
+                <span>Phí vận chuyển:</span>
+                <span>0₫</span>
+            </div>
+            <div class="total-row">
+                <span>TỔNG CỘNG:</span>
+                <span th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="invoice-footer">
+        <p><strong>Cảm ơn quý khách đã mua hàng!</strong></p>
+        <p>Mọi thắc mắc xin vui lòng liên hệ: 0964772715</p>
+        <p style="margin-top: 20px; font-size: 12px; color: #999;">
+            Hóa đơn được tạo tự động bởi hệ thống
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

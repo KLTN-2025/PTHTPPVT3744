@@ -1,5 +1,6 @@
 package com.example.do_an_tot_nghiep.service;
 
+import com.example.do_an_tot_nghiep.dto.OrderDetailDTO;
 import com.example.do_an_tot_nghiep.dto.OrderRequest;
 import com.example.do_an_tot_nghiep.dto.OrderResponse;
 import com.example.do_an_tot_nghiep.dto.OrderStatsDTO;
@@ -47,4 +48,6 @@ public interface IOrderService {
     OrderStatsDTO getStats();
 
     void deleteBatch(List<Integer> ids);
+
+    List<OrderDetailDTO> getOrderItems(Integer id);
 }
