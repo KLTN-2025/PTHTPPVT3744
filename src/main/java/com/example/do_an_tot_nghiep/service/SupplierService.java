@@ -2,6 +2,8 @@ package com.example.do_an_tot_nghiep.service;
 
 import com.example.do_an_tot_nghiep.dto.SupplierDTO;
 import com.example.do_an_tot_nghiep.model.Supplier;
+import com.example.do_an_tot_nghiep.repository.IMedicalDeviceRepository;
+import com.example.do_an_tot_nghiep.repository.IStockImportRepository;
 import com.example.do_an_tot_nghiep.repository.ISupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -9,7 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +23,8 @@ import java.util.stream.Collectors;
 public class SupplierService implements ISupplierService {
 
     private final ISupplierRepository supplierRepository;
+    private final IMedicalDeviceRepository medicalDeviceRepository; // ✅ THÊM
+    private final IStockImportRepository stockImportRepository;     // ✅ THÊM
 
     /**
      * Lấy tất cả nhà cung cấp
@@ -211,5 +218,38 @@ public class SupplierService implements ISupplierService {
     @Override
     public long getTotalSuppliers() {
         return supplierRepository.count();
+    }
+
+    // ✅ THÊM METHOD MỚI
+    /**
+     * Lấy thống kê của nhà cung cấp
+     */
+    @Override
+    public Map<String, Object> getSupplierStatistics(Integer supplierId) {
+        Map<String, Object> statistics = new HashMap<>();
+
+        try {
+            // Đếm số sản phẩm
+            Long productCount = medicalDeviceRepository.countBySupplierId(supplierId);
+
+            // Đếm số đơn nhập hàng
+            Long importCount = stockImportRepository.countBySupplierId(supplierId);
+
+            // Tính tổng giá trị
+            BigDecimal totalValue = stockImportRepository
+                    .sumTotalAmountBySupplierIdAndStatusCompleted(supplierId);
+
+            statistics.put("productCount", productCount != null ? productCount : 0L);
+            statistics.put("importCount", importCount != null ? importCount : 0L);
+            statistics.put("totalValue", totalValue != null ? totalValue : BigDecimal.ZERO);
+
+        } catch (Exception e) {
+            // Xử lý lỗi, trả về giá trị mặc định
+            statistics.put("productCount", 0L);
+            statistics.put("importCount", 0L);
+            statistics.put("totalValue", BigDecimal.ZERO);
+        }
+
+        return statistics;
     }
 }

@@ -18,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/admin/suppliers")
 @RequiredArgsConstructor
@@ -175,9 +177,20 @@ public class SupplierController {
         }
 
         try {
+            // Lấy thông tin supplier
             SupplierDTO supplier = supplierService.getSupplierById(id);
 
+            // ✅ Lấy thống kê
+            Map<String, Object> statistics = supplierService.getSupplierStatistics(id);
+
+            // ✅ Thêm supplier vào model TRƯỚC
             model.addAttribute("supplier", supplier);
+
+            // ✅ Truyền dữ liệu thống kê vào model
+            model.addAttribute("productCount", statistics.get("productCount"));
+            model.addAttribute("importCount", statistics.get("importCount"));
+            model.addAttribute("totalValue", statistics.get("totalValue"));
+
             model.addAttribute("currentEmployee", currentEmployee);
             model.addAttribute("title", "Chi tiết nhà cung cấp: " + supplier.getName());
 

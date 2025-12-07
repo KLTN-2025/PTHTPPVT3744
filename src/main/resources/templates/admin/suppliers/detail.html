@@ -289,25 +289,27 @@
                                             <span class="info-box-icon"><i class="fas fa-box"></i></span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Sản phẩm cung cấp</span>
-                                                <span class="info-box-number">0</span>
+                                                <span class="info-box-number" th:text="${productCount}">0</span>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="col-md-4">
                                         <div class="info-box bg-success">
                                             <span class="info-box-icon"><i class="fas fa-shopping-cart"></i></span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Đơn nhập hàng</span>
-                                                <span class="info-box-number">0</span>
+                                                <span class="info-box-number" th:text="${importCount}">0</span>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="col-md-4">
                                         <div class="info-box bg-warning">
                                             <span class="info-box-icon"><i class="fas fa-dollar-sign"></i></span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Tổng giá trị</span>
-                                                <span class="info-box-number">0 đ</span>
+                                                <span class="info-box-number" th:text="${#numbers.formatDecimal(totalValue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
                                             </div>
                                         </div>
                                     </div>
