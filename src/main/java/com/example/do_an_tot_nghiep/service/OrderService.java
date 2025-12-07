@@ -5,6 +5,7 @@ import com.example.do_an_tot_nghiep.dto.*;
 import com.example.do_an_tot_nghiep.model.*;
 import com.example.do_an_tot_nghiep.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,10 +44,15 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private IEmployeeRepository employeeRepository;
+
     @Autowired
     private NotificationService notificationService;
+
     @Autowired
     private IOrderStatusHistoryRepository orderStatusHistoryRepository;
+
+    @Autowired
+    private IReviewRepository reviewRepository;
 
     @Transactional
     @Override
@@ -279,6 +283,124 @@ public class OrderService implements IOrderService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<Order> searchOrders(
+            String keyword,
+            String status,
+            String paymentMethod,
+            String fromDate,
+            String toDate,
+            PageRequest pageRequest
+    ) {
+
+        // Convert status → enum
+        Order.OrderStatus orderStatus = null;
+        if (status != null && !status.isEmpty()) {
+            orderStatus = Order.OrderStatus.valueOf(status);
+        }
+
+        // Convert paymentMethod → enum
+        Order.PaymentMethod payMethod = null;
+        if (paymentMethod != null && !paymentMethod.isEmpty()) {
+            payMethod = Order.PaymentMethod.valueOf(paymentMethod);
+        }
+
+        // Convert date → LocalDateTime
+        LocalDateTime from = null;
+        if (fromDate != null && !fromDate.isEmpty()) {
+            from = LocalDateTime.parse(fromDate + "T00:00:00");
+        }
+
+        LocalDateTime to = null;
+        if (toDate != null && !toDate.isEmpty()) {
+            to = LocalDateTime.parse(toDate + "T23:59:59");
+        }
+
+        // Call repository (KHỚP 100% kiểu)
+        return orderRepository.searchOrders(
+                keyword,
+                orderStatus,
+                payMethod,
+                from,
+                to,
+                pageRequest
+        );
+    }
+    @Override
+    public void updateStatus(Integer orderId, Order.OrderStatus status) {
+        orderRepository.findById(orderId).ifPresent(order -> {
+            order.setStatus(status);
+            orderRepository.save(order);
+        });
+    }
+
+    @Override
+    public void deleteOrder(Integer id) {
+        // Kiểm tra đơn hàng có tồn tại không
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Kiểm tra đơn hàng có review hay không
+        if (reviewRepository.existsByOrder_OrderId(id)) {
+            throw new RuntimeException("Không thể xoá đơn vì đã có đánh giá!");
+        }
+
+        // Sau đó xóa order
+        orderRepository.delete(order);
+    }
+
+
+    public Map<String, Long> getStatusCounts() {
+        // Tạo map trạng thái chuẩn
+        Map<String, Long> statusMap = new LinkedHashMap<>();
+        statusMap.put("Chờ xác nhận", 0L);
+        statusMap.put("Đã xác nhận", 0L);
+        statusMap.put("Đang chuẩn bị", 0L);
+        statusMap.put("Đang giao", 0L);
+        statusMap.put("Hoàn thành", 0L);
+        statusMap.put("Đã hủy", 0L);
+
+        // Lấy dữ liệu từ repository
+        List<Object[]> results = orderRepository.countOrdersByStatus();
+
+        for (Object[] row : results) {
+            Order.OrderStatus statusEnum = (Order.OrderStatus) row[0]; // ✅ Ép ENUM
+            Long count = (Long) row[1];
+
+            // Chuyển ENUM → String tiếng Việt
+            String vnStatus = convertStatusToVN(statusEnum);
+
+            statusMap.put(vnStatus, count);
+        }
+
+        return statusMap;
+    }
+
+    @Override
+    public OrderStatsDTO getStats() {
+        return orderRepository.getOrderStats();
+    }
+
+    @Override
+    public void deleteBatch(List<Integer> ids) {
+        orderRepository.deleteAllById(ids);
+    }
+
+    // Hàm helper convert ENUM → String
+    private String convertStatusToVN(Order.OrderStatus status) {
+        return switch (status) {
+            case PENDING -> "Chờ xác nhận";
+            case CONFIRMED -> "Đã xác nhận";
+            case PREPARING -> "Đang chuẩn bị";
+            case SHIPPING -> "Đang giao";
+            case COMPLETED -> "Hoàn thành";
+            case CANCELLED -> "Đã hủy";
+            case RETURNED -> "Trả Hàng";
+        };
+    }
+
+
     @Override
     public OrderResponse convertToOrderResponse(Order order, List<OrderDetail> details) {
         List<OrderDetailDTO> detailDTOs = details.stream()

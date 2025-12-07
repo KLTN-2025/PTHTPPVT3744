@@ -72,4 +72,6 @@ public interface IReviewRepository extends JpaRepository<Review, Integer> {
             "FROM Review r GROUP BY r.customer.customerId, r.customer.fullName " +
             "ORDER BY reviewCount DESC")
     List<Object[]> findTopReviewers(Pageable pageable);
+
+    boolean existsByOrder_OrderId(Integer orderId);
 }

@@ -43,7 +43,7 @@ public class DashboardController {
 
     // ✅ Thêm pendingOrders vào model cho sidebar
     @ModelAttribute("pendingOrders")
-    public Long getPendingOrders() {
+    public BigDecimal getPendingOrders() {
         return dashboardService.getPendingOrdersCount();
     }
 

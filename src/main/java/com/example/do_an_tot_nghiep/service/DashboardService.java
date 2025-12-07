@@ -106,19 +106,49 @@ public class DashboardService implements IDashoardService {
     }
     @Override
     public Map<String, Long> getOrderStatusCounts() {
-        Map<String, Long> statusMap = new LinkedHashMap<>();
 
-        statusMap.put("Chờ xác nhận", orderRepository.countByStatus(Order.OrderStatus.PENDING));
-        statusMap.put("Đã xác nhận", orderRepository.countByStatus(Order.OrderStatus.CONFIRMED));
-        statusMap.put("Đang chuẩn bị", orderRepository.countByStatus(Order.OrderStatus.PREPARING));
-        statusMap.put("Đang giao", orderRepository.countByStatus(Order.OrderStatus.SHIPPING));
-        statusMap.put("Hoàn thành", orderRepository.countByStatus(Order.OrderStatus.COMPLETED));
-        statusMap.put("Đã hủy", orderRepository.countByStatus(Order.OrderStatus.CANCELLED));
+        // 6 trạng thái chuẩn
+        Map<String, Long> statusMap = new LinkedHashMap<>();
+        statusMap.put("Chờ xác nhận", 0L);
+        statusMap.put("Đã xác nhận", 0L);
+        statusMap.put("Đang chuẩn bị", 0L);
+        statusMap.put("Đang giao", 0L);
+        statusMap.put("Hoàn thành", 0L);
+        statusMap.put("Đã hủy", 0L);
+
+        // Lấy dữ liệu từ DB
+        List<Object[]> results = orderRepository.countOrdersByStatus();
+
+        for (Object[] row : results) {
+
+            // row[0] = ENUM OrderStatus
+            Order.OrderStatus statusEnum = (Order.OrderStatus) row[0];
+            Long count = (Long) row[1];
+
+            // Convert ENUM → chuỗi tiếng Việt để map vào statusMap
+            String vnStatus = convertStatusToVN(statusEnum);
+
+            statusMap.put(vnStatus, count);
+        }
 
         return statusMap;
     }
+
+    private String convertStatusToVN(Order.OrderStatus status) {
+        return switch (status) {
+            case PENDING -> "Chờ xác nhận";
+            case CONFIRMED -> "Đã xác nhận";
+            case PREPARING -> "Đang chuẩn bị";
+            case SHIPPING -> "Đang giao";
+            case COMPLETED -> "Hoàn thành";
+            case CANCELLED -> "Đã hủy";
+            case RETURNED -> "Trả Hàng";
+        };
+    }
+
     @Override
-    public Long getPendingOrdersCount() {
-        return orderRepository.countByStatus(Order.OrderStatus.PENDING);
+    public BigDecimal getPendingOrdersCount() {
+        BigDecimal pendingCount = orderRepository.countByStatus("PENDING");
+        return pendingCount != null ? pendingCount : BigDecimal.ZERO;
     }
 }
