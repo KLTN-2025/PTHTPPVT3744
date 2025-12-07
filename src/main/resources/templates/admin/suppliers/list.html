@@ -10,9 +10,11 @@
         .supplier-card {
             transition: all 0.3s;
             border-left: 4px solid #007bff;
+            height: 100%;
         }
         .supplier-card:hover {
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
         .supplier-card.inactive {
             border-left-color: #6c757d;
@@ -20,14 +22,25 @@
         }
         .stats-box {
             text-align: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
-        .contact-info i {
-            width: 20px;
-            text-align: center;
+        .stats-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .contact-info {
+            font-size: 13px;
+            color: #6c757d;
+        }
+        .supplier-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
         }
     </style>
 </head>
@@ -71,39 +84,24 @@
                     <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
                 </div>
 
-                <!-- Statistics Cards -->
+                <!-- Statistics -->
                 <div class="row">
-                    <div class="col-lg-4 col-6">
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3 th:text="${totalSuppliers}">0</h3>
-                                <p>Tổng số nhà cung cấp</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-building"></i>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="stats-box">
+                            <div class="stats-value" th:text="${totalSuppliers}">0</div>
+                            <div>Tổng nhà cung cấp</div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-6">
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3 th:text="${activeSuppliers}">0</h3>
-                                <p>Đang hoạt động</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="stats-box">
+                            <div class="stats-value" th:text="${activeSuppliers}">0</div>
+                            <div>Đang hoạt động</div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-6">
-                        <div class="small-box bg-secondary">
-                            <div class="inner">
-                                <h3 th:text="${inactiveSuppliers}">0</h3>
-                                <p>Không hoạt động</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-ban"></i>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="stats-box">
+                            <div class="stats-value" th:text="${inactiveSuppliers}">0</div>
+                            <div>Ngừng hoạt động</div>
                         </div>
                     </div>
                 </div>
@@ -121,23 +119,15 @@
                     <div class="card-body">
                         <form method="get" action="/admin/suppliers">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-5">
                                     <input type="text" name="keyword" class="form-control"
-                                           placeholder="Tìm theo tên, email, điện thoại..." th:value="${keyword}">
+                                           placeholder="Tìm theo tên, người liên hệ, email, SĐT..." th:value="${keyword}">
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <select name="status" class="form-control">
-                                        <option value="ALL">-- Tất cả trạng thái --</option>
+                                        <option value="">-- Tất cả trạng thái --</option>
                                         <option value="ACTIVE" th:selected="${filterStatus == 'ACTIVE'}">Đang hoạt động</option>
-                                        <option value="INACTIVE" th:selected="${filterStatus == 'INACTIVE'}">Không hoạt động</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <select name="size" class="form-control">
-                                        <option value="10" th:selected="${pageSize == 10}">10 dòng</option>
-                                        <option value="25" th:selected="${pageSize == 25}">25 dòng</option>
-                                        <option value="50" th:selected="${pageSize == 50}">50 dòng</option>
-                                        <option value="100" th:selected="${pageSize == 100}">100 dòng</option>
+                                        <option value="INACTIVE" th:selected="${filterStatus == 'INACTIVE'}">Ngừng hoạt động</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -171,64 +161,56 @@
                                 </div>
 
                                 <div th:if="${!#lists.isEmpty(suppliers)}" class="row">
-                                    <div class="col-md-6 col-lg-4" th:each="supplier : ${suppliers}">
+                                    <div class="col-md-6 col-lg-4 mb-3" th:each="supplier : ${suppliers}">
                                         <div class="card supplier-card"
-                                             th:classappend="${supplier.status == 'INACTIVE'} ? 'inactive'">
+                                             th:classappend="${supplier.status == 'INACTIVE'} ? 'inactive' : ''">
                                             <div class="card-body">
                                                 <!-- Header -->
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <h5 class="mb-0">
-                                                        <strong th:text="${supplier.name}">Tên NCC</strong>
-                                                    </h5>
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <div class="flex-grow-1">
+                                                        <div class="supplier-name" th:text="${supplier.name}">Supplier Name</div>
+                                                    </div>
                                                     <div>
                             <span th:if="${supplier.status == 'ACTIVE'}" class="badge badge-success">
                               <i class="fas fa-check"></i> Active
                             </span>
-                                                        <span th:if="${supplier.status == 'INACTIVE'}" class="badge badge-secondary">
+                                                        <span th:unless="${supplier.status == 'ACTIVE'}" class="badge badge-secondary">
                               <i class="fas fa-ban"></i> Inactive
                             </span>
                                                     </div>
                                                 </div>
 
                                                 <!-- Contact Person -->
-                                                <p class="text-muted mb-2" th:if="${supplier.contactPerson}">
-                                                    <i class="fas fa-user"></i>
-                                                    <span th:text="${supplier.contactPerson}">Người liên hệ</span>
+                                                <p class="mb-2" th:if="${supplier.contactPerson != null && !supplier.contactPerson.isEmpty()}">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                    <strong>Người liên hệ:</strong>
+                                                    <span th:text="${supplier.contactPerson}"></span>
                                                 </p>
 
                                                 <!-- Contact Info -->
                                                 <div class="contact-info mb-3">
-                                                    <p class="small mb-1" th:if="${supplier.phone}">
-                                                        <i class="fas fa-phone text-primary"></i>
-                                                        <a th:href="'tel:' + ${supplier.phone}" th:text="${supplier.phone}">0123456789</a>
+                                                    <p class="mb-1" th:if="${supplier.phone != null && !supplier.phone.isEmpty()}">
+                                                        <i class="fas fa-phone"></i>
+                                                        <span th:text="${supplier.phone}"></span>
                                                     </p>
-                                                    <p class="small mb-1" th:if="${supplier.email}">
-                                                        <i class="fas fa-envelope text-info"></i>
-                                                        <a th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}">email@example.com</a>
+                                                    <p class="mb-1" th:if="${supplier.email != null && !supplier.email.isEmpty()}">
+                                                        <i class="fas fa-envelope"></i>
+                                                        <span th:text="${supplier.email}"></span>
                                                     </p>
-                                                    <p class="small mb-1" th:if="${supplier.address}">
-                                                        <i class="fas fa-map-marker-alt text-danger"></i>
-                                                        <span th:text="${supplier.address}">Địa chỉ</span>
+                                                    <p class="mb-1" th:if="${supplier.address != null && !supplier.address.isEmpty()}">
+                                                        <i class="fas fa-map-marker-alt"></i>
+                                                        <span th:text="${supplier.address}"></span>
                                                     </p>
-                                                </div>
-
-                                                <!-- Financial Info -->
-                                                <div th:if="${supplier.taxCode or supplier.bankAccount}" class="mb-3">
-                                                    <p class="small mb-1" th:if="${supplier.taxCode}">
-                                                        <i class="fas fa-file-invoice text-warning"></i>
-                                                        MST: <span th:text="${supplier.taxCode}">0123456789</span>
-                                                    </p>
-                                                    <p class="small mb-1" th:if="${supplier.bankAccount}">
-                                                        <i class="fas fa-university text-success"></i>
-                                                        <span th:text="${supplier.bankAccount}">1234567890</span>
-                                                        <span th:if="${supplier.bankName}" th:text="' - ' + ${supplier.bankName}"></span>
+                                                    <p class="mb-0" th:if="${supplier.taxCode != null && !supplier.taxCode.isEmpty()}">
+                                                        <i class="fas fa-file-invoice"></i>
+                                                        <strong>MST:</strong> <span th:text="${supplier.taxCode}"></span>
                                                     </p>
                                                 </div>
 
-                                                <!-- Created Date -->
-                                                <p class="small text-muted mb-3">
-                                                    <i class="far fa-calendar-alt"></i>
-                                                    Tạo: <span th:text="${#temporals.format(supplier.createdAt, 'dd/MM/yyyy')}"></span>
+                                                <!-- Description -->
+                                                <p class="text-muted small mb-3" th:if="${supplier.description != null && !supplier.description.isEmpty()}">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <span th:text="${#strings.abbreviate(supplier.description, 80)}"></span>
                                                 </p>
 
                                                 <!-- Actions -->
@@ -242,10 +224,18 @@
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <button type="button"
-                                                            th:onclick="'toggleStatus(' + ${supplier.supplierId} + ', \'' + ${supplier.status} + '\')'"
+                                                            th:if="${supplier.status == 'ACTIVE'}"
+                                                            th:onclick="'deactivateSupplier(' + ${supplier.supplierId} + ')'"
                                                             class="btn btn-sm btn-warning"
-                                                            title="Bật/Tắt">
-                                                        <i class="fas fa-power-off"></i>
+                                                            title="Vô hiệu hóa">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                            th:if="${supplier.status == 'INACTIVE'}"
+                                                            th:onclick="'activateSupplier(' + ${supplier.supplierId} + ')'"
+                                                            class="btn btn-sm btn-success"
+                                                            title="Kích hoạt">
+                                                        <i class="fas fa-check"></i>
                                                     </button>
                                                     <button type="button"
                                                             th:onclick="'deleteSupplier(' + ${supplier.supplierId} + ')'"
@@ -260,38 +250,33 @@
                                 </div>
 
                                 <!-- Pagination -->
-                                <div th:if="${totalPages > 1}" class="row mt-4">
-                                    <div class="col-12">
-                                        <nav>
-                                            <ul class="pagination justify-content-center">
-                                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                                    <a class="page-link"
-                                                       th:href="@{/admin/suppliers(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}">
-                                                        Trước
-                                                    </a>
-                                                </li>
+                                <div th:if="${totalPages > 1}" class="mt-4">
+                                    <nav>
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                                <a class="page-link"
+                                                   th:href="@{/admin/suppliers(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}">
+                                                    Trước
+                                                </a>
+                                            </li>
 
-                                                <li class="page-item"
-                                                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                                                    th:classappend="${i == currentPage} ? 'active'">
-                                                    <a class="page-link"
-                                                       th:href="@{/admin/suppliers(page=${i}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}"
-                                                       th:text="${i + 1}">1</a>
-                                                </li>
+                                            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                                th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                                                class="page-item"
+                                                th:classappend="${i == currentPage} ? 'active'">
+                                                <a class="page-link"
+                                                   th:href="@{/admin/suppliers(page=${i}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}"
+                                                   th:text="${i + 1}">1</a>
+                                            </li>
 
-                                                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                                                    <a class="page-link"
-                                                       th:href="@{/admin/suppliers(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}">
-                                                        Sau
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </nav>
-                                        <p class="text-center text-muted">
-                                            Hiển thị <strong th:text="${suppliers.size()}">0</strong> trong tổng số
-                                            <strong th:text="${totalItems}">0</strong> nhà cung cấp
-                                        </p>
-                                    </div>
+                                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                                <a class="page-link"
+                                                   th:href="@{/admin/suppliers(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, status=${filterStatus})}">
+                                                    Sau
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -311,24 +296,40 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function toggleStatus(id, currentStatus) {
-        const action = currentStatus === 'ACTIVE' ? 'vô hiệu hóa' : 'kích hoạt';
+    function deactivateSupplier(id) {
         Swal.fire({
-            title: 'Thay đổi trạng thái?',
-            text: `Bạn muốn ${action} nhà cung cấp này?`,
-            icon: 'question',
+            title: 'Vô hiệu hóa nhà cung cấp?',
+            text: 'Nhà cung cấp sẽ không thể sử dụng trong hệ thống',
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Xác nhận',
+            confirmButtonColor: '#f39c12',
+            confirmButtonText: 'Vô hiệu hóa',
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                const url = currentStatus === 'ACTIVE'
-                    ? '/admin/suppliers/' + id + '/deactivate'
-                    : '/admin/suppliers/' + id + '/activate';
-
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = url;
+                form.action = '/admin/suppliers/' + id + '/deactivate';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
+    function activateSupplier(id) {
+        Swal.fire({
+            title: 'Kích hoạt nhà cung cấp?',
+            text: 'Nhà cung cấp sẽ có thể sử dụng trong hệ thống',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'Kích hoạt',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/suppliers/' + id + '/activate';
                 document.body.appendChild(form);
                 form.submit();
             }
@@ -339,7 +340,7 @@
         Swal.fire({
             title: 'Xóa nhà cung cấp?',
             text: 'Hành động này không thể hoàn tác!',
-            icon: 'warning',
+            icon: 'error',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             confirmButtonText: 'Xóa',

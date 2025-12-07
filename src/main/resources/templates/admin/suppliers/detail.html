@@ -6,23 +6,54 @@
     <title>Chi tiết nhà cung cấp - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <style>
+        .supplier-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            font-size: 18px;
+            padding: 8px 20px;
+        }
+        .info-card {
+            border-left: 4px solid #007bff;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 150px;
+            display: inline-block;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .info-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .action-buttons .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
-    <!-- Navbar -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
-
-    <!-- Sidebar -->
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <!-- Content Wrapper -->
     <div class="content-wrapper">
-        <!-- Content Header -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1><i class="fas fa-info-circle"></i> Chi tiết nhà cung cấp</h1>
+                        <h1><i class="fas fa-truck"></i> Chi tiết nhà cung cấp</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -35,10 +66,9 @@
             </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
-                <!-- Alerts -->
+                <!-- Success/Error Messages -->
                 <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                     <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
@@ -48,216 +78,243 @@
                     <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <a href="/admin/suppliers" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Quay lại
-                        </a>
-                        <a th:href="@{/admin/suppliers/{id}/edit(id=${supplier.supplierId})}"
-                           class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Chỉnh sửa
-                        </a>
-                        <button type="button" class="btn btn-danger"
-                                th:onclick="'deleteSupplier(' + ${supplier.supplierId} + ')'">
-                            <i class="fas fa-trash"></i> Xóa
-                        </button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Banner -->
+                        <div class="supplier-banner">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h2 th:text="${supplier.name}">Supplier Name</h2>
+                                    <p class="mb-1" th:if="${supplier.contactPerson != null && !supplier.contactPerson.isEmpty()}">
+                                        <i class="fas fa-user"></i>
+                                        <strong>Người liên hệ:</strong>
+                                        <span th:text="${supplier.contactPerson}"></span>
+                                    </p>
+                                    <p class="mb-0" th:if="${supplier.taxCode != null && !supplier.taxCode.isEmpty()}">
+                                        <i class="fas fa-file-invoice"></i>
+                                        <strong>MST:</strong>
+                                        <span th:text="${supplier.taxCode}"></span>
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-right">
+                  <span th:if="${supplier.status == 'ACTIVE'}" class="badge badge-success status-badge">
+                    <i class="fas fa-check-circle"></i> Đang hoạt động
+                  </span>
+                                    <span th:unless="${supplier.status == 'ACTIVE'}" class="badge badge-secondary status-badge">
+                    <i class="fas fa-ban"></i> Ngừng hoạt động
+                  </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons mb-3">
+                            <a th:href="@{/admin/suppliers/{id}/edit(id=${supplier.supplierId})}"
+                               class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Chỉnh sửa
+                            </a>
+
+                            <button type="button"
+                                    th:if="${supplier.status == 'ACTIVE'}"
+                                    th:onclick="'deactivateSupplier(' + ${supplier.supplierId} + ')'"
+                                    class="btn btn-warning">
+                                <i class="fas fa-ban"></i> Vô hiệu hóa
+                            </button>
+
+                            <button type="button"
+                                    th:if="${supplier.status == 'INACTIVE'}"
+                                    th:onclick="'activateSupplier(' + ${supplier.supplierId} + ')'"
+                                    class="btn btn-success">
+                                <i class="fas fa-check"></i> Kích hoạt
+                            </button>
+
+                            <button type="button"
+                                    th:onclick="'deleteSupplier(' + ${supplier.supplierId} + ')'"
+                                    class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+
+                            <a href="/admin/suppliers" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <!-- Left Column -->
+                    <!-- Contact Information -->
                     <div class="col-md-6">
-                        <!-- Basic Info -->
-                        <div class="card card-primary">
+                        <div class="card info-card">
                             <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-info-circle"></i> Thông tin cơ bản
-                                </h3>
+                                <h3 class="card-title"><i class="fas fa-address-book"></i> Thông tin liên hệ</h3>
                             </div>
                             <div class="card-body">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th width="40%">Mã nhà cung cấp:</th>
-                                        <td><strong th:text="${supplier.supplierId}">1</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Tên nhà cung cấp:</th>
-                                        <td><h5 class="mb-0" th:text="${supplier.name}">ABC Company</h5></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Người liên hệ:</th>
-                                        <td th:text="${supplier.contactPerson ?: '-'}">Nguyễn Văn A</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Trạng thái:</th>
-                                        <td>
-                      <span th:if="${supplier.status == 'ACTIVE'}" class="badge badge-success badge-lg">
-                        <i class="fas fa-check"></i> Đang hoạt động
-                      </span>
-                                            <span th:if="${supplier.status == 'INACTIVE'}" class="badge badge-secondary badge-lg">
-                        <i class="fas fa-ban"></i> Không hoạt động
-                      </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-phone text-primary"></i> Số điện thoại:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.phone != null && !supplier.phone.isEmpty() ? supplier.phone : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
 
-                        <!-- Contact Info -->
-                        <div class="card card-info">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-address-book"></i> Thông tin liên hệ
-                                </h3>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th width="40%">Địa chỉ:</th>
-                                        <td th:text="${supplier.address ?: '-'}">123 Đường ABC</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Điện thoại:</th>
-                                        <td>
-                      <span th:if="${supplier.phone}">
-                        <i class="fas fa-phone text-primary"></i>
-                        <a th:href="'tel:' + ${supplier.phone}" th:text="${supplier.phone}">0123456789</a>
-                      </span>
-                                            <span th:unless="${supplier.phone}">-</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Email:</th>
-                                        <td>
-                      <span th:if="${supplier.email}">
-                        <i class="fas fa-envelope text-info"></i>
-                        <a th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}">email@example.com</a>
-                      </span>
-                                            <span th:unless="${supplier.email}">-</span>
-                                        </td>
-                                    </tr>
-                                </table>
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-envelope text-primary"></i> Email:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.email != null && !supplier.email.isEmpty() ? supplier.email : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
+
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-map-marker-alt text-primary"></i> Địa chỉ:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.address != null && !supplier.address.isEmpty() ? supplier.address : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column -->
+                    <!-- Tax & Banking Information -->
                     <div class="col-md-6">
-                        <!-- Financial Info -->
-                        <div class="card card-success">
+                        <div class="card info-card">
                             <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-money-bill-wave"></i> Thông tin tài chính
-                                </h3>
+                                <h3 class="card-title"><i class="fas fa-university"></i> Thông tin thuế & Ngân hàng</h3>
                             </div>
                             <div class="card-body">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th width="40%">Mã số thuế:</th>
-                                        <td>
-                      <span th:if="${supplier.taxCode}">
-                        <i class="fas fa-file-invoice text-warning"></i>
-                        <span th:text="${supplier.taxCode}">0123456789</span>
-                      </span>
-                                            <span th:unless="${supplier.taxCode}">-</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Số tài khoản:</th>
-                                        <td th:text="${supplier.bankAccount ?: '-'}">1234567890</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Ngân hàng:</th>
-                                        <td>
-                      <span th:if="${supplier.bankName}">
-                        <i class="fas fa-university text-primary"></i>
-                        <span th:text="${supplier.bankName}">Vietcombank</span>
-                      </span>
-                                            <span th:unless="${supplier.bankName}">-</span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-file-invoice text-success"></i> Mã số thuế:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.taxCode != null && !supplier.taxCode.isEmpty() ? supplier.taxCode : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
 
-                        <!-- Description -->
-                        <div class="card card-warning">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-sticky-note"></i> Ghi chú
-                                </h3>
-                            </div>
-                            <div class="card-body">
-                                <p th:if="${supplier.description}" th:text="${supplier.description}">
-                                    Mô tả về nhà cung cấp...
-                                </p>
-                                <p th:unless="${supplier.description}" class="text-muted">
-                                    <em>Chưa có ghi chú</em>
-                                </p>
-                            </div>
-                        </div>
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-credit-card text-success"></i> Số tài khoản:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.bankAccount != null && !supplier.bankAccount.isEmpty() ? supplier.bankAccount : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
 
-                        <!-- System Info -->
-                        <div class="card card-secondary">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-clock"></i> Thông tin hệ thống
-                                </h3>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th width="40%">Ngày tạo:</th>
-                                        <td>
-                                            <i class="far fa-calendar-alt"></i>
-                                            <span th:text="${#temporals.format(supplier.createdAt, 'dd/MM/yyyy HH:mm:ss')}">
-                        01/01/2024 10:00:00
-                      </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Cập nhật lần cuối:</th>
-                                        <td>
-                                            <i class="far fa-clock"></i>
-                                            <span th:text="${#temporals.format(supplier.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">
-                        01/01/2024 10:00:00
-                      </span>
-                                        </td>
-                                    </tr>
-                                </table>
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="fas fa-building text-success"></i> Ngân hàng:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.bankName != null && !supplier.bankName.isEmpty() ? supplier.bankName : 'Chưa cập nhật'}">
+                    N/A
+                  </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
                 <div class="row">
-                    <div class="col-12">
-                        <div class="card card-outline card-primary">
+                    <!-- Description -->
+                    <div class="col-md-8">
+                        <div class="card info-card">
                             <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-bolt"></i> Thao tác nhanh
-                                </h3>
+                                <h3 class="card-title"><i class="fas fa-align-left"></i> Mô tả</h3>
                             </div>
                             <div class="card-body">
-                                <form th:if="${supplier.status == 'ACTIVE'}"
-                                      th:action="@{/admin/suppliers/{id}/deactivate(id=${supplier.supplierId})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-warning"
-                                            onclick="return confirm('Bạn có chắc muốn vô hiệu hóa nhà cung cấp này?')">
-                                        <i class="fas fa-ban"></i> Vô hiệu hóa
-                                    </button>
-                                </form>
+                                <p th:if="${supplier.description != null && !supplier.description.isEmpty()}"
+                                   th:text="${supplier.description}">
+                                    Description
+                                </p>
+                                <p th:unless="${supplier.description != null && !supplier.description.isEmpty()}"
+                                   class="text-muted">
+                                    <em>Chưa có mô tả</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                                <form th:if="${supplier.status == 'INACTIVE'}"
-                                      th:action="@{/admin/suppliers/{id}/activate(id=${supplier.supplierId})}"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success"
-                                            onclick="return confirm('Bạn có chắc muốn kích hoạt nhà cung cấp này?')">
-                                        <i class="fas fa-check-circle"></i> Kích hoạt
-                                    </button>
-                                </form>
+                    <!-- System Information -->
+                    <div class="col-md-4">
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-info-circle"></i> Thông tin hệ thống</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="far fa-id-badge text-info"></i> ID:
+                  </span>
+                                    <span class="info-value" th:text="${supplier.supplierId}">1</span>
+                                </div>
+
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="far fa-calendar-plus text-info"></i> Tạo lúc:
+                  </span>
+                                    <span class="info-value"
+                                          th:text="${#temporals.format(supplier.createdAt, 'dd/MM/yyyy HH:mm')}">
+                    Date
+                  </span>
+                                </div>
+
+                                <div class="info-row">
+                  <span class="info-label">
+                    <i class="far fa-calendar-check text-info"></i> Cập nhật:
+                  </span>
+                                    <span class="info-value"
+                                          th:text="${#temporals.format(supplier.updatedAt, 'dd/MM/yyyy HH:mm')}">
+                    Date
+                  </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics / Related Data -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-chart-bar"></i> Thống kê</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <div class="info-box bg-info">
+                                            <span class="info-box-icon"><i class="fas fa-box"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Sản phẩm cung cấp</span>
+                                                <span class="info-box-number">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="info-box bg-success">
+                                            <span class="info-box-icon"><i class="fas fa-shopping-cart"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Đơn nhập hàng</span>
+                                                <span class="info-box-number">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="info-box bg-warning">
+                                            <span class="info-box-icon"><i class="fas fa-dollar-sign"></i></span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Tổng giá trị</span>
+                                                <span class="info-box-number">0 đ</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center text-muted">
+                                    <small><em>Các số liệu thống kê sẽ được cập nhật khi có dữ liệu liên quan</em></small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -266,7 +323,6 @@
         </section>
     </div>
 
-    <!-- Footer -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
 
@@ -276,11 +332,51 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    function deactivateSupplier(id) {
+        Swal.fire({
+            title: 'Vô hiệu hóa nhà cung cấp?',
+            text: 'Nhà cung cấp sẽ không thể sử dụng trong hệ thống',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f39c12',
+            confirmButtonText: 'Vô hiệu hóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/suppliers/' + id + '/deactivate';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
+    function activateSupplier(id) {
+        Swal.fire({
+            title: 'Kích hoạt nhà cung cấp?',
+            text: 'Nhà cung cấp sẽ có thể sử dụng trong hệ thống',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'Kích hoạt',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/suppliers/' + id + '/activate';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
     function deleteSupplier(id) {
         Swal.fire({
             title: 'Xóa nhà cung cấp?',
             text: 'Hành động này không thể hoàn tác!',
-            icon: 'warning',
+            icon: 'error',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             confirmButtonText: 'Xóa',
