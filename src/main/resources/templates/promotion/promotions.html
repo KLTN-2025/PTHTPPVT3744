@@ -344,7 +344,7 @@
       <div class="filter-group">
         <h3><i class="fas fa-filter"></i> Danh mục</h3>
         <div class="filter-option">
-          <a th:href="@{/templates/admin/promotions}" th:classappend="${selectedCategoryId == null ? 'active' : ''}">
+          <a th:href="@{/promotions}" th:classappend="${selectedCategoryId == null ? 'active' : ''}">
             <i class="fas fa-th"></i> Tất cả
           </a>
         </div>
@@ -372,14 +372,21 @@
             <!-- Header với discount -->
             <div class="promotion-card-header">
               <div class="promotion-discount">
-                <span th:if="${promotion.discountType == 'Percent'}" th:text="${promotion.discountValue}">0</span>
-                <span th:if="${promotion.discountType == 'Fixed'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
-                <span th:if="${promotion.discountType == 'FreeShip'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
-                <span th:if="${promotion.discountType == 'Percent'}">%</span>
-                <span th:if="${promotion.discountType == 'Fixed'}">đ</span>
-                <span th:if="${promotion.discountType == 'FreeShip'}">đ</span>
+                <!-- ✅ SỬA: Dùng .name() để so sánh enum -->
+                <span th:if="${promotion.discountType.name() == 'Percent'}"
+                      th:text="${promotion.discountValue}">0</span>
+                <span th:if="${promotion.discountType.name() == 'Fixed'}"
+                      th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+                <span th:if="${promotion.discountType.name() == 'FreeShip'}"
+                      th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+
+                <span th:if="${promotion.discountType.name() == 'Percent'}">%</span>
+                <span th:if="${promotion.discountType.name() == 'Fixed'}">đ</span>
+                <span th:if="${promotion.discountType.name() == 'FreeShip'}">đ</span>
               </div>
-              <div class="promotion-type" th:text="${promotion.discountType == 'Percent' ? 'Giảm giá %' : (promotion.discountType == 'Fixed' ? 'Giảm tiền' : 'Miễn phí ship')}">
+              <div class="promotion-type"
+                   th:text="${promotion.discountType.name() == 'Percent' ? 'Giảm giá %' :
+                             (promotion.discountType.name() == 'Fixed' ? 'Giảm tiền' : 'Miễn phí ship')}">
                 Giảm giá
               </div>
             </div>
@@ -409,21 +416,21 @@
               <!-- Badges -->
               <div style="margin-bottom: 15px;">
                 <span class="promotion-badge"
-                      th:if="${promotion.discountType == 'Percent'}">
+                      th:if="${promotion.discountType.name() == 'Percent'}">
                   % Giảm giá
                 </span>
                 <span class="promotion-badge"
-                      th:if="${promotion.discountType == 'Fixed'}">
+                      th:if="${promotion.discountType.name() == 'Fixed'}">
                   Giảm tiền
                 </span>
                 <span class="promotion-badge"
-                      th:if="${promotion.discountType == 'FreeShip'}">
+                      th:if="${promotion.discountType.name() == 'FreeShip'}">
                   Miễn phí ship
                 </span>
               </div>
 
               <!-- Link -->
-              <a th:href="@{/templates/admin/promotions/{id}(id=${promotion.promotionId})}"
+              <a th:href="@{/promotions/{id}(id=${promotion.promotionId})}"
                  class="promotion-link">
                 Xem chi tiết <i class="fas fa-arrow-right"></i>
               </a>
@@ -434,25 +441,25 @@
         <!-- Pagination -->
         <div class="pagination" th:if="${totalPages > 1}">
           <a th:if="${currentPage > 1}"
-             th:href="@{/templates/admin/promotions(page=1, categoryId=${selectedCategoryId})}"
+             th:href="@{/promotions(page=1, categoryId=${selectedCategoryId})}"
              class="first"><i class="fas fa-step-backward"></i></a>
           <a th:if="${currentPage > 1}"
-             th:href="@{/templates/admin/promotions(page=${currentPage - 1}, categoryId=${selectedCategoryId})}"
+             th:href="@{/promotions(page=${currentPage - 1}, categoryId=${selectedCategoryId})}"
              class="prev"><i class="fas fa-chevron-left"></i></a>
 
           <span th:each="i : ${#numbers.sequence(1, totalPages)}"
                 th:if="${(i - currentPage) <= 2 and (i - currentPage) >= -2 or i == 1 or i == totalPages}">
             <span th:if="${i == currentPage}" class="active" th:text="${i}">1</span>
             <a th:unless="${i == currentPage}"
-               th:href="@{/templates/admin/promotions(page=${i}, categoryId=${selectedCategoryId})}"
+               th:href="@{/promotions(page=${i}, categoryId=${selectedCategoryId})}"
                th:text="${i}">1</a>
           </span>
 
           <a th:if="${currentPage < totalPages}"
-             th:href="@{/templates/admin/promotions(page=${currentPage + 1}, categoryId=${selectedCategoryId})}"
+             th:href="@{/promotions(page=${currentPage + 1}, categoryId=${selectedCategoryId})}"
              class="next"><i class="fas fa-chevron-right"></i></a>
           <a th:if="${currentPage < totalPages}"
-             th:href="@{/templates/admin/promotions(page=${totalPages}, categoryId=${selectedCategoryId})}"
+             th:href="@{/promotions(page=${totalPages}, categoryId=${selectedCategoryId})}"
              class="last"><i class="fas fa-step-forward"></i></a>
         </div>
       </div>

@@ -321,7 +321,7 @@
     <div class="container">
         <ul class="breadcrumb">
             <li><a th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a></li>
-            <li><a th:href="@{/templates/admin/promotions}">Khuyến mãi</a></li>
+            <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
             <li><span th:text="${promotion.name}">Promotion</span></li>
         </ul>
     </div>
@@ -329,7 +329,7 @@
 
 <!-- Main Content -->
 <div class="container">
-    <a th:href="@{/templates/admin/promotions}" class="btn-back">
+    <a th:href="@{/promotions}" class="btn-back">
         <i class="fas fa-arrow-left"></i> Quay lại
     </a>
 
@@ -338,12 +338,17 @@
         <div class="banner-content">
             <div>
                 <div class="banner-discount">
-                    <span th:if="${promotion.discountType == 'Percent'}" th:text="${promotion.discountValue}">0</span>
-                    <span th:if="${promotion.discountType == 'Fixed'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
-                    <span th:if="${promotion.discountType == 'FreeShip'}" th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
-                    <span th:if="${promotion.discountType == 'Percent'}">%</span>
-                    <span th:if="${promotion.discountType == 'Fixed'}">đ</span>
-                    <span th:if="${promotion.discountType == 'FreeShip'}">đ</span>
+                    <!-- ✅ SỬA: Dùng .name() để so sánh enum -->
+                    <span th:if="${promotion.discountType.name() == 'Percent'}"
+                          th:text="${promotion.discountValue}">0</span>
+                    <span th:if="${promotion.discountType.name() == 'Fixed'}"
+                          th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+                    <span th:if="${promotion.discountType.name() == 'FreeShip'}"
+                          th:text="${#numbers.formatInteger(promotion.discountValue, 0, 'COMMA')}">0</span>
+
+                    <span th:if="${promotion.discountType.name() == 'Percent'}">%</span>
+                    <span th:if="${promotion.discountType.name() == 'Fixed'}">đ</span>
+                    <span th:if="${promotion.discountType.name() == 'FreeShip'}">đ</span>
                 </div>
                 <div class="banner-name" th:text="${promotion.name}">
                     Promotion Name
@@ -429,14 +434,17 @@
             <i class="fas fa-lightbulb"></i> Thông tin thêm
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <div th:if="${promotion.customerTier != 'All'}" style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <div th:if="${promotion.customerTier.name() != 'All'}" style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
                 <strong><i class="fas fa-users"></i> Dành cho:</strong>
-                <p style="margin-top: 8px; color: #666;" th:text="${promotion.customerTier == 'Bronze' ? 'Khách hàng Bronze' : (promotion.customerTier == 'Silver' ? 'Khách hàng Silver' : (promotion.customerTier == 'Gold' ? 'Khách hàng Gold' : 'Khách hàng Platinum'))}">
+                <p style="margin-top: 8px; color: #666;"
+                   th:text="${promotion.customerTier.name() == 'Bronze' ? 'Khách hàng Bronze' :
+                             (promotion.customerTier.name() == 'Silver' ? 'Khách hàng Silver' :
+                             (promotion.customerTier.name() == 'Gold' ? 'Khách hàng Gold' : 'Khách hàng Platinum'))}">
                     Tất cả khách hàng
                 </p>
             </div>
             <div th:if="${promotion.maxDiscountAmount != null && promotion.maxDiscountAmount > 0}" style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
-                <strong><i class="fas fa-cap"></i> Giảm tối đa:</strong>
+                <strong><i class="fas fa-trophy"></i> Giảm tối đa:</strong>
                 <p style="margin-top: 8px; color: #666;" th:text="${@helper.formatPrice(promotion.maxDiscountAmount.doubleValue())}">
                     0 đ
                 </p>

@@ -16,7 +16,7 @@ import java.util.Optional;
 public class PromotionController {
 
     @Autowired
-    private PromotionService promotionService;  // ✅ Sử dụng Service
+    private PromotionService promotionService;
 
     @Autowired
     private ICategoryRepository categoryRepository;
@@ -30,25 +30,33 @@ public class PromotionController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             Model model) {
         try {
-            // ✅ Gọi Service thay vì Repository
             List<Promotion> promotions = promotionService.getPromotionsByCategory(categoryId);
 
-            // Sắp xếp theo ngày kết thúc (sắp hết trước đến sau)
+            // Sắp xếp theo ngày kết thúc
             promotions.sort((a, b) -> a.getEndDate().compareTo(b.getEndDate()));
 
-            // Phân trang (9 khuyến mãi/trang)
+            // ✅ THÊM DEBUG
+            System.out.println("========== PROMOTION DEBUG ==========");
+            for (Promotion p : promotions) {
+                System.out.println("ID: " + p.getPromotionId());
+                System.out.println("Name: " + p.getName());
+                System.out.println("DiscountType: " + p.getDiscountType());
+                System.out.println("DiscountType (name): " + p.getDiscountType().name());
+                System.out.println("DiscountValue: " + p.getDiscountValue());
+                System.out.println("---");
+            }
+            System.out.println("=====================================");
+
+            // Phân trang
             int pageSize = 9;
             int start = (page - 1) * pageSize;
             int end = Math.min(start + pageSize, promotions.size());
             List<Promotion> pagePromotions = promotions.subList(start, Math.max(start, end));
 
-            // Tính số trang
             int totalPages = (int) Math.ceil((double) promotions.size() / pageSize);
 
-            // Lấy danh sách danh mục
             List<Category> categories = categoryRepository.findByIsActiveTrueOrderByDisplayOrder();
 
-            // Thêm dữ liệu vào model
             model.addAttribute("promotions", pagePromotions);
             model.addAttribute("categories", categories);
             model.addAttribute("totalPromotions", promotions.size());
@@ -57,17 +65,19 @@ public class PromotionController {
             model.addAttribute("selectedCategoryId", categoryId);
             model.addAttribute("title", "Khuyến mãi - Vật Tư Y Tế ABC");
 
-            System.out.println("Promotions loaded: " + pagePromotions.size());
-
         } catch (Exception e) {
             System.err.println("Error loading promotions: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("promotions", List.of());
             model.addAttribute("categories", List.of());
-            model.addAttribute("errorMessage", "Có lỗi xảy ra khi tải khuyến mãi!");
         }
 
+        // ✅ SỬA: Đường dẫn view phải khớp với cấu trúc thư mục
+        // Nếu file là: resources/templates/promotion/promotions.html
         return "promotion/promotions";
+
+        // Hoặc nếu file là: resources/templates/frontend/promotions/list.html
+        // return "frontend/promotions/list";
     }
 
     /**
@@ -76,17 +86,24 @@ public class PromotionController {
     @GetMapping("/{promotionId}")
     public String promotionDetail(@PathVariable Integer promotionId, Model model) {
         try {
-            // ✅ Gọi Service
             Optional<Promotion> promotionOpt = promotionService.getPromotionDetail(promotionId);
 
             if (!promotionOpt.isPresent()) {
-                model.addAttribute("errorMessage", "Khuyến mãi không tồn tại hoặc đã hết hạn!");
+                model.addAttribute("errorMessage", "Khuyến mãi không tồn tại!");
                 return "error/404";
             }
 
             Promotion promotion = promotionOpt.get();
 
-            // ✅ Lấy sản phẩm và danh mục qua Service
+            // ✅ THÊM DEBUG
+            System.out.println("========== PROMOTION DETAIL ==========");
+            System.out.println("ID: " + promotion.getPromotionId());
+            System.out.println("Name: " + promotion.getName());
+            System.out.println("DiscountType: " + promotion.getDiscountType());
+            System.out.println("DiscountType (name): " + promotion.getDiscountType().name());
+            System.out.println("DiscountValue: " + promotion.getDiscountValue());
+            System.out.println("======================================");
+
             List<MedicalDevice> products = promotionService.getPromotionProducts(promotion);
             List<Category> categories = promotionService.getPromotionCategories(promotion);
 
@@ -96,12 +113,13 @@ public class PromotionController {
             model.addAttribute("title", promotion.getName() + " - Vật Tư Y Tế ABC");
 
         } catch (Exception e) {
-            System.err.println("Error loading promotion detail: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("errorMessage", "Có lỗi xảy ra!");
             return "error/500";
         }
 
+        // ✅ SỬA: Đường dẫn view
         return "promotion/promotion-detail";
+        // Hoặc: return "frontend/promotions/detail";
     }
 }

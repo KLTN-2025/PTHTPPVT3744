@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISupplierService {
 
@@ -105,4 +106,12 @@ public interface ISupplierService {
      * @return Tổng số nhà cung cấp
      */
     long getTotalSuppliers();
+
+    // ✅ THÊM MỚI
+    /**
+     * Lấy thống kê của nhà cung cấp
+     * @param supplierId ID của nhà cung cấp
+     * @return Map chứa các thông tin thống kê (productCount, importCount, totalValue)
+     */
+    Map<String, Object> getSupplierStatistics(Integer supplierId);
 }
