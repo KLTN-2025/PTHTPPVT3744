@@ -94,4 +94,5 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
 """)
     List<OrderDetailDTO> getOrderItemsByOrderId(Integer orderId);
 
+    Optional<Order> findByOrderCode(String orderCode);
 }

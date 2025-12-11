@@ -233,9 +233,9 @@
             height: fit-content;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: sticky;
-            top: 90px; /* ✅ Adjust if needed */
-            max-height: calc(100vh - 120px); /* ✅ Add this to prevent overflow */
-            overflow-y: auto; /* ✅ Add scroll if content too long */
+            top: 90px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
         }
 
         .summary-title {
@@ -272,6 +272,36 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        /* Coupon Section */
+        .coupon-section {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .coupon-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-apply-coupon {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-apply-coupon:hover {
+            background: #45a049;
         }
 
         .btn-checkout {
@@ -346,6 +376,77 @@
             border-radius: 8px;
             display: inline-block;
             font-weight: 600;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0066cc;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
 
         /* Responsive */
@@ -506,6 +607,11 @@
     /*<![CDATA[*/
     const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
 
+    // ==================== GLOBAL VARIABLES - MÃ GIẢM GIÁ ====================
+    let appliedPromoCode = '';
+    let currentDiscountAmount = 0;
+    let promotionId = null;
+
     // ==================== CART MANAGER (SESSION STORAGE) ====================
     class CartManager {
         constructor() {
@@ -534,7 +640,6 @@
             sessionStorage.setItem('medicalCart', JSON.stringify(this.cart));
             this.updateBadge();
 
-            // ✅ FIX: Trigger global sync for header badge
             if (typeof window.syncCartBadge === 'function') {
                 window.syncCartBadge();
             }
@@ -543,7 +648,6 @@
         updateBadge() {
             const count = this.getTotalItems();
 
-            // Update badge in header
             const badge = document.getElementById('cartBadge');
             if (badge) {
                 badge.textContent = count;
@@ -554,7 +658,6 @@
                 }
             }
 
-            // Update item count text
             const countText = document.getElementById('cartItemCount');
             if (countText) {
                 countText.innerHTML = `Bạn đang có <strong>${count}</strong> sản phẩm trong giỏ hàng`;
@@ -627,7 +730,6 @@
                 updateCartSummary(result);
                 showNotification(result.message, 'success');
 
-                // Check if cart is empty
                 if (result.cartCount === 0) {
                     window.location.reload();
                 }
@@ -666,6 +768,13 @@
             const result = await response.json();
 
             if (result.success) {
+                // LƯU THÔNG TIN MÃ GIẢM GIÁ
+                appliedPromoCode = code;
+                currentDiscountAmount = result.discountAmount;
+                promotionId = result.promotionId;
+
+                console.log('✅ Coupon applied:', appliedPromoCode, 'discount:', currentDiscountAmount);
+
                 updateCartSummary(result);
                 showNotification(result.message, 'success');
             } else {
@@ -681,7 +790,25 @@
 
     // ==================== CHECKOUT ====================
     function checkout() {
-        window.location.href = '/checkout';
+        const cartItems = document.querySelectorAll('.cart-item[data-cart-id]');
+
+        if (cartItems.length === 0) {
+            showNotification('Giỏ hàng của bạn đang trống!', 'error');
+            return;
+        }
+
+        let checkoutUrl = '/checkout';
+
+        // Truyền mã giảm giá qua URL
+        if (appliedPromoCode && appliedPromoCode !== '') {
+            checkoutUrl += '?promoCode=' + encodeURIComponent(appliedPromoCode) +
+                '&discountAmount=' + currentDiscountAmount;
+
+            console.log('🛒 Redirecting to checkout with promo:', appliedPromoCode);
+            console.log('💰 Discount amount:', currentDiscountAmount);
+        }
+
+        window.location.href = checkoutUrl;
     }
 
     // ==================== HELPER FUNCTIONS ====================
@@ -749,7 +876,6 @@
             return;
         }
 
-        // ✅ FIX: Target the main content container directly (the one with empty cart section)
         const emptySection = document.getElementById('emptyCartSection');
 
         if (!emptySection) {
@@ -760,7 +886,6 @@
         const mainContainer = emptySection.parentElement;
         console.log('Using main container:', mainContainer);
 
-        // Remove any existing cart layout
         const existingLayout = document.querySelectorAll('.cart-layout');
         existingLayout.forEach(layout => {
             console.log('Removing existing cart layout');
@@ -775,12 +900,11 @@
 
         console.log('Rendering ' + cartManager.cart.length + ' cart items');
 
-        // Hide empty section
         emptySection.style.display = 'none';
 
         const cartLayout = document.createElement('div');
         cartLayout.className = 'cart-layout';
-        cartLayout.style.marginBottom = '50px'; // ✅ Add margin to separate from footer
+        cartLayout.style.marginBottom = '50px';
 
         const itemsSection = document.createElement('div');
         itemsSection.className = 'cart-items-section';
@@ -880,7 +1004,6 @@
         cartLayout.appendChild(itemsSection);
         cartLayout.appendChild(summarySection);
 
-        // ✅ FIX: Insert BEFORE empty section, not at the end
         mainContainer.insertBefore(cartLayout, emptySection);
 
         console.log('✅ Cart rendered successfully!');
@@ -973,29 +1096,43 @@
         }
     }
 
+    // ==================== UPDATE CART COUNT FOR LOGGED IN USERS ====================
+    function updateLoggedInCartCount() {
+        const cartItems = document.querySelectorAll('.cart-item[data-cart-id]');
+        const totalQuantity = Array.from(cartItems).reduce((sum, item) => {
+            const quantityInput = item.querySelector('.quantity-input');
+            return sum + (quantityInput ? parseInt(quantityInput.value) : 0);
+        }, 0);
+
+        console.log('Logged-in user cart count:', totalQuantity);
+
+        const badge = document.getElementById('cartBadge');
+        if (badge) {
+            badge.textContent = totalQuantity;
+            console.log('Badge updated:', totalQuantity);
+        }
+
+        const countText = document.getElementById('cartItemCount');
+        if (countText) {
+            countText.innerHTML = `Bạn đang có <strong>${totalQuantity}</strong> sản phẩm trong giỏ hàng`;
+            console.log('Cart count text updated:', totalQuantity);
+        }
+    }
+
+    // ==================== INITIALIZATION ====================
     document.addEventListener('DOMContentLoaded', function() {
         console.log('======================================');
         console.log('CART PAGE INITIALIZED');
         console.log('======================================');
         console.log('User Status:', isLoggedIn ? 'Logged In' : 'Guest');
 
-        // ✅ AGGRESSIVE FIX: Remove ALL floating elements
-        console.log('🔧 Starting cleanup...');
-
-        // ... giữ nguyên phần cleanup ...
-
         if (!isLoggedIn) {
-            // ========== GUEST USER ==========
             console.log('Guest Mode: Loading session cart...');
             cartManager.loadCart();
-
             console.log('Rendering session cart for guest user...');
             renderSessionCart();
-
         } else {
-            // ========== LOGGED IN USER ==========
             console.log('Logged In Mode: Checking for sync...');
-
             updateLoggedInCartCount();
 
             const sessionCart = sessionStorage.getItem('medicalCart');
@@ -1005,7 +1142,6 @@
                     const items = JSON.parse(sessionCart);
                     console.log('Found', items.length, 'items in session cart');
                     console.log('Auto-syncing to database...');
-
                     syncCartAfterLogin();
                 } catch (e) {
                     console.error('Error parsing session cart:', e);
@@ -1016,7 +1152,6 @@
             }
         }
 
-        // ✅ FIX: Sync badge after everything loads
         setTimeout(() => {
             if (typeof window.syncCartBadge === 'function') {
                 window.syncCartBadge();
@@ -1025,32 +1160,6 @@
 
         console.log('======================================');
     });
-
-    // ========== NEW FUNCTION: Update cart count for logged-in users ==========
-    function updateLoggedInCartCount() {
-        // Đếm số lượng cart items từ server-rendered HTML
-        const cartItems = document.querySelectorAll('.cart-item[data-cart-id]');
-        const totalQuantity = Array.from(cartItems).reduce((sum, item) => {
-            const quantityInput = item.querySelector('.quantity-input');
-            return sum + (quantityInput ? parseInt(quantityInput.value) : 0);
-        }, 0);
-
-        console.log('Logged-in user cart count:', totalQuantity);
-
-        // Update badge
-        const badge = document.getElementById('cartBadge');
-        if (badge) {
-            badge.textContent = totalQuantity;
-            console.log('Badge updated:', totalQuantity);
-        }
-
-        // Update text "Bạn đang có X sản phẩm"
-        const countText = document.getElementById('cartItemCount');
-        if (countText) {
-            countText.innerHTML = `Bạn đang có <strong>${totalQuantity}</strong> sản phẩm trong giỏ hàng`;
-            console.log('Cart count text updated:', totalQuantity);
-        }
-    }
 
     /*]]>*/
 </script>
@@ -1095,14 +1204,12 @@
         }
     };
 
-    // Call whenever cart changes
     window.addEventListener('storage', function(e) {
         if (e.key === 'medicalCart') {
             window.syncCartBadge();
         }
     });
 
-    // Periodic sync (every 2 seconds)
     setInterval(window.syncCartBadge, 2000);
 </script>
 </body>
