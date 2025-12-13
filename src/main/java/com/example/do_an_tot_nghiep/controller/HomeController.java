@@ -62,14 +62,6 @@ public class HomeController {
             model.addAttribute("banners", banners);
             model.addAttribute("blogPosts", blogPosts);
 
-            // Log để debug (có thể bỏ sau khi test xong)
-            System.out.println("Categories loaded: " + categories.size());
-            System.out.println("Featured products loaded: " + featuredProducts.size());
-            System.out.println("New products loaded: " + newProducts.size());
-            System.out.println("Promotions loaded: " + promotions.size());
-            System.out.println("Banners loaded: " + banners.size());
-            System.out.println("Blog posts loaded: " + blogPosts.size());
-
         } catch (Exception e) {
             // Log lỗi chi tiết
             System.err.println("Error loading home page data: " + e.getMessage());
