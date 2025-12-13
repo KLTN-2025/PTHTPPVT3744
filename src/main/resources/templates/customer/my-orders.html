@@ -368,6 +368,232 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex !important;
+    }
+
+    .modal-dialog {
+      background: #fff;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease;
+      position: relative;
+      z-index: 10000;
+      pointer-events: all;
+    }
+
+    .modal-header {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      pointer-events: all;
+    }
+
+    .modal-header.danger {
+      background: #dc3545;
+    }
+
+    .modal-body {
+      padding: 20px;
+      font-size: 15px;
+      pointer-events: all;
+    }
+
+    .modal-footer {
+      padding: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid #eee;
+      pointer-events: all;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      pointer-events: all;
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .modal-btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #5a6268;
+    }
+
+    .modal-btn-confirm {
+      background: #dc3545;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background: #c82333;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== NOTIFICATION TOAST ===== */
+    .notification-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      padding: 20px;
+      min-width: 300px;
+      max-width: 400px;
+      z-index: 10001;
+      display: none;
+      animation: slideInRight 0.3s ease;
+    }
+
+    .notification-toast.show {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .notification-toast.success {
+      border-left: 4px solid #28a745;
+    }
+
+    .notification-toast.error {
+      border-left: 4px solid #dc3545;
+    }
+
+    .notification-toast.warning {
+      border-left: 4px solid #ffc107;
+    }
+
+    .notification-toast.info {
+      border-left: 4px solid #17a2b8;
+    }
+
+    .toast-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .notification-toast.success .toast-icon {
+      background: #d4edda;
+      color: #28a745;
+    }
+
+    .notification-toast.error .toast-icon {
+      background: #f8d7da;
+      color: #dc3545;
+    }
+
+    .notification-toast.warning .toast-icon {
+      background: #fff3cd;
+      color: #ffc107;
+    }
+
+    .notification-toast.info .toast-icon {
+      background: #d1ecf1;
+      color: #17a2b8;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .order-header {
@@ -468,10 +694,12 @@
 
 <!-- Notification Toast -->
 <div class="notification-toast" id="notificationToast">
-  <div class="toast-icon" id="toastIcon"></div>
+  <div class="toast-icon" id="toastIcon">
+    <i class="fas fa-check-circle"></i>
+  </div>
   <div class="toast-content">
-    <div class="toast-title" id="toastTitle"></div>
-    <div class="toast-message" id="toastMessage"></div>
+    <div class="toast-title" id="toastTitle">Thông báo</div>
+    <div class="toast-message" id="toastMessage">Nội dung thông báo</div>
   </div>
   <button class="toast-close" onclick="hideToast()">
     <i class="fas fa-times"></i>
@@ -506,6 +734,7 @@
   /*<![CDATA[*/
   let allOrders = [];
   let currentFilter = 'ALL';
+  let pendingOrderId = null;
 
   // ==================== LOAD ORDERS ====================
   async function loadOrders() {
@@ -667,27 +896,65 @@
     window.location.href = `/order-detail/${orderId}`;
   }
 
-  async function cancelOrder(orderId) {
-    if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+  function cancelOrder(orderId) {
+    console.log('cancelOrder called with:', orderId);
+
+    document.getElementById('modalTitle').innerText = 'Xác nhận hủy đơn';
+    document.getElementById('modalMessage').innerText = 'Bạn có chắc muốn hủy đơn hàng này?';
+
+    const modal = document.getElementById('confirmModal');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+
+    // Gắn orderId trực tiếp vào nút confirm
+    confirmBtn.setAttribute('data-order-id', orderId);
+    console.log('Set data-order-id to:', orderId);
+
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+  }
+
+  function hideModal() {
+    const modal = document.getElementById('confirmModal');
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+
+  async function confirmCancelOrder() {
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    const orderId = confirmBtn.getAttribute('data-order-id');
+
+    console.log('confirmCancelOrder - orderId from button:', orderId);
+
+    if (!orderId || orderId === 'null') {
+      console.error('Invalid orderId!');
+      showToast('error', 'Lỗi', 'Không tìm thấy ID đơn hàng');
       return;
     }
 
+    hideModal();
+
     try {
-      const response = await fetch(`/api/orders/${orderId}/cancel`, {
+      const url = `/api/orders/${orderId}/cancel`;
+      console.log('Fetching:', url);
+
+      const response = await fetch(url, {
         method: 'POST'
       });
 
+      console.log('Response status:', response.status);
+
       const result = await response.json();
+      console.log('Result:', result);
 
       if (result.success) {
-        alert('Đã hủy đơn hàng thành công!');
-        loadOrders(); // Reload
+        showToast('success', 'Thành công', 'Đã hủy đơn hàng thành công!');
+        setTimeout(() => loadOrders(), 500);
       } else {
-        alert(result.message || 'Không thể hủy đơn hàng');
+        showToast('error', 'Thất bại', result.message || 'Không thể hủy đơn hàng');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Có lỗi xảy ra!');
+      showToast('error', 'Lỗi', 'Có lỗi xảy ra khi hủy đơn hàng!');
     }
   }
 
@@ -708,15 +975,71 @@
       const result = await response.json();
 
       if (result.success) {
-        alert('Đã thêm vào giỏ hàng!');
-        window.location.href = '/cart';
+        showToast('success', 'Thành công', 'Đã thêm vào giỏ hàng!');
+        setTimeout(() => {
+          window.location.href = '/cart';
+        }, 1000);
       } else {
-        alert(result.message || 'Không thể mua lại');
+        showToast('error', 'Thất bại', result.message || 'Không thể mua lại');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Có lỗi xảy ra!');
+      showToast('error', 'Lỗi', 'Có lỗi xảy ra!');
     }
+  }
+
+  // ==================== TOAST NOTIFICATION ====================
+  function showToast(type, title, message) {
+    const toast = document.getElementById('notificationToast');
+    const toastIcon = document.getElementById('toastIcon');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // Remove all type classes
+    toast.classList.remove('success', 'error', 'warning', 'info');
+
+    // Add new type class
+    toast.classList.add(type);
+
+    // Set icon based on type
+    let iconHTML = '';
+    switch(type) {
+      case 'success':
+        iconHTML = '<i class="fas fa-check-circle"></i>';
+        break;
+      case 'error':
+        iconHTML = '<i class="fas fa-times-circle"></i>';
+        break;
+      case 'warning':
+        iconHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        break;
+      case 'info':
+        iconHTML = '<i class="fas fa-info-circle"></i>';
+        break;
+    }
+    toastIcon.innerHTML = iconHTML;
+
+    // Set content
+    toastTitle.textContent = title;
+    toastMessage.textContent = message;
+
+    // Show toast
+    toast.classList.add('show');
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      hideToast();
+    }, 3000);
+  }
+
+  function hideToast() {
+    const toast = document.getElementById('notificationToast');
+    toast.style.animation = 'slideOutRight 0.3s ease';
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.style.animation = '';
+    }, 300);
   }
 
   // ==================== HELPER FUNCTIONS ====================
@@ -772,6 +1095,16 @@
   // ==================== INIT ====================
   document.addEventListener('DOMContentLoaded', function() {
     loadOrders();
+
+    // Setup modal confirm button
+    document.getElementById('modalConfirmBtn').onclick = confirmCancelOrder;
+
+    // Click outside modal to close
+    document.getElementById('confirmModal').onclick = function(e) {
+      if (e.target === this) {
+        hideModal();
+      }
+    };
   });
   /*]]>*/
 </script>
