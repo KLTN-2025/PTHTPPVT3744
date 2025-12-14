@@ -440,6 +440,12 @@
                     <span>Tin nhắn</span>
                 </a>
 
+                <!-- ✅ THÊM: Đơn hàng của tôi -->
+                <a th:href="@{/my-orders}" sec:authorize="isAuthenticated()" title="Đơn hàng của tôi">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Đơn hàng</span>
+                </a>
+
                 <a th:href="@{/cart}" title="Giỏ hàng">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Giỏ hàng</span>
@@ -463,6 +469,8 @@
                 <li><a th:href="@{/products(categoryId=6)}">Dụng cụ phẫu thuật</a></li>
                 <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
                 <li><a th:href="@{/contact}">Liên hệ</a></li>
+                <!-- ✅ THÊM: Link trong menu mobile -->
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/my-orders}">Đơn hàng của tôi</a></li>
             </ul>
         </div>
     </nav>
@@ -701,6 +709,6 @@
         });
 
         console.log('%c✓ Header Initialized', 'color: #0066cc; font-weight: bold; font-size: 14px;');
-        console.log('Features: Cart Badge, Messages Icon, Logout Modal, Mobile Menu, Sticky Header, Search Shortcuts');
+        console.log('Features: Cart Badge, Messages Icon, Orders Link, Logout Modal, Mobile Menu, Sticky Header');
     </script>
 </div>

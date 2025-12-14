@@ -1,6 +1,5 @@
 package com.example.do_an_tot_nghiep.service;
 
-
 import com.example.do_an_tot_nghiep.dto.*;
 import com.example.do_an_tot_nghiep.model.*;
 import com.example.do_an_tot_nghiep.repository.*;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -73,7 +73,10 @@ public class OrderService implements IOrderService {
                 throw new RuntimeException("Insufficient stock for: " + device.getName());
             }
 
-            BigDecimal itemTotal = device.getPrice().multiply(new BigDecimal(item.getQuantity()));
+            // ✅ TÍNH GIÁ ĐÃ GIẢM (áp dụng discountPercent)
+            BigDecimal actualPrice = calculateDiscountedPrice(device);
+
+            BigDecimal itemTotal = actualPrice.multiply(new BigDecimal(item.getQuantity()));
             subtotal = subtotal.add(itemTotal);
 
             OrderDetail detail = OrderDetail.builder()
@@ -81,7 +84,7 @@ public class OrderService implements IOrderService {
                     .deviceName(device.getName())
                     .deviceImage(device.getImageUrl())
                     .quantity(item.getQuantity())
-                    .unitPrice(device.getPrice())
+                    .unitPrice(actualPrice)  // ✅ Dùng giá đã giảm
                     .totalPrice(itemTotal)
                     .build();
 
@@ -163,6 +166,25 @@ public class OrderService implements IOrderService {
 
         return convertToOrderResponse(order, orderDetails);
     }
+
+    /**
+     * ✅ HELPER METHOD: Tính giá sau khi áp dụng discount của sản phẩm
+     */
+    private BigDecimal calculateDiscountedPrice(MedicalDevice device) {
+        BigDecimal price = device.getPrice();
+
+        // Áp dụng discount nếu có
+        if (device.getDiscountPercent() != null && device.getDiscountPercent() > 0) {
+            BigDecimal discountMultiplier = BigDecimal.ONE
+                    .subtract(BigDecimal.valueOf(device.getDiscountPercent())
+                            .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+            price = price.multiply(discountMultiplier)
+                    .setScale(0, RoundingMode.HALF_UP); // Làm tròn về số nguyên
+        }
+
+        return price;
+    }
+
     @Override
     public OrderResponse getOrderById(Integer orderId) {
         Order order = orderRepository.findById(orderId)
@@ -215,25 +237,18 @@ public class OrderService implements IOrderService {
             case COMPLETED:
                 order.setCompletedAt(now);
                 order.setPaymentStatus(Order.PaymentStatus.PAID);
-
-                // Update customer stats (handled by trigger in entity)
                 break;
             case CANCELLED:
                 order.setCancelledAt(now);
-
-                // Restore stock
                 restoreStock(order);
                 break;
         }
 
         orderRepository.save(order);
-
-        // Create status history
         createOrderStatusHistory(order, oldStatus, status, employee);
-
-        // Send notification to customer
         notificationService.sendOrderStatusNotification(order);
     }
+
     @Override
     public void createOrderStatusHistory(Order order, Order.OrderStatus oldStatus, Order.OrderStatus newStatus, Employee employee) {
         OrderStatusHistory history = OrderStatusHistory.builder()
@@ -246,6 +261,7 @@ public class OrderService implements IOrderService {
 
         orderStatusHistoryRepository.save(history);
     }
+
     @Override
     public void restoreStock(Order order) {
         List<OrderDetail> details = orderDetailRepository.findByOrder(order);
@@ -256,6 +272,7 @@ public class OrderService implements IOrderService {
             deviceRepository.save(device);
         }
     }
+
     @Override
     public BigDecimal calculateShippingFee(BigDecimal subtotal) {
         BigDecimal freeShippingThreshold = new BigDecimal("500000");
@@ -266,13 +283,14 @@ public class OrderService implements IOrderService {
         }
         return defaultShippingFee;
     }
-    //tạo mã đơn hàng
+
     @Override
     public String generateOrderCode() {
         String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String randomStr = String.format("%04d", new Random().nextInt(10000));
         return "ORD" + dateStr + randomStr;
     }
+
     @Override
     public List<OrderResponse> getRecentOrders(int limit) {
         return orderRepository.findRecentOrders(PageRequest.of(0, limit))
@@ -293,20 +311,16 @@ public class OrderService implements IOrderService {
             String toDate,
             PageRequest pageRequest
     ) {
-
-        // Convert status → enum
         Order.OrderStatus orderStatus = null;
         if (status != null && !status.isEmpty()) {
             orderStatus = Order.OrderStatus.valueOf(status);
         }
 
-        // Convert paymentMethod → enum
         Order.PaymentMethod payMethod = null;
         if (paymentMethod != null && !paymentMethod.isEmpty()) {
             payMethod = Order.PaymentMethod.valueOf(paymentMethod);
         }
 
-        // Convert date → LocalDateTime
         LocalDateTime from = null;
         if (fromDate != null && !fromDate.isEmpty()) {
             from = LocalDateTime.parse(fromDate + "T00:00:00");
@@ -317,7 +331,6 @@ public class OrderService implements IOrderService {
             to = LocalDateTime.parse(toDate + "T23:59:59");
         }
 
-        // Call repository (KHỚP 100% kiểu)
         return orderRepository.searchOrders(
                 keyword,
                 orderStatus,
@@ -327,6 +340,7 @@ public class OrderService implements IOrderService {
                 pageRequest
         );
     }
+
     @Override
     public void updateStatus(Integer orderId, Order.OrderStatus status) {
         orderRepository.findById(orderId).ifPresent(order -> {
@@ -337,22 +351,17 @@ public class OrderService implements IOrderService {
 
     @Override
     public void deleteOrder(Integer id) {
-        // Kiểm tra đơn hàng có tồn tại không
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
-        // Kiểm tra đơn hàng có review hay không
         if (reviewRepository.existsByOrder_OrderId(id)) {
             throw new RuntimeException("Không thể xoá đơn vì đã có đánh giá!");
         }
 
-        // Sau đó xóa order
         orderRepository.delete(order);
     }
 
-
     public Map<String, Long> getStatusCounts() {
-        // Tạo map trạng thái chuẩn
         Map<String, Long> statusMap = new LinkedHashMap<>();
         statusMap.put("Chờ xác nhận", 0L);
         statusMap.put("Đã xác nhận", 0L);
@@ -361,16 +370,12 @@ public class OrderService implements IOrderService {
         statusMap.put("Hoàn thành", 0L);
         statusMap.put("Đã hủy", 0L);
 
-        // Lấy dữ liệu từ repository
         List<Object[]> results = orderRepository.countOrdersByStatus();
 
         for (Object[] row : results) {
-            Order.OrderStatus statusEnum = (Order.OrderStatus) row[0]; // ✅ Ép ENUM
+            Order.OrderStatus statusEnum = (Order.OrderStatus) row[0];
             Long count = (Long) row[1];
-
-            // Chuyển ENUM → String tiếng Việt
             String vnStatus = convertStatusToVN(statusEnum);
-
             statusMap.put(vnStatus, count);
         }
 
@@ -392,7 +397,6 @@ public class OrderService implements IOrderService {
         return orderRepository.getOrderItemsByOrderId(id);
     }
 
-    // Hàm helper convert ENUM → String
     private String convertStatusToVN(Order.OrderStatus status) {
         return switch (status) {
             case PENDING -> "Chờ xác nhận";
@@ -404,7 +408,6 @@ public class OrderService implements IOrderService {
             case RETURNED -> "Trả Hàng";
         };
     }
-
 
     @Override
     public OrderResponse convertToOrderResponse(Order order, List<OrderDetail> details) {
@@ -436,4 +439,3 @@ public class OrderService implements IOrderService {
                 .build();
     }
 }
-
