@@ -207,15 +207,30 @@ public class CheckoutController {
             orderRequest.setNote(request.getNote());
             orderRequest.setItems(orderItems);
 
-            // Tạo đơn hàng
+            // ✅ FIX: Tạo đơn hàng với trạng thái PENDING và UNPAID
             OrderResponse orderResponse = orderService.createOrder(orderRequest);
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Đặt hàng thành công!",
-                    "orderId", orderResponse.getOrderId(),
-                    "orderCode", orderResponse.getOrderCode()
-            ));
+            // ✅ QUAN TRỌNG: Kiểm tra payment method
+            if ("VNPAY".equals(request.getPaymentMethod())) {
+                // Đối với VNPay, chỉ trả về orderId để redirect sang trang thanh toán
+                // KHÔNG đánh dấu là thành công ở đây!
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Đã tạo đơn hàng. Chuyển sang trang thanh toán...",
+                        "orderId", orderResponse.getOrderId(),
+                        "orderCode", orderResponse.getOrderCode(),
+                        "paymentMethod", "VNPAY"
+                ));
+            } else {
+                // Đối với COD, đơn hàng thành công ngay
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Đặt hàng thành công!",
+                        "orderId", orderResponse.getOrderId(),
+                        "orderCode", orderResponse.getOrderCode(),
+                        "paymentMethod", "COD"
+                ));
+            }
 
         } catch (Exception e) {
             System.err.println("Error placing order: " + e.getMessage());

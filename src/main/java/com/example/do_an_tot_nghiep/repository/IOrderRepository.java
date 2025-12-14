@@ -19,28 +19,88 @@ import java.util.Optional;
 
 @Repository
 public interface IOrderRepository extends JpaRepository<Order, Integer> {
+
+    // ==================== TÌM KIẾM CƠ BẢN ====================
+
+    /**
+     * Tìm đơn hàng theo trạng thái
+     */
     List<Order> findByStatus(Order.OrderStatus status);
 
+    /**
+     * ✅ Tìm đơn hàng theo mã đơn hàng (orderCode)
+     * Method này quan trọng cho VNPay callback
+     */
+    Optional<Order> findByOrderCode(String orderCode);
+
+    /**
+     * ✅ Tìm đơn hàng theo transaction ID (từ VNPay)
+     */
+    Optional<Order> findByTransactionId(String transactionId);
+
+    /**
+     * Tìm đơn hàng của khách hàng, sắp xếp theo ngày tạo giảm dần
+     */
     @Query("SELECT o FROM Order o WHERE o.customer = :customer " +
             "ORDER BY o.createdAt DESC")
     List<Order> findByCustomerOrderByCreatedAtDesc(@Param("customer") Customer customer);
 
+    // ==================== TÌM KIẾM THEO NGÀY ====================
 
+    /**
+     * Tìm đơn hàng trong khoảng thời gian
+     */
     @Query("SELECT o FROM Order o WHERE o.createdAt BETWEEN :startDate AND :endDate")
-    List<Order> findByDateRange(@Param("startDate") java.time.LocalDateTime startDate,
-                                @Param("endDate") java.time.LocalDateTime endDate);
+    List<Order> findByDateRange(@Param("startDate") LocalDateTime startDate,
+                                @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
-    List<Object[]> countOrdersByStatus();
-
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED' " +
-            "AND o.completedAt BETWEEN :startDate AND :endDate")
-    java.math.BigDecimal getTotalRevenue(@Param("startDate") java.time.LocalDateTime startDate,
-                                         @Param("endDate") java.time.LocalDateTime endDate);
-
+    /**
+     * Tìm đơn hàng gần đây
+     */
     @Query("SELECT o FROM Order o ORDER BY o.createdAt DESC")
     List<Order> findRecentOrders(Pageable pageable);
 
+    // ==================== THỐNG KÊ ====================
+
+    /**
+     * Đếm số đơn hàng theo trạng thái
+     */
+    @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
+    List<Object[]> countOrdersByStatus();
+
+    /**
+     * Đếm số đơn hàng theo trạng thái (dạng số)
+     */
+    @Query(value = "SELECT COUNT(*) FROM `order` WHERE status = :status", nativeQuery = true)
+    BigDecimal countByStatus(@Param("status") String status);
+
+    /**
+     * Lấy tổng doanh thu trong khoảng thời gian
+     */
+    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED' " +
+            "AND o.completedAt BETWEEN :startDate AND :endDate")
+    BigDecimal getTotalRevenue(@Param("startDate") LocalDateTime startDate,
+                               @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Lấy thống kê tổng quan đơn hàng
+     */
+    @Query(value = """
+        SELECT 
+            CAST(COUNT(*) AS UNSIGNED) AS totalOrders,
+            CAST(SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS UNSIGNED) AS pendingOrders,
+            CAST(SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS UNSIGNED) AS completedOrders,
+            CAST(SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) AS UNSIGNED) AS cancelledOrders,
+            CAST(SUM(CASE WHEN status = 'RETURNED' THEN 1 ELSE 0 END) AS UNSIGNED) AS returnedOrders
+        FROM `order`
+    """, nativeQuery = true)
+    OrderStatsDTO getOrderStats();
+
+    // ==================== TÌM KIẾM NÂNG CAO ====================
+
+    /**
+     * Tìm kiếm đơn hàng với nhiều điều kiện
+     */
     @Query("""
         SELECT o FROM Order o
         WHERE 
@@ -63,36 +123,50 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
             Pageable pageable
     );
 
-    @Query(
-            value = "SELECT COUNT(*) FROM `order` WHERE status = :status",
-            nativeQuery = true
-    )
-    BigDecimal countByStatus(@Param("status") String status);
+    // ==================== CHI TIẾT ĐỢN HÀNG ====================
 
-    @Query(value = """
-    SELECT 
-        CAST(COUNT(*) AS UNSIGNED) AS totalOrders,
-        CAST(SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS UNSIGNED) AS pendingOrders,
-        CAST(SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS UNSIGNED) AS completedOrders,
-        CAST(SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) AS UNSIGNED) AS cancelledOrders,
-        CAST(SUM(CASE WHEN status = 'RETURNED' THEN 1 ELSE 0 END) AS UNSIGNED) AS returnedOrders
-    FROM `order`
-""", nativeQuery = true)
-    OrderStatsDTO getOrderStats();
-
+    /**
+     * Lấy danh sách sản phẩm trong đơn hàng
+     */
     @Query("""
-    SELECT new com.example.do_an_tot_nghiep.dto.OrderDetailDTO(
-        CONCAT(od.device.deviceId, ''),
-        od.deviceName,
-        od.deviceImage,
-        od.quantity,
-        od.unitPrice,
-        od.totalPrice
-    )
-    FROM OrderDetail od
-    WHERE od.order.orderId = :orderId
-""")
-    List<OrderDetailDTO> getOrderItemsByOrderId(Integer orderId);
+        SELECT new com.example.do_an_tot_nghiep.dto.OrderDetailDTO(
+            CONCAT(od.device.deviceId, ''),
+            od.deviceName,
+            od.deviceImage,
+            od.quantity,
+            od.unitPrice,
+            od.totalPrice
+        )
+        FROM OrderDetail od
+        WHERE od.order.orderId = :orderId
+    """)
+    List<OrderDetailDTO> getOrderItemsByOrderId(@Param("orderId") Integer orderId);
 
-    Optional<Order> findByOrderCode(String orderCode);
+    // ==================== VNPAY - PAYMENT ====================
+
+    /**
+     * ✅ Tìm đơn hàng chưa thanh toán của khách hàng
+     */
+    @Query("SELECT o FROM Order o WHERE o.customer = :customer " +
+            "AND o.paymentStatus = 'UNPAID' " +
+            "ORDER BY o.createdAt DESC")
+    List<Order> findUnpaidOrdersByCustomer(@Param("customer") Customer customer);
+
+    /**
+     * ✅ Tìm đơn hàng theo payment method
+     */
+    List<Order> findByPaymentMethod(Order.PaymentMethod paymentMethod);
+
+    /**
+     * ✅ Tìm đơn hàng theo payment status
+     */
+    List<Order> findByPaymentStatus(Order.PaymentStatus paymentStatus);
+
+    /**
+     * ✅ Tìm đơn hàng VNPay đang chờ thanh toán (timeout check)
+     */
+    @Query("SELECT o FROM Order o WHERE o.paymentMethod = 'VNPAY' " +
+            "AND o.paymentStatus = 'UNPAID' " +
+            "AND o.createdAt < :timeoutDate")
+    List<Order> findExpiredVNPayOrders(@Param("timeoutDate") LocalDateTime timeoutDate);
 }

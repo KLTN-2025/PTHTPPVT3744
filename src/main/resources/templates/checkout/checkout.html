@@ -656,16 +656,16 @@
             </div>
           </div>
 
-          <div class="payment-item" onclick="selectPayment(this)">
-            <input type="radio" name="paymentMethod" value="MOMO">
-            <div class="payment-icon">
-              <i class="fas fa-mobile-alt" style="color: #d82d8b;"></i>
-            </div>
-            <div class="payment-info">
-              <div class="payment-name">MoMo</div>
-              <div class="payment-desc">Thanh toán qua ví điện tử MoMo</div>
-            </div>
-          </div>
+<!--          <div class="payment-item" onclick="selectPayment(this)">-->
+<!--            <input type="radio" name="paymentMethod" value="MOMO">-->
+<!--            <div class="payment-icon">-->
+<!--              <i class="fas fa-mobile-alt" style="color: #d82d8b;"></i>-->
+<!--            </div>-->
+<!--            <div class="payment-info">-->
+<!--              <div class="payment-name">MoMo</div>-->
+<!--              <div class="payment-desc">Thanh toán qua ví điện tử MoMo</div>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
 
@@ -1049,25 +1049,25 @@
       console.log('Response Result:', result);
 
       if (result.success) {
-        showNotification(result.message, 'success');
-
-        // Redirect based on payment method
-        setTimeout(() => {
-          if (paymentMethod === 'COD') {
+        // ✅ FIX: Kiểm tra payment method để quyết định hành động
+        if (result.paymentMethod === 'VNPAY') {
+          // Đối với VNPay: Không hiện thông báo thành công, chuyển ngay sang trang thanh toán
+          console.log('Redirecting to VNPay payment...');
+          window.location.href = '/payment/vnpay?orderId=' + result.orderId;
+        } else {
+          // Đối với COD: Hiện thông báo thành công
+          showNotification(result.message, 'success');
+          setTimeout(() => {
             window.location.href = '/order-success?orderCode=' + result.orderCode;
-          } else if (paymentMethod === 'VNPAY') {
-            window.location.href = '/payment/vnpay?orderId=' + result.orderId;
-          } else if (paymentMethod === 'MOMO') {
-            window.location.href = '/payment/momo?orderId=' + result.orderId;
-          }
-        }, 1500);
+          }, 1500);
+        }
       } else {
         showNotification(result.message || 'Có lỗi xảy ra khi đặt hàng', 'error');
+        hideLoading();
       }
     } catch (error) {
       console.error('Error:', error);
       showNotification('Có lỗi xảy ra khi đặt hàng! ' + error.message, 'error');
-    } finally {
       hideLoading();
     }
   }
