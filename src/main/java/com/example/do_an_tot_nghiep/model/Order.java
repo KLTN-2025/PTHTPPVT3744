@@ -127,8 +127,7 @@ public class Order {
 
     public enum PaymentMethod {
         COD("COD"),
-        VNPAY("VNPay"),
-        MOMO("Momo");
+        VNPAY("VNPay");
 
         private String value;
 

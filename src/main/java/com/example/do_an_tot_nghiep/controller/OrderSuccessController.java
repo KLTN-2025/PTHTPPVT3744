@@ -46,7 +46,6 @@ public class OrderSuccessController {
         switch (paymentMethod) {
             case COD: return "Thanh toán khi nhận hàng (COD)";
             case VNPAY: return "VNPay";
-            case MOMO: return "MoMo";
             default: return paymentMethod.toString();
         }
     }

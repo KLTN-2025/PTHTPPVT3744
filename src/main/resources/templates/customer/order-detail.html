@@ -654,7 +654,6 @@
               <th:block th:switch="${order.paymentMethod}">
                 <span th:case="'COD'">Thanh toán khi nhận hàng (COD)</span>
                 <span th:case="'VNPAY'">VNPay</span>
-                <span th:case="'MOMO'">Momo</span>
                 <span th:case="*" th:text="${order.paymentMethod}">COD</span>
               </th:block>
             </strong>

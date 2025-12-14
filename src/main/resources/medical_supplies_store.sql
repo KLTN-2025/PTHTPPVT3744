@@ -1,10 +1,4 @@
--- =============================================
---  DATABASE: medical_supplies_store (ENHANCED VERSION)
---  Created: 2025-10-10
---  Description: Complete database for medical supplies e-commerce
---  Enhanced: Separate Customer and Employee tables
--- =============================================
-
+-- Database schema for Medical Supplies Store
 CREATE DATABASE IF NOT EXISTS medical_supplies_store;
 USE medical_supplies_store;
 
@@ -331,7 +325,7 @@ CREATE TABLE `order`
     loyalty_discount    DECIMAL(10, 2)                                                                         DEFAULT 0,
     total_price         DECIMAL(15, 2)     NOT NULL COMMENT 'Tổng thanh toán',
     promotion_id        INT,
-    payment_method      ENUM ('COD','VNPAY','MOMO')                                   DEFAULT 'COD',
+    payment_method      ENUM ('COD','VNPAY')                                   DEFAULT 'COD',
     payment_status      ENUM ('UNPAID','PAID','REFUNDED')                                                      DEFAULT 'UNPAID',
     transaction_id      VARCHAR(100),
     status              ENUM ('PENDING','CONFIRMED','PREPARING','SHIPPING','COMPLETED','CANCELLED','RETURNED') DEFAULT 'PENDING',
@@ -1230,7 +1224,7 @@ VALUES ('ORD202410010001', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn 
        ('ORD202410030003', 3, 'Phạm Thị Oanh', '0912345680', '789 Nguyễn Duy Trinh, P.Bình Trưng Đông, Q.2, TP.HCM',
         2450000, 0, 100000, 2350000, 'VNPAY', 'PAID', 'COMPLETED', 4, 2, '2024-10-03 10:45:00'),
        ('ORD202410040004', 4, 'Lê Văn Phát', '0912345681', '321 Điện Biên Phủ, P.1, Q.3, TP.HCM', 320000, 30000, 35000,
-        315000, 'MOMO', 'PAID', 'COMPLETED', 3, 2, '2024-10-04 14:20:00'),
+        315000, 'VNPAY', 'PAID', 'COMPLETED', 3, 2, '2024-10-04 14:20:00'),
        ('ORD202410050005', 5, 'Hoàng Thị Quỳnh', '0912345682', '654 Xa lộ Hà Nội, P.Hiệp Phú, Q.9, TP.HCM', 1700000,
         30000, 0, 1730000, 'COD', 'UNPAID', 'CONFIRMED', 4, 2, '2024-10-05 11:30:00'),
        ('ORD202410060006', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn Việt, P.Tăng Nhơn Phú A, Q.9, TP.HCM', 850000,
@@ -1242,7 +1236,7 @@ VALUES ('ORD202410010001', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn 
        ('ORD202410090009', 8, 'Bùi Văn Út', '0912345685', '258 Phan Văn Trị, P.11, Gò Vấp, TP.HCM', 1380000, 30000, 0,
         1410000, 'VNPAY', 'PAID', 'PREPARING', 4, 2, '2024-10-09 13:15:00'),
        ('ORD202410100010', 9, 'Cao Thị Vân', '0912345686', '369 Hoàng Văn Thụ, P.4, Tân Bình, TP.HCM', 950000, 30000, 0,
-        980000, 'MOMO', 'PAID', 'COMPLETED', 3, 2, '2024-10-10 10:30:00');
+        980000, 'VNPAY', 'PAID', 'COMPLETED', 3, 2, '2024-10-10 10:30:00');
 -- ===============================
 -- ORDER DETAILS (Chi tiết đơn hàng)
 -- ===============================
@@ -1422,7 +1416,7 @@ VALUES ('Làm thế nào để đặt hàng?',
         'Vận chuyển', 2, TRUE, 1),
        ('Tôi có thể đổi trả hàng không?',
         'Bạn có thể đổi trả trong vòng 7 ngày nếu sản phẩm còn nguyên tem, chưa qua sử dụng.', 'Đổi trả', 3, TRUE, 1),
-       ('Các hình thức thanh toán nào được chấp nhận?', 'Chúng tôi chấp nhận COD, VNPAY, MOMO, chuyển khoản ngân hàng.',
+       ('Các hình thức thanh toán nào được chấp nhận?', 'Chúng tôi chấp nhận COD, VNPAY, chuyển khoản ngân hàng.',
         'Thanh toán', 4, TRUE, 1),
        ('Làm thế nào để kiểm tra bảo hành?',
         'Vui lòng liên hệ hotline và cung cấp mã sản phẩm để được kiểm tra thông tin bảo hành.', 'Bảo hành', 5, TRUE,
@@ -1606,7 +1600,7 @@ VALUES ('ORD202410110011', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn 
        ('ORD202410110012', 5, 'Hoàng Thị Quỳnh', '0912345682', '654 Xa lộ Hà Nội, P.Hiệp Phú, Q.9, TP.HCM', 2850000, 0,
         0, 2850000, 'COD', 'UNPAID', 'CONFIRMED', 4, 2, '2024-10-11 14:00:00'),
        ('ORD202410120013', 6, 'Võ Văn Sang', '0912345683', '987 Kha Vạn Cân, P.Linh Chiểu, Thủ Đức, TP.HCM', 450000,
-        30000, 0, 480000, 'MOMO', 'PAID', 'PENDING', NULL, NULL, '2024-10-12 10:15:00');
+        30000, 0, 480000, 'VNPAY', 'PAID', 'PENDING', NULL, NULL, '2024-10-12 10:15:00');
 
 -- Chi tiết đơn hàng mới
 INSERT INTO order_detail (order_id, device_id, device_name, quantity, unit_price)
