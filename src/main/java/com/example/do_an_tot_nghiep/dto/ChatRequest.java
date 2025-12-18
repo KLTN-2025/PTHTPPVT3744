@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ChatRequest {
     private String message;
+    private String conversationId;
+    private String userId; // Optional: ID khách hàng nếu đã đăng nhập
 }

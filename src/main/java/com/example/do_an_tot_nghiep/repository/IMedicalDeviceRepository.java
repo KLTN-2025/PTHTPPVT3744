@@ -84,4 +84,12 @@ public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, S
     @Query(value = "SELECT COUNT(*) FROM medical_device WHERE supplier_id = :supplierId",
             nativeQuery = true)
     Long countBySupplierId(@Param("supplierId") Integer supplierId);
+
+    List<MedicalDevice> findTop5ByStatusOrderBySoldCountDesc(MedicalDevice.DeviceStatus deviceStatus);
+
+    List<MedicalDevice> findTop10ByStatusOrderBySoldCountDesc(MedicalDevice.DeviceStatus deviceStatus);
+
+    List<MedicalDevice> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String searchTerm, String searchTerm1);
+
+    List<MedicalDevice> findTop20ByStatusOrderByViewCountDesc(MedicalDevice.DeviceStatus deviceStatus);
 }

@@ -61,9 +61,25 @@
   </footer>
 
   <!-- Chatbot Button -->
-  <div class="chatbot-button" onclick="alert('Chatbot đang được phát triển!')">
+  <div class="chatbot-button" onclick="toggleChat()">
     <i class="fas fa-comments"></i>
   </div>
+
+  <!-- Chatbot Box -->
+  <div class="chatbot-box" id="chatbotBox">
+    <div class="chatbot-header">
+      Vật Tư Y Tế ABC - Hỗ trợ AI
+      <span onclick="toggleChat()">✖</span>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." />
+      <button onclick="sendMessage()">Gửi</button>
+    </div>
+  </div>
+
 
   <style>
     /* Footer */
@@ -135,5 +151,94 @@
       color: white;
       font-size: 28px;
     }
+    .chatbot-box {
+      position: fixed;
+      bottom: 110px;
+      right: 30px;
+      width: 320px;
+      height: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .chatbot-header {
+      background: #0066cc;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .chatbot-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      outline: none;
+    }
+
+    .chatbot-input button {
+      border: none;
+      background: #0066cc;
+      color: white;
+      padding: 0 16px;
+      cursor: pointer;
+    }
   </style>
+    <script>
+      function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s"'<>]+)/g;
+        return text.replace(urlRegex, url =>
+                `<a href="${url}" target="_blank">${url}</a>`
+        );
+      }
+      function toggleChat() {
+        const box = document.getElementById("chatbotBox");
+        box.style.display = box.style.display === "flex" ? "none" : "flex";
+      }
+
+      function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        const chat = document.getElementById("chatMessages");
+        chat.innerHTML += `<div><b>Bạn:</b> ${message}</div>`;
+        input.value = "";
+
+        fetch("/api/chat/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: message
+          })
+        })
+                .then(res => res.json())
+                .then(data => {
+                  chat.innerHTML += `<div><b>AI:</b> ${linkify(data.message)}</div>`;
+                  chat.scrollTop = chat.scrollHeight;
+                })
+                .catch(() => {
+                  chat.innerHTML += `<div style="color:red">Lỗi chatbot</div>`;
+                });
+      }
+    </script>
 </div>

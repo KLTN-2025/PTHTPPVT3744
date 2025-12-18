@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@lombok.Builder
 public class ChatResponse {
+    private String conversationId;
     private String message;
-    private boolean success;
+    private Long timestamp;
 }
