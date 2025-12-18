@@ -8,10 +8,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ✅ CRITICAL FIX: Force hide floating elements */
-        .modal-backdrop,
-        .overlay,
-        [role="dialog"]:not(.cart-layout) {
+        .overlay:not(.loading-overlay):not(.modal-backdrop) {
             display: none !important;
+        }
+
+        /* Đảm bảo Bootstrap modal backdrop hoạt động */
+        .modal-backdrop.show {
+            display: block !important;
+            opacity: 0.5 !important;
+            z-index: 10499 !important;
+        }
+
+        /* Đảm bảo Bootstrap modal hiển thị đúng */
+        .modal.show {
+            display: block !important;
+            z-index: 10500 !important;
+        }
+
+        /* Loading overlay vẫn hoạt động */
+        .loading-overlay.active {
+            display: flex !important;
+            z-index: 9999 !important;
         }
 
         * {
