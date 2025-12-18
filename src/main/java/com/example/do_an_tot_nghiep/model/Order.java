@@ -127,15 +127,15 @@ public class Order {
 
     public enum PaymentMethod {
         COD("COD"),
-        VNPAY("VNPay"),
-        MOMO("Momo"),
-        BANK_TRANSFER("Bank Transfer"),
-        WALLET("Wallet");
+        VNPAY("VNPay");
 
         private String value;
 
         PaymentMethod(String value) {
             this.value = value;
+        }
+        public String getValue() {
+            return value;
         }
     }
 
@@ -148,6 +148,9 @@ public class Order {
 
         PaymentStatus(String value) {
             this.value = value;
+        }
+        public String getValue() {
+            return value;
         }
     }
 
@@ -164,6 +167,9 @@ public class Order {
 
         OrderStatus(String value) {
             this.value = value;
+        }
+        public String getValue() {
+            return value;
         }
     }
 }

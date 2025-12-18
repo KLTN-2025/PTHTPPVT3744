@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Thêm mới sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+        }
+        .gallery-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .gallery-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">Thêm mới sản phẩm</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/products}">Sản phẩm</a></li>
+    <li class="breadcrumb-item active">Thêm mới</li>
+</ol>
+
+<section class="content" layout:fragment="content">
+    <div class="container-fluid">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Thông tin sản phẩm</h3>
+            </div>
+
+            <!-- Hiển thị thông báo -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/admin/products/add}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <div class="card-body">
+
+                    <!-- Tên sản phẩm -->
+                    <div class="form-group">
+                        <label for="name">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Nhập tên sản phẩm">
+                    </div>
+
+                    <!-- SKU -->
+                    <div class="form-group">
+                        <label for="sku">Mã SKU</label>
+                        <input type="text" th:field="*{sku}" class="form-control" id="sku" placeholder="Tự động tạo nếu để trống">
+                    </div>
+
+                    <!-- Danh mục -->
+                    <div class="form-group">
+                        <label for="categoryId">Danh mục <span class="text-danger">*</span></label>
+                        <select th:field="*{categoryId}" class="form-control" id="categoryId">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Thương hiệu -->
+                    <div class="form-group">
+                        <label for="brandId">Thương hiệu</label>
+                        <select th:field="*{brandId}" class="form-control" id="brandId">
+                            <option value="">-- Chọn thương hiệu --</option>
+                            <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Giá -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="price">Giá bán <span class="text-danger">*</span></label>
+                            <input type="number" th:field="*{price}" class="form-control" id="price" step="0.01">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="originalPrice">Giá gốc</label>
+                            <input type="number" th:field="*{originalPrice}" class="form-control" id="originalPrice" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Ảnh chính -->
+                    <div class="form-group">
+                        <label for="imageFile">Ảnh sản phẩm <span class="text-danger">*</span></label>
+                        <input type="file" th:field="*{imageFile}" id="imageFile" accept="image/*" class="form-control-file">
+                        <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="form-group">
+                        <label for="galleryFiles">Ảnh gallery</label>
+                        <input type="file" th:field="*{galleryFiles}" id="galleryFiles" accept="image/*" multiple class="form-control-file">
+                        <div id="galleryPreview" class="gallery-preview"></div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="form-group">
+                        <label for="status">Trạng thái</label>
+                        <select th:field="*{status}" class="form-control" id="status">
+                            <option value="Còn_hàng">Còn hàng</option>
+                            <option value="Hết_hàng">Hết hàng</option>
+                            <option value="Ngừng_bán">Ngừng bán</option>
+                        </select>
+                    </div>
+                    <!-- Nổi bật & Mới -->
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isFeatured}" class="form-check-input">
+                        <label class="form-check-label">Nổi bật</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{isNew}" class="form-check-input">
+                        <label class="form-check-label">Sản phẩm mới</label>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea th:field="*{description}" class="form-control" id="description" rows="4"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Thêm sản phẩm
+                    </button>
+                    <a th:href="@{/admin/products}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const imageInput = document.getElementById('imageFile');
+        const imagePreview = document.getElementById('imagePreview');
+        imageInput?.addEventListener('change', function(e){
+            const file = e.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(ev){ imagePreview.src = ev.target.result; imagePreview.style.display = 'block'; }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const galleryInput = document.getElementById('galleryFiles');
+        const galleryPreview = document.getElementById('galleryPreview');
+        galleryInput?.addEventListener('change', function(e){
+            const files = Array.from(e.target.files);
+            galleryPreview.innerHTML = '';
+            files.forEach(file=>{
+                const reader = new FileReader();
+                reader.onload = function(ev){
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    galleryPreview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+    });
+</script>
+</body>
+</html>

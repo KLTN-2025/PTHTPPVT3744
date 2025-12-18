@@ -1,6 +1,9 @@
 package com.example.do_an_tot_nghiep.config;
 
+import com.example.do_an_tot_nghiep.security.OAuth2LoginSuccessHandler;
+import com.example.do_an_tot_nghiep.service.CustomOAuth2UserService;
 import com.example.do_an_tot_nghiep.service.MultiUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,11 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final MultiUserDetailsService multiUserDetailsService;
-
-    public SecurityConfig(MultiUserDetailsService multiUserDetailsService) {
-        this.multiUserDetailsService = multiUserDetailsService;
-    }
+    @Autowired
+    private MultiUserDetailsService multiUserDetailsService;
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,22 +44,31 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
-                .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/auth/**",
-                                "/register",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/img/**",
-                                "/favicon.ico"
-                        ).permitAll()
+                        // Static resources - PUBLIC
+                        .requestMatchers("/auth/**", "/register", "/css/**", "/js/**", "/images/**", "/img/**", "/favicon.ico").permitAll()
+
+                        // Frontend pages - PUBLIC (không cần đăng nhập)
+                        .requestMatchers("/", "/home", "/products", "/products/**", "/cart", "/cart/**").permitAll()
+                        .requestMatchers("/promotions", "/promotions/**", "/support").permitAll()
+
+                        // Contact - PUBLIC (ai cũng gửi được tin nhắn)
+                        .requestMatchers("/contact", "/contact/", "/contact/submit").permitAll()
+
+                        // My Messages - AUTHENTICATED (chỉ user đã đăng nhập)
+                        // ✅ FIX: Thêm authenticated() để đảm bảo user đã login
+                        .requestMatchers("/contact/my-messages", "/contact/message/**").authenticated()
+
+                        // Admin area - ADMIN/MANAGER/STAFF only
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
+                        // User area - CUSTOMER only
                         .requestMatchers("/user/**").hasRole("CUSTOMER")
+
+                        // Các request còn lại cần authenticate
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -65,10 +76,16 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        // ✅ Thêm ?error (không có =true)
                         .failureUrl("/auth/login?error")
                         .defaultSuccessUrl("/redirectByRole", true)
                         .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/auth/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -76,6 +93,10 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                // ✅ FIX: Thêm exceptionHandling để redirect đúng khi access denied
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/auth/login?error=access-denied")
                 );
 
         return http.build();

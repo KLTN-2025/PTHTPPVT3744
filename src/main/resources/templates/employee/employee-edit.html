@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Chỉnh sửa Nhân viên</title>
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border-left: 4px solid #293a58;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #293a58;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section-title i {
+            margin-right: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #293a58;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .avatar-upload-container {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            background: #293a58;
+            color: white;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background: #1a2537;
+            transform: translateY(-2px);
+        }
+
+        .form-control:focus {
+            border-color: #293a58;
+            box-shadow: 0 0 0 0.2rem rgba(41, 58, 88, 0.25);
+        }
+
+        .btn-save {
+            background: #293a58;
+            border-color: #293a58;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+        .btn-save:hover {
+            background: #1a2537;
+            border-color: #1a2537;
+        }
+
+        .invalid-feedback {
+            display: block;
+        }
+
+        .salary-input-group {
+            position: relative;
+        }
+
+        .salary-input-group .form-control {
+            padding-right: 60px;
+        }
+
+        .salary-unit {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">
+    <i class="fas fa-user-edit"></i>
+    <span th:text="${employee.employeeId != null ? 'Chỉnh sửa Nhân viên' : 'Thêm Nhân viên mới'}">Chỉnh sửa Nhân viên</span>
+</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item"><a href="/admin/employees">Nhân viên</a></li>
+    <li class="breadcrumb-item active" th:text="${employee.employeeId != null ? 'Chỉnh sửa' : 'Thêm mới'}">Chỉnh sửa</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+        <form th:action="@{${employee.employeeId != null ? '/admin/employees/update/' + employee.employeeId : '/admin/employees/save'}}"
+              th:object="${employee}"
+              method="post"
+              enctype="multipart/form-data"
+              id="employeeForm">
+
+            <!-- Hidden field để lưu employeeId -->
+            <input type="hidden" th:field="*{employeeId}" name="employeeId">
+            <!-- Hidden field để lưu avatarUrl từ Cloudinary -->
+            <input type="hidden" th:field="*{avatarUrl}" name="avatarUrl">
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-lg-8">
+
+                    <!-- Thông tin cơ bản -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    Thông tin cơ bản
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Mã nhân viên</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{employeeCode}"
+                                               th:classappend="${#fields.hasErrors('employeeCode')} ? 'is-invalid'"
+                                               placeholder="Nhập mã nhân viên (VD: EMP001)"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('employeeCode')}" th:errors="*{employeeCode}"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Họ và tên</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{fullName}"
+                                               th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'"
+                                               placeholder="Nhập họ và tên đầy đủ"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label>Ngày sinh</label>
+                                        <input type="date"
+                                               class="form-control"
+                                               th:field="*{dateOfBirth}"
+                                               th:max="${T(java.time.LocalDate).now().minusYears(18)}">
+                                        <small class="text-muted">Phải từ 18 tuổi trở lên</small>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label>Giới tính</label>
+                                        <select class="form-control" th:field="*{gender}">
+                                            <option value="">-- Chọn giới tính --</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.Gender).MALE}">Nam</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.Gender).FEMALE}">Nữ</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.Gender).OTHER}">Khác</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label>CCCD/CMND</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{citizenId}"
+                                               placeholder="Nhập số CCCD/CMND"
+                                               maxlength="20"
+                                               pattern="[0-9]{9,12}">
+                                        <small class="text-muted">9-12 chữ số</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thông tin liên hệ -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-address-book"></i>
+                                    Thông tin liên hệ
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Email</label>
+                                        <input type="email"
+                                               class="form-control"
+                                               th:field="*{email}"
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                                               placeholder="email@example.com"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Số điện thoại</label>
+                                        <input type="tel"
+                                               class="form-control"
+                                               th:field="*{phone}"
+                                               th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'"
+                                               placeholder="0123456789"
+                                               pattern="[0-9]{10,11}"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>Địa chỉ</label>
+                                    <textarea class="form-control"
+                                              th:field="*{address}"
+                                              rows="2"
+                                              placeholder="Nhập địa chỉ chi tiết"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Thông tin công việc -->
+                            <!-- Chỉ admin được sửa -->
+                            <div class="col-md-6 mb-3">
+                                <label>Chức vụ</label>
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{position}"
+                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
+                                       placeholder="VD: Nhân viên, Trưởng phòng...">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Phòng ban</label>
+                                <input type="text"
+                                       class="form-control"
+                                       th:field="*{department}"
+                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
+                                       placeholder="VD: IT, Kế toán, Nhân sự...">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Ngày vào làm</label>
+                                <input type="date"
+                                       class="form-control"
+                                       th:field="*{hireDate}"
+                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
+                                       th:max="${T(java.time.LocalDate).now()}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Lương cơ bản</label>
+                                <input type="number"
+                                       class="form-control"
+                                       th:field="*{salary}"
+                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
+                                       placeholder="0">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Vai trò</label>
+                                <select class="form-control"
+                                        th:field="*{roleId}"
+                                        th:disabled="${currentEmployee.roleName != 'ADMIN'}"
+                                        required>
+                                    <option th:each="role : ${roles}"
+                                            th:value="${role.roleId}"
+                                            th:text="${role.roleName}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Trạng thái</label>
+                                <select class="form-control"
+                                        th:field="*{status}"
+                                        th:disabled="${currentEmployee.roleName != 'ADMIN'}"
+                                        required>
+                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ACTIVE}">Đang làm việc</option>
+                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ON_LEAVE}">Nghỉ phép</option>
+                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).RESIGNED}">Đã nghỉ việc</option>
+                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).TERMINATED}">Đã sa thải</option>
+                                </select>
+                            </div>
+
+
+                            <!-- Thông tin tài khoản (chỉ hiện khi thêm mới) -->
+                            <div class="form-section" th:if="${employee.employeeId == null}">
+                                <div class="form-section-title">
+                                    <i class="fas fa-key"></i>
+                                    Thông tin tài khoản
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Tên đăng nhập</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{username}"
+                                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                                               placeholder="Nhập tên đăng nhập"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Mật khẩu</label>
+                                        <input type="password"
+                                               class="form-control"
+                                               name="password"
+                                               placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+                                               minlength="6"
+                                               required>
+                                        <small class="text-muted">Mật khẩu phải có ít nhất 6 ký tự</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- Avatar Upload -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-camera mr-2"></i>Ảnh đại diện
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="avatar-upload-container">
+                                <img id="avatarPreview"
+                                     th:src="${employee.avatarUrl != null ? employee.avatarUrl : '/img/default-avatar.png'}"
+                                     class="avatar-preview mb-3"
+                                     alt="Avatar">
+
+                                <div>
+                                    <label for="avatarFile" class="custom-file-upload">
+                                        <i class="fas fa-upload mr-2"></i>Chọn ảnh
+                                    </label>
+                                    <input type="file"
+                                           id="avatarFile"
+                                           name="avatarFile"
+                                           accept="image/*"
+                                           style="display: none;">
+                                </div>
+
+                                <small class="text-muted d-block mt-2">
+                                    Chấp nhận: JPG, PNG, GIF<br>
+                                    Kích thước tối đa: 5MB
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <button type="submit" class="btn btn-primary btn-save btn-block mb-2">
+                                <i class="fas fa-save mr-2"></i>Lưu thông tin
+                            </button>
+
+                            <a th:href="@{/admin/employees}" class="btn btn-secondary btn-block mb-2">
+                                <i class="fas fa-times mr-2"></i>Hủy bỏ
+                            </a>
+
+                            <button type="button" class="btn btn-info btn-block" onclick="resetForm()">
+                                <i class="fas fa-redo mr-2"></i>Reset form
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="card shadow-sm border-left-primary">
+                        <div class="card-body">
+                            <h6 class="text-primary">
+                                <i class="fas fa-info-circle mr-2"></i>Lưu ý
+                            </h6>
+                            <ul class="small mb-0 pl-3">
+                                <li>Các trường có dấu <span class="text-danger">*</span> là bắt buộc</li>
+                                <li>Mã nhân viên phải là duy nhất</li>
+                                <li>Email và tên đăng nhập không được trùng</li>
+                                <li>Số điện thoại phải có 10-11 chữ số</li>
+                                <li>CCCD/CMND phải có 9-12 chữ số</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Avatar preview and upload
+        document.getElementById('avatarFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Chỉ chấp nhận file ảnh!'
+                    });
+                    this.value = '';
+                    return;
+                }
+
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Kích thước file không được vượt quá 5MB!'
+                    });
+                    this.value = '';
+                    return;
+                }
+
+                // Preview image
+                const reader = new FileReader();
+                const originalSrc = document.getElementById('avatarPreview').src;
+
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+
+                    // Get employeeId from form (nếu đang edit)
+                    const employeeIdInput = document.querySelector('[name="employeeId"]');
+                    const employeeId = employeeIdInput ? employeeIdInput.value : null;
+
+                    // Show upload confirmation
+                    Swal.fire({
+                        title: 'Upload ảnh ngay?',
+                        text: 'Bạn có muốn upload ảnh đại diện này không?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Upload ngay',
+                        cancelButtonText: 'Hủy',
+                        confirmButtonColor: '#293a58',
+                        showLoaderOnConfirm: true,
+                        preConfirm: () => {
+                            // Upload to server
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+
+                            // Thêm employeeId nếu đang edit người khác
+                            if (employeeId) {
+                                formData.append('employeeId', employeeId);
+                            }
+
+                            return fetch('/admin/employees/profile/upload-avatar', {
+                                method: 'POST',
+                                body: formData
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (!data.success) {
+                                        throw new Error(data.message || 'Upload failed');
+                                    }
+                                    return data;
+                                })
+                                .catch(error => {
+                                    Swal.showValidationMessage(`Lỗi: ${error.message}`);
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value) {
+                            // Update avatar with new URL from Cloudinary
+                            document.getElementById('avatarPreview').src = result.value.avatarUrl;
+
+                            // Update hidden input nếu có
+                            const avatarUrlInput = document.querySelector('[name="avatarUrl"]');
+                            if (avatarUrlInput) {
+                                avatarUrlInput.value = result.value.avatarUrl;
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã upload!',
+                                text: result.value.message || 'Ảnh đại diện đã được upload thành công',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else if (result.isDismissed) {
+                            // Restore original image
+                            document.getElementById('avatarPreview').src = originalSrc;
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form validation
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            const form = this;
+
+            // Custom validation
+            const email = form.querySelector('[name="email"]').value;
+            const phone = form.querySelector('[name="phone"]').value;
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Email không hợp lệ',
+                    text: 'Vui lòng nhập địa chỉ email đúng định dạng'
+                });
+                return;
+            }
+
+            // Validate phone format
+            const phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(phone)) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Số điện thoại không hợp lệ',
+                    text: 'Số điện thoại phải có 10-11 chữ số'
+                });
+                return;
+            }
+
+            // Show loading
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng đợi',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        });
+
+        // Format salary input
+        const salaryInput = document.querySelector('[name="salary"]');
+        if (salaryInput) {
+            salaryInput.addEventListener('input', function(e) {
+                // Remove non-numeric characters except decimal point
+                this.value = this.value.replace(/[^\d]/g, '');
+            });
+        }
+
+        // Reset form function
+        function resetForm() {
+            Swal.fire({
+                title: 'Reset form?',
+                text: 'Tất cả thông tin đã nhập sẽ bị xóa',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Reset',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('employeeForm').reset();
+                    document.getElementById('avatarPreview').src = '/img/default-avatar.png';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã reset!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+        // Auto-generate employee code (optional)
+        const employeeCodeInput = document.querySelector('[name="employeeCode"]');
+        if (employeeCodeInput && !employeeCodeInput.value) {
+            // Generate code like EMP + timestamp
+            const timestamp = Date.now().toString().slice(-6);
+            employeeCodeInput.placeholder = `VD: EMP${timestamp}`;
+        }
+
+        // Show success/error messages from flash attributes
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+
+        if (success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: decodeURIComponent(success),
+                timer: 3000
+            });
+        }
+
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: decodeURIComponent(error)
+            });
+        }
+    </script>
+</th:block>
+</body>
+</html>

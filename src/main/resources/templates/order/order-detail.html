@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Chi tiết Đơn hàng</title>
+
+    <style>
+        .order-box {
+            border-left: 4px solid #007bff;
+        }
+        .order-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .item-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1 layout:fragment="page-title">
+    Chi tiết Đơn hàng <span th:text="${order.orderCode}"></span>
+</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item"><a href="/admin/orders">Đơn hàng</a></li>
+    <li class="breadcrumb-item active">Chi tiết</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+
+        <!-- ==================== THÔNG TIN ĐƠN HÀNG ==================== -->
+        <div class="card mb-3 order-box">
+            <div class="card-body">
+                <div class="order-title mb-2">
+                    Mã đơn: <span th:text="${order.orderCode}"></span>
+                </div>
+
+                <p>
+                    <strong>Ngày tạo:</strong>
+                    <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                </p>
+
+                <p>
+                    <strong>Trạng thái:</strong>
+                    <span class="badge-status"
+                          th:classappend="${' status-' + order.status.name().toLowerCase()}"
+                          th:text="${order.status.value}">
+                    </span>
+                </p>
+
+                <form method="post" th:action="@{/admin/orders/update-status}">
+                    <input type="hidden" name="orderId" th:value="${order.orderId}">
+                    <div class="form-inline">
+                        <select name="status" class="form-control mr-2">
+                            <option value="PENDING" th:selected="${order.status.name() == 'PENDING'}">Chờ xác nhận</option>
+                            <option value="CONFIRMED" th:selected="${order.status.name() == 'CONFIRMED'}">Đã xác nhận</option>
+                            <option value="PREPARING" th:selected="${order.status.name() == 'PREPARING'}">Đang chuẩn bị</option>
+                            <option value="SHIPPING" th:selected="${order.status.name() == 'SHIPPING'}">Đang giao</option>
+                            <option value="COMPLETED" th:selected="${order.status.name() == 'COMPLETED'}">Hoàn thành</option>
+                            <option value="CANCELLED" th:selected="${order.status.name() == 'CANCELLED'}">Đã hủy</option>
+                        </select>
+
+                        <button class="btn btn-primary">
+                            Cập nhật
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ==================== THÔNG TIN KHÁCH HÀNG ==================== -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Thông tin Khách hàng</strong>
+            </div>
+            <div class="card-body">
+                <p><strong>Họ tên:</strong> <span th:text="${order.customerName}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${order.customerEmail}"></span></p>
+                <p><strong>SĐT:</strong> <span th:text="${order.customerPhone}"></span></p>
+                <p><strong>Địa chỉ:</strong> <span th:text="${order.customerAddress}"></span></p>
+            </div>
+        </div>
+        <!-- ==================== DANH SÁCH SẢN PHẨM ==================== -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Sản phẩm trong đơn</strong>
+            </div>
+
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Ảnh</th>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Tổng</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${order.items}">
+                        <td>
+                            <img th:src="@{${item.deviceImage}}" class="item-img">
+                        </td>
+                        <td th:text="${item.deviceName}"></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
+                        <td th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(order.items)}">
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Không có sản phẩm nào
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== THANH TOÁN ==================== -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Thanh toán</strong>
+            </div>
+
+            <div class="card-body">
+                <p>
+                    <strong>Phương thức:</strong>
+                    <span class="badge badge-info" th:text="${order.paymentMethod}"></span>
+                </p>
+
+                <p>
+                    <strong>Trạng thái:</strong>
+                    <span th:text="${order.paymentStatus}"></span>
+                </p>
+
+                <h4 class="mt-3">
+                    Tổng tiền:
+                    <span class="text-success"
+                          th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">
+                    </span>
+                </h4>
+            </div>
+        </div>
+
+        <!-- ==================== BUTTONS ==================== -->
+        <div class="mb-4">
+            <a href="/admin/orders" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+
+            <a th:href="@{/admin/orders/invoice/{id}(id=${order.orderId})}"
+               class="btn btn-success">
+                <i class="fas fa-file-invoice"></i> In hóa đơn
+            </a>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

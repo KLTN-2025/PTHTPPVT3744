@@ -1,0 +1,244 @@
+<!-- Footer Fragment - Dùng chung cho tất cả trang -->
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="footer">
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Vật Tư Y Tế ABC</h3>
+          <p>Hệ thống phân phối vật tư y tế uy tín, chất lượng hàng đầu Việt Nam. Cung cấp đầy đủ thiết bị y tế cho bệnh viện, phòng khám và gia đình.</p>
+          <div style="margin-top: 20px;">
+            <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-facebook"></i></a>
+            <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-youtube"></i></a>
+            <a href="#" style="margin-right: 15px; font-size: 24px;"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3>Danh mục</h3>
+          <ul>
+            <!-- TẤT CẢ SẢN PHẨM -->
+            <li><a th:href="@{/products}">Tất cả sản phẩm</a></li>
+
+            <!-- DANH MỤC CỤ THỂ -->
+            <li><a th:href="@{/products(categoryId=1)}">Thiết bị y tế</a></li>
+            <li><a th:href="@{/products(categoryId=2)}">Dụng cụ chăm sóc</a></li>
+            <li><a th:href="@{/products(categoryId=3)}">Máy đo sức khỏe</a></li>
+            <li><a th:href="@{/products(categoryId=5)}">Khẩu trang</a></li>
+            <li><a th:href="@{/products(categoryId=8)}">Vật tư tiêu hao</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Chính sách</h3>
+          <ul>
+            <li><a th:href="@{/policies/privacy}">Chính sách bảo mật</a></li>
+            <li><a th:href="@{/policies/return}">Chính sách đổi trả</a></li>
+            <li><a th:href="@{/policies/shipping}">Chính sách vận chuyển</a></li>
+            <li><a th:href="@{/policies/payment}">Hướng dẫn thanh toán</a></li>
+            <li><a th:href="@{/policies/warranty}">Chính sách bảo hành</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Liên hệ</h3>
+          <p><i class="fas fa-map-marker-alt"></i> 123 Lê Lợi, Q.1, TP.HCM</p>
+          <p><i class="fas fa-phone"></i> Hotline: 1900-xxxx</p>
+          <p><i class="fas fa-envelope"></i> info@vattuyteabc.com</p>
+          <h4 style="margin-top: 20px;">Phương thức thanh toán</h4>
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <div style="background: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: #0066cc;">VNPAY</div>
+            <div style="background: white; padding: 5px 10px; border-radius: 5px; color: #d82d8b; font-weight: bold;">MOMO</div>
+            <div style="background: white; padding: 5px 10px; border-radius: 5px;"><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 Vật Tư Y Tế ABC. Phát triển bởi Bùi Trung Nguyên.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Chatbot Button -->
+  <div class="chatbot-button" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+  </div>
+
+  <!-- Chatbot Box -->
+  <div class="chatbot-box" id="chatbotBox">
+    <div class="chatbot-header">
+      Vật Tư Y Tế ABC - Hỗ trợ AI
+      <span onclick="toggleChat()">✖</span>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." />
+      <button onclick="sendMessage()">Gửi</button>
+    </div>
+  </div>
+
+
+  <style>
+    /* Footer */
+    footer {
+      background: #2c3e50;
+      color: white;
+      padding: 40px 0 20px;
+      margin-top: 50px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-section h3 {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section a {
+      color: #bdc3c7;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      transition: color 0.3s;
+    }
+
+    .footer-section a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #34495e;
+      padding-top: 20px;
+      text-align: center;
+      color: #bdc3c7;
+    }
+
+    /* Chatbot */
+    .chatbot-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background: #0066cc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .chatbot-button:hover {
+      transform: scale(1.1);
+    }
+
+    .chatbot-button i {
+      color: white;
+      font-size: 28px;
+    }
+    .chatbot-box {
+      position: fixed;
+      bottom: 110px;
+      right: 30px;
+      width: 320px;
+      height: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .chatbot-header {
+      background: #0066cc;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .chatbot-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      outline: none;
+    }
+
+    .chatbot-input button {
+      border: none;
+      background: #0066cc;
+      color: white;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+  </style>
+    <script>
+      function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s"'<>]+)/g;
+        return text.replace(urlRegex, url =>
+                `<a href="${url}" target="_blank">${url}</a>`
+        );
+      }
+      function toggleChat() {
+        const box = document.getElementById("chatbotBox");
+        box.style.display = box.style.display === "flex" ? "none" : "flex";
+      }
+
+      function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        const chat = document.getElementById("chatMessages");
+        chat.innerHTML += `<div><b>Bạn:</b> ${message}</div>`;
+        input.value = "";
+
+        fetch("/api/chat/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: message
+          })
+        })
+                .then(res => res.json())
+                .then(data => {
+                  chat.innerHTML += `<div><b>AI:</b> ${linkify(data.message)}</div>`;
+                  chat.scrollTop = chat.scrollHeight;
+                })
+                .catch(() => {
+                  chat.innerHTML += `<div style="color:red">Lỗi chatbot</div>`;
+                });
+      }
+    </script>
+</div>

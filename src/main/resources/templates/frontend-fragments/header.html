@@ -1,0 +1,714 @@
+<!-- Header Fragment - Complete with Bootstrap & Advanced Features -->
+<div xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" th:fragment="header">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: white;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+
+        .top-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .top-header a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .top-header a:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        .top-header span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Main Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .main-header.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        .main-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Search Bar */
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-bar form {
+            display: flex;
+            border: 2px solid #0066cc;
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .search-bar form:focus-within {
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: #999;
+        }
+
+        .search-bar button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #0052a3;
+        }
+
+        .search-bar button:active {
+            transform: scale(0.95);
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-actions a {
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .header-actions a:hover {
+            background: #f0f8ff;
+            color: #0066cc;
+            transform: translateY(-2px);
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            color: #0066cc;
+            transition: all 0.3s;
+        }
+
+        .header-actions a:hover i {
+            transform: scale(1.1);
+        }
+
+        .cart-badge {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 11px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 20px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(255, 68, 68, 0.4);
+            display: none;
+        }
+
+        .cart-badge.active {
+            display: inline-block;
+            animation: cartPulse 0.5s;
+        }
+
+        @keyframes cartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Navigation */
+        nav {
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav li {
+            position: relative;
+        }
+
+        nav a {
+            color: #333;
+            text-decoration: none;
+            padding: 15px 0;
+            display: block;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: #0066cc;
+            transition: width 0.3s;
+        }
+
+        nav a:hover {
+            color: #0066cc;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #0066cc;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header .container {
+                flex-wrap: wrap;
+            }
+
+            .search-bar {
+                order: 3;
+                width: 100%;
+                max-width: 100%;
+                margin-top: 15px;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0;
+                display: none;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav a {
+                padding: 12px 0;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .header-actions {
+                gap: 10px;
+            }
+
+            .header-actions a span {
+                display: none;
+            }
+
+            .top-header .container {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .top-header a {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        }
+
+        /* Bootstrap Modal Customization */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modal-header.bg-danger {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
+
+        /* Toast Customization */
+        .toast {
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast-body {
+            padding: 15px;
+            font-weight: 500;
+        }
+    </style>
+
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="container">
+            <div>
+                <i class="fas fa-phone"></i> Hotline: 0964772715
+                <i class="fas fa-envelope" style="margin-left: 20px;"></i> info@vattuyteabc.com
+            </div>
+            <div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/auth/login}">
+                        <i class="fas fa-user"></i> Đăng nhập
+                    </a>
+                    <a th:href="@{/auth/register}">
+                        <i class="fas fa-user-plus"></i> Đăng ký
+                    </a>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+          <span>
+            <i class="fas fa-user-circle"></i>
+            Xin chào, <b sec:authentication="name"></b>
+          </span>
+                    <a href="#" id="logoutButton" class="text" style="margin-left: 15px;">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="main-header" id="mainHeader">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <i class="fas fa-heartbeat"></i>
+                Vật Tư Y Tế ABC
+            </a>
+
+            <div class="search-bar">
+                <form th:action="@{/search}" method="get">
+                    <input
+                            type="text"
+                            name="keyword"
+                            placeholder="Tìm kiếm vật tư y tế..."
+                            th:value="${keyword}"
+                            autocomplete="off">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="header-actions">
+                <a th:href="@{/support}">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>Hỗ trợ</span>
+                </a>
+
+                <!-- ✅ Chat Messages Icon -->
+                <a th:href="@{/contact/my-messages}" sec:authorize="isAuthenticated()" title="Tin nhắn của tôi">
+                    <i class="fas fa-comments"></i>
+                    <span>Tin nhắn</span>
+                </a>
+
+                <!-- ✅ THÊM: Đơn hàng của tôi -->
+                <a th:href="@{/my-orders}" sec:authorize="isAuthenticated()" title="Đơn hàng của tôi">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Đơn hàng</span>
+                </a>
+
+                <a th:href="@{/cart}" title="Giỏ hàng">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Giỏ hàng</span>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <button class="mobile-menu-toggle" id="navToggle" style="display: none; margin-bottom: 10px;">
+                <i class="fas fa-bars"></i> Menu
+            </button>
+            <ul id="navMenu">
+                <li><a th:href="@{/}">Trang chủ</a></li>
+                <li><a th:href="@{/products}">Tất cả sản phẩm</a></li>
+                <li><a th:href="@{/products(categoryId=1)}">Thiết bị y tế</a></li>
+                <li><a th:href="@{/products(categoryId=8)}">Vật tư tiêu hao</a></li>
+                <li><a th:href="@{/products(categoryId=6)}">Dụng cụ phẫu thuật</a></li>
+                <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
+                <li><a th:href="@{/contact}">Liên hệ</a></li>
+                <!-- ✅ THÊM: Link trong menu mobile -->
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/my-orders}">Đơn hàng của tôi</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Modal xác nhận đăng xuất -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="logoutModalLabel">
+                        <i class="fas fa-sign-out-alt"></i> Xác nhận đăng xuất
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin: 0; font-size: 16px;">
+                        Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 10000">
+        <div id="logoutToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+             aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle"></i> Bạn đã đăng xuất thành công!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS - Load before custom scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // ==================== CART BADGE MANAGEMENT ====================
+        function loadCartBadge() {
+            const cartData = sessionStorage.getItem('medicalCart');
+            const badge = document.getElementById('cartBadge');
+
+            if (!badge) return;
+
+            if (cartData) {
+                try {
+                    const cart = JSON.parse(cartData);
+                    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+                    if (totalItems > 0) {
+                        badge.textContent = totalItems;
+                        badge.classList.add('active');
+                    } else {
+                        badge.classList.remove('active');
+                    }
+                } catch (e) {
+                    console.error('Error loading cart:', e);
+                    badge.classList.remove('active');
+                }
+            } else {
+                badge.classList.remove('active');
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing header...');
+
+            // Logout button handler
+            const logoutButton = document.querySelector('#logoutButton');
+            const logoutModalEl = document.getElementById('logoutModal');
+
+            if (logoutButton && logoutModalEl) {
+                console.log('Logout button and modal found');
+
+                logoutButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Logout button clicked');
+
+                    try {
+                        const logoutModal = new bootstrap.Modal(logoutModalEl);
+                        logoutModal.show();
+                        console.log('Modal shown');
+                    } catch (error) {
+                        console.error('Error showing modal:', error);
+                    }
+                });
+            } else {
+                console.warn('Logout button or modal not found');
+            }
+
+            // Show logout toast if redirected with ?logout parameter
+            if (window.location.search.includes('logout')) {
+                const toastEl = document.getElementById('logoutToast');
+                if (toastEl) {
+                    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                    toast.show();
+
+                    // Clean URL after showing toast
+                    const url = new URL(window.location);
+                    url.searchParams.delete('logout');
+                    window.history.replaceState({}, document.title, url.pathname + url.search);
+                }
+            }
+
+            // Load cart badge
+            loadCartBadge();
+        });
+
+        // ==================== STICKY HEADER ON SCROLL ====================
+        let lastScroll = 0;
+        const header = document.getElementById('mainHeader');
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // ==================== MOBILE MENU TOGGLE ====================
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+
+        if (window.innerWidth <= 768) {
+            navToggle.style.display = 'block';
+        }
+
+        function toggleMobileMenu() {
+            navMenu.classList.toggle('active');
+            const icon = navToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        }
+
+        if (navToggle) {
+            navToggle.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', toggleMobileMenu);
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!e.target.closest('nav') && !e.target.closest('.mobile-menu-toggle')) {
+                    navMenu.classList.remove('active');
+                }
+            }
+        });
+
+        // ==================== CART UPDATE LISTENERS ====================
+        // Listen for storage events (cross-tab updates)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'medicalCart') {
+                loadCartBadge();
+            }
+        });
+
+        // Periodic check for same-tab updates
+        setInterval(loadCartBadge, 1000);
+
+        // Custom event listener for cart updates
+        window.addEventListener('cartUpdated', loadCartBadge);
+
+        // ==================== SEARCH BAR ENHANCEMENT ====================
+        const searchInput = document.querySelector('.search-bar input');
+        if (searchInput) {
+            // Add keyboard shortcut (Ctrl/Cmd + K)
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+
+            // Clear button on ESC
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    searchInput.blur();
+                }
+            });
+        }
+
+        // ==================== SMOOTH SCROLL FOR ANCHOR LINKS ====================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // ==================== RESPONSIVE ADJUSTMENTS ====================
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                navMenu.classList.remove('active');
+                navToggle.style.display = 'none';
+            } else {
+                navToggle.style.display = 'block';
+            }
+        });
+
+        console.log('%c✓ Header Initialized', 'color: #0066cc; font-weight: bold; font-size: 14px;');
+        console.log('Features: Cart Badge, Messages Icon, Orders Link, Logout Modal, Mobile Menu, Sticky Header');
+    </script>
+</div>

@@ -2,6 +2,8 @@ package com.example.do_an_tot_nghiep.repository;
 
 import com.example.do_an_tot_nghiep.dto.CustomerDTO;
 import com.example.do_an_tot_nghiep.model.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -38,8 +40,25 @@ public interface ICustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query("SELECT COUNT(c) FROM Customer c WHERE c.createdAt >= :fromDate")
     Long countNewCustomers(@Param("fromDate") java.time.LocalDateTime fromDate);
+
     @Query("SELECT c FROM Customer c WHERE c.status = 'ACTIVE' " +
             "ORDER BY c.totalSpent DESC")
     List<Customer> findTopCustomers(Pageable pageable);
 
+    /**
+     * Kiểm tra email đã tồn tại
+     */
+    boolean existsByEmail(String email);
+    @Query("""
+    SELECT c FROM Customer c
+    WHERE (:keyword IS NULL OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (:tier IS NULL OR c.customerTier = :tier)
+      AND (:status IS NULL OR c.status = :status)
+""")
+    Page<Customer> searchCustomers(@Param("keyword") String keyword,
+                                   @Param("tier") Customer.CustomerTier tier,
+                                   @Param("status") Customer.CustomerStatus status,
+                                   Pageable pageable);
 }

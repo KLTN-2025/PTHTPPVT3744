@@ -11,12 +11,15 @@
     <i class="fas fa-hospital-alt brand-image"></i> <span class="brand-text font-weight-light">Medical Supply</span>
 </a>
     <div class="sidebar"> <!-- User panel -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image"><img
-                    th:src="${currentEmployee.avatarUrl != null ? currentEmployee.avatarUrl : '/img/default-avatar.png'}"
-                    class="img-circle elevation-2" alt="User Image"></div>
-            <div class="info"><a href="#" class="d-block" th:text="${currentEmployee.fullName}">Admin</a> <small
-                    class="text-muted" th:text="${currentEmployee.position}">Quản lý</small></div>
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex" th:if="${currentEmployee != null}">
+            <div class="image">
+                <img th:src="${currentEmployee.avatarUrl != null ? currentEmployee.avatarUrl : '/img/default-avatar.png'}"
+                     class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="/admin/employees/profile" class="d-block" th:text="${currentEmployee.fullName}"></a>
+                <small class="text-muted" th:text="${currentEmployee.position}"></small>
+            </div>
         </div>
         <!-- Sidebar Menu -->
         <nav class="mt-2">
@@ -36,12 +39,6 @@
                 <li class="nav-item"><a href="/admin/orders" class="nav-link"> <i
                         class="nav-icon fas fa-shopping-cart"></i>
                     <p>Đơn hàng</p> <span class="badge badge-danger right" th:text="${pendingOrders}">0</span> </a></li>
-                <li class="nav-item"><a href="/admin/orders/pending" class="nav-link"> <i
-                        class="nav-icon fas fa-clock"></i>
-                    <p>Chờ xác nhận</p></a></li>
-                <li class="nav-item"><a href="/admin/orders/shipping" class="nav-link"> <i
-                        class="nav-icon fas fa-truck"></i>
-                    <p>Đang giao hàng</p></a></li>
                 <li class="nav-header">QUẢN LÝ KHO</li>
                 <li class="nav-item"><a href="/admin/import" class="nav-link"> <i
                         class="nav-icon fas fa-file-import"></i>
@@ -68,7 +65,7 @@
                 <li class="nav-header">KHÁC</li>
                 <li class="nav-item"><a href="/admin/reviews" class="nav-link"> <i class="nav-icon fas fa-star"></i>
                     <p>Đánh giá</p></a></li>
-                <li class="nav-item"><a href="/admin/contacts" class="nav-link"> <i
+                <li class="nav-item"><a href="/admin/contact-messages" class="nav-link"> <i
                         class="nav-icon fas fa-envelope"></i>
                     <p>Liên hệ</p></a></li>
             </ul>

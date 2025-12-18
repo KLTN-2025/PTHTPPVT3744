@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Chỉnh sửa sản phẩm</title>
+</head>
+
+<body>
+<h1 layout:fragment="page-title">✏️ Chỉnh sửa sản phẩm</h1>
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
+    <li class="breadcrumb-item active">Chỉnh sửa</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form th:action="@{/admin/products/edit/{id}(id=${product.deviceId})}" th:object="${product}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:field="*{deviceId}">
+
+                    <div class="form-group">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" th:field="*{name}" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>SKU</label>
+                            <input type="text" th:field="*{sku}" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Danh mục</label>
+                            <select th:field="*{categoryId}" class="form-control">
+                                <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Thương hiệu</label>
+                            <select th:field="*{brandId}" class="form-control">
+                                <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Giá bán</label>
+                            <input type="number" th:field="*{price}" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Giá gốc</label>
+                            <input type="number" th:field="*{originalPrice}" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Giảm giá (%)</label>
+                            <input type="number" th:field="*{discountPercent}" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Tồn kho</label>
+                            <input type="number" th:field="*{stockQuantity}" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Mức tồn tối thiểu</label>
+                            <input type="number" th:field="*{minStockLevel}" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Trạng thái</label>
+                            <select th:field="*{status}" class="form-control">
+                                <option value="Còn_hàng">Còn hàng</option>
+                                <option value="Hết_hàng">Hết hàng</option>
+                                <option value="Ngừng_bán">Ngừng bán</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ảnh hiện tại</label>
+                        <div>
+                            <img th:src="${product.imageUrl != null ? product.imageUrl : '/img/no-image.png'}"
+                                 alt="Ảnh sản phẩm" class="img-thumbnail" style="max-width:150px;">
+                        </div>
+                        <label class="mt-2">Chọn ảnh mới (nếu muốn thay)</label>
+                        <input type="file" name="imageFile" class="form-control-file" accept="image/*">
+                    </div>
+                    <!-- Gallery hiện tại -->
+                    <div class="form-group">
+                        <label>Gallery hiện tại</label>
+                        <div class="d-flex flex-wrap">
+                            <div th:each="url : ${product.galleryUrls}" class="mr-2 mb-2">
+                                <img th:src="${url}" alt="Ảnh gallery" class="img-thumbnail" style="max-width:100px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thêm ảnh mới vào gallery -->
+                    <div class="form-group">
+                        <label>Chọn ảnh gallery mới (có thể chọn nhiều ảnh)</label>
+                        <input type="file" name="galleryFiles" class="form-control-file" accept="image/*" multiple>
+                        <small class="form-text text-muted">Bạn có thể chọn nhiều ảnh cùng lúc.</small>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" th:field="*{isFeatured}">
+                        <label class="form-check-label">Nổi bật</label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" th:field="*{isNew}">
+                        <label class="form-check-label">Sản phẩm mới</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea th:field="*{description}" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/admin/products" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Cập nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

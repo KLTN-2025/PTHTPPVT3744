@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Chi tiết tin nhắn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            background: #1a252f;
+            text-align: center;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #34495e;
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-back {
+            background: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #7f8c8d;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Layout Grid */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* Message Detail */
+        .message-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .message-header {
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 25px;
+        }
+
+        .message-subject {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .message-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-resolved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .contact-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .contact-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .contact-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .message-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Reply Section */
+        .reply-form {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Actions Sidebar */
+        .actions-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .actions-card h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .action-group {
+            margin-bottom: 25px;
+        }
+
+        .action-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .action-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .action-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .existing-reply {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .reply-info {
+            font-size: 14px;
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .reply-content {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Modal Container */
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal Header */
+        .modal-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #fee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .modal-icon i {
+            font-size: 32px;
+            color: #e74c3c;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Modal Body */
+        .modal-body {
+            padding: 24px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box p {
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .warning-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .message-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* Modal Footer */
+        .modal-footer {
+            padding: 20px 24px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #f8f9fa;
+            border-color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .modal-container {
+                width: 95%;
+                margin: 20px;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-user-shield"></i> Admin Panel</h3>
+            <small th:text="${currentEmployee?.fullName}"></small>
+        </div>
+        <div class="sidebar-menu">
+            <a href="/admin/dashboard" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="/admin/contact-messages" class="menu-item active">
+                <i class="fas fa-envelope"></i>
+                Tin nhắn liên hệ
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-envelope-open"></i>
+                <span th:text="'Tin nhắn #' + ${message.messageId}"></span>
+            </h1>
+            <a href="/admin/contact-messages" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại
+            </a>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Detail Grid -->
+        <div class="detail-grid">
+            <!-- Left Column: Message Details -->
+            <div>
+                <!-- Message Card -->
+                <div class="message-card">
+                    <div class="message-header">
+                        <h2 class="message-subject" th:text="${message.subject}"></h2>
+                        <div class="message-meta">
+                            <div class="meta-item">
+                                <i class="far fa-clock"></i>
+                                <span th:text="${#temporals.format(message.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                            </div>
+                            <th:block th:switch="${message.status.name()}">
+                                <span class="status-badge status-new" th:case="'New'">Mới</span>
+                                <span class="status-badge status-processing" th:case="'Processing'">Đang xử lý</span>
+                                <span class="status-badge status-resolved" th:case="'Resolved'">Đã giải quyết</span>
+                            </th:block>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-label">Người gửi</div>
+                            <div class="contact-value" th:text="${message.name}"></div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-label">Email</div>
+                            <div class="contact-value" th:text="${message.email}"></div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-label">Số điện thoại</div>
+                            <div class="contact-value" th:text="${message.phone}"></div>
+                        </div>
+                        <div class="contact-item" th:if="${message.customer != null}">
+                            <div class="contact-label">Loại</div>
+                            <div class="contact-value">
+                                <i class="fas fa-user-check"></i> Khách hàng đã đăng ký
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message Content -->
+                    <h3 class="section-title">
+                        <i class="fas fa-comment-dots"></i>
+                        Nội dung tin nhắn
+                    </h3>
+                    <div class="message-content" th:text="${message.message}"></div>
+
+                    <!-- Assigned Info -->
+                    <div th:if="${message.assignedTo != null}">
+                        <h3 class="section-title">
+                            <i class="fas fa-user-tie"></i>
+                            Người xử lý
+                        </h3>
+                        <div class="contact-item">
+                            <div class="contact-value" th:text="${message.assignedTo.fullName}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reply Form or Existing Reply -->
+                <div class="reply-form">
+                    <h3 class="section-title">
+                        <i class="fas fa-reply"></i>
+                        Phản hồi
+                    </h3>
+
+                    <!-- Existing Reply -->
+                    <div th:if="${message.replyContent != null}" class="existing-reply">
+                        <div class="reply-info">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Đã phản hồi bởi:</strong> <span th:text="${message.repliedBy?.fullName}"></span>
+                            |
+                            <strong>Lúc:</strong> <span th:text="${#temporals.format(message.repliedAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </div>
+                        <div class="reply-content" th:text="${message.replyContent}"></div>
+                    </div>
+
+                    <!-- Reply Form -->
+                    <form th:if="${message.replyContent == null}"
+                          th:action="@{/admin/contact-messages/{id}/reply(id=${message.messageId})}"
+                          method="post">
+                        <div class="form-group">
+                            <label for="replyContent">Nội dung phản hồi <span style="color: red;">*</span></label>
+                            <textarea id="replyContent"
+                                      name="replyContent"
+                                      placeholder="Nhập nội dung phản hồi cho khách hàng..."
+                                      required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fas fa-paper-plane"></i>
+                            Gửi phản hồi
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Actions -->
+            <div>
+                <!-- Status Card -->
+                <div class="actions-card">
+                    <h3><i class="fas fa-tasks"></i> Cập nhật trạng thái</h3>
+                    <form th:action="@{/admin/contact-messages/{id}/update-status(id=${message.messageId})}"
+                          method="post">
+                        <div class="action-group">
+                            <label for="status">Trạng thái hiện tại</label>
+                            <select id="status" name="status">
+                                <option value="New" th:selected="${message.status.name() == 'New'}">Mới</option>
+                                <option value="Processing" th:selected="${message.status.name() == 'Processing'}">Đang xử lý</option>
+                                <option value="Resolved" th:selected="${message.status.name() == 'Resolved'}">Đã giải quyết</option>
+                                <option value="Closed" th:selected="${message.status.name() == 'Closed'}">Đã đóng</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-save"></i>
+                                Cập nhật trạng thái
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Assign Card -->
+                <div class="actions-card">
+                    <h3><i class="fas fa-user-plus"></i> Gán nhân viên</h3>
+                    <form th:action="@{/admin/contact-messages/{id}/assign(id=${message.messageId})}"
+                          method="post">
+                        <div class="action-group">
+                            <label for="employeeId">Chọn nhân viên</label>
+                            <select id="employeeId" name="employeeId">
+                                <option value="">-- Chọn nhân viên --</option>
+                                <option th:each="emp : ${employees}"
+                                        th:value="${emp.employeeId}"
+                                        th:text="${emp.fullName}"
+                                        th:selected="${message.assignedTo != null && message.assignedTo.employeeId == emp.employeeId}">
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-user-check"></i>
+                                Gán nhân viên
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Delete Card với Modal -->
+                <div class="actions-card">
+                    <h3><i class="fas fa-trash"></i> Xóa tin nhắn</h3>
+                    <button type="button" class="btn btn-danger btn-block" onclick="openDeleteModal()">
+                        <i class="fas fa-trash-alt"></i>
+                        Xóa tin nhắn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-container">
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title">Xác nhận xóa tin nhắn</h2>
+            <p class="modal-subtitle">Bạn có chắc chắn muốn xóa tin nhắn này?</p>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Warning -->
+            <div class="warning-box">
+                <strong><i class="fas fa-info-circle"></i> Lưu ý quan trọng</strong>
+                <p>Hành động này không thể hoàn tác. Tin nhắn và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
+            </div>
+
+            <!-- Message Info -->
+            <div class="message-info">
+                <div class="info-row">
+                    <span class="info-label">Mã tin nhắn:</span>
+                    <span class="info-value" th:text="'#' + ${message.messageId}">#13</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Người gửi:</span>
+                    <span class="info-value" th:text="${message.name}">Hoàng Thái Đăng Ngọc</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Chủ đề:</span>
+                    <span class="info-value" th:text="${message.subject}">phản ánh lần 3</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trạng thái:</span>
+                    <span class="info-value">
+                        <th:block th:switch="${message.status.name()}">
+                            <span th:case="'New'">Mới</span>
+                            <span th:case="'Processing'">Đang xử lý</span>
+                            <span th:case="'Resolved'">Đã giải quyết</span>
+                            <span th:case="'Closed'">Đã đóng</span>
+                        </th:block>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+                Hủy
+            </button>
+            <button class="btn btn-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash-alt"></i>
+                Xóa tin nhắn
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Delete Form -->
+<form id="deleteForm"
+      th:action="@{/admin/contact-messages/{id}/delete(id=${message.messageId})}"
+      method="post"
+      style="display: none;">
+</form>
+
+<script>
+    // Auto hide alerts
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+    });
+
+    // Modal Functions
+    function openDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function confirmDelete() {
+        document.getElementById('deleteForm').submit();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
+</body>
+</html>

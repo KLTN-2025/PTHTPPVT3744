@@ -13,5 +13,5 @@ public interface IDashoardService {
 
     Map<String, Long> getOrderStatusCounts();
 
-    Long getPendingOrdersCount();
+    BigDecimal getPendingOrdersCount();
 }

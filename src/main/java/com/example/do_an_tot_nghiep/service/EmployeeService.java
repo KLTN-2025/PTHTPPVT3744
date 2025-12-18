@@ -97,6 +97,7 @@ public class EmployeeService implements IEmployeeService {
                 .avatarUrl(employee.getAvatarUrl())
                 .roleId(employee.getRole().getRoleId())
                 .roleName(employee.getRole().getRoleName())
+                .citizenId(employee.getCitizenId())
                 .dateOfBirth(employee.getDateOfBirth())
                 .gender(employee.getGender() != null ? employee.getGender().name() : null)
                 .position(employee.getPosition())
@@ -113,6 +114,11 @@ public class EmployeeService implements IEmployeeService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
     }
 
     @Override
@@ -194,6 +200,26 @@ public class EmployeeService implements IEmployeeService {
     @Override
     public List<String> getAllDepartments() {
         return employeeRepository.findDistinctDepartments();
+    }
+
+    @Override
+    public boolean existsByPhone(String phone) {
+        return employeeRepository.findByPhone(phone).isPresent();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return employeeRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return employeeRepository.findByUsername(username).isPresent();
+    }
+
+    @Override
+    public Employee findByEmployeeId(Integer employeeId) {
+        return employeeRepository.findById(employeeId).orElse(null);
     }
 
     @Transactional

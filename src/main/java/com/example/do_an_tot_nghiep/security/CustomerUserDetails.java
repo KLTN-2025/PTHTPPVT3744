@@ -15,6 +15,11 @@ public class CustomerUserDetails implements UserDetails {
         this.customer = customer;
     }
 
+    // ✅ THÊM method này để Controller lấy Customer
+    public Customer getCustomer() {
+        return this.customer;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
@@ -32,7 +37,7 @@ public class CustomerUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true; // hoặc kiểm tra trạng thái nếu có
+        return true;
     }
 
     @Override public boolean isAccountNonExpired() { return true; }

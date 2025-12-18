@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>503 - Dịch Vụ Không Khả Dụng</title>
+    <meta http-equiv="refresh" content="30">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .error-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .error-code {
+            font-size: 80px;
+            font-weight: 800;
+            color: #a8edea;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #a8edea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: white;
+            color: #a8edea;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">🛠️</div>
+    <div class="error-code">503</div>
+    <h1 class="error-title">Dịch Vụ Không Khả Dụng</h1>
+    <p class="error-message">
+        Hệ thống đang tạm thời không khả dụng.<br>
+        Trang sẽ tự động refresh sau 30 giây hoặc bạn có thể thử lại thủ công.
+    </p>
+    <div class="error-actions">
+        <a href="/" class="btn btn-primary">🏠 Về Trang Chủ</a>
+    </div>
+</div>
+</body>
+</html>

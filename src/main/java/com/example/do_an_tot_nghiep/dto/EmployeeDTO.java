@@ -25,7 +25,7 @@ public class EmployeeDTO {
     // Role information
     private Integer roleId;        // ID của role (dùng cho form select)
     private String roleName;       // Tên role (dùng để hiển thị)
-
+    private String citizenId;
     private LocalDate dateOfBirth;
     private String gender;         // MALE, FEMALE, OTHER
     private String position;

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn hàng của tôi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-section {
+      background: white;
+      padding: 20px 0;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 30px;
+    }
+
+    .breadcrumb {
+      list-style: none;
+      display: flex;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .breadcrumb li:not(:last-child)::after {
+      content: '/';
+      margin-left: 10px;
+      color: #999;
+    }
+
+    .breadcrumb a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    /* Page Header */
+    .page-header {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .tab-btn:hover {
+      border-color: #0066cc;
+      color: #0066cc;
+    }
+
+    .tab-btn.active {
+      background: #0066cc;
+      color: white;
+      border-color: #0066cc;
+    }
+
+    /* Orders List */
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .order-card:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 20px;
+    }
+
+    .order-code {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0066cc;
+    }
+
+    .order-date {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .order-status {
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-confirmed {
+      background: #cfe2ff;
+      color: #084298;
+    }
+
+    .status-preparing {
+      background: #e7d8fb;
+      color: #6f42c1;
+    }
+
+    .status-shipping {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Order Items */
+    .order-items {
+      margin-bottom: 20px;
+    }
+
+    .order-item {
+      display: flex;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .item-qty {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .item-price {
+      font-weight: 700;
+      color: #ff4444;
+      text-align: right;
+    }
+
+    /* Order Footer */
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 15px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .order-total {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .order-total-label {
+      color: #666;
+      margin-right: 10px;
+    }
+
+    .order-total-amount {
+      color: #ff4444;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-view {
+      background: #0066cc;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #0052a3;
+    }
+
+    .btn-review {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-review:hover {
+      background: #218838;
+    }
+
+    .btn-cancel {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #c82333;
+    }
+
+    .btn-reorder {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-reorder:hover {
+      background: #e0a800;
+    }
+
+    /* Empty State */
+    .empty-state {
+      background: white;
+      border-radius: 10px;
+      padding: 60px 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .empty-state i {
+      font-size: 80px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      font-size: 24px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      color: #999;
+      margin-bottom: 25px;
+    }
+
+    .empty-state .btn {
+      padding: 12px 30px;
+      background: #0066cc;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading-spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #0066cc;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex !important;
+    }
+
+    .modal-dialog {
+      background: #fff;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease;
+      position: relative;
+      z-index: 10000;
+      pointer-events: all;
+    }
+
+    .modal-header {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      pointer-events: all;
+    }
+
+    .modal-header.danger {
+      background: #dc3545;
+    }
+
+    .modal-body {
+      padding: 20px;
+      font-size: 15px;
+      pointer-events: all;
+    }
+
+    .modal-footer {
+      padding: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid #eee;
+      pointer-events: all;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      pointer-events: all;
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .modal-btn-cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #5a6268;
+    }
+
+    .modal-btn-confirm {
+      background: #dc3545;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background: #c82333;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== NOTIFICATION TOAST ===== */
+    .notification-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      padding: 20px;
+      min-width: 300px;
+      max-width: 400px;
+      z-index: 10001;
+      display: none;
+      animation: slideInRight 0.3s ease;
+    }
+
+    .notification-toast.show {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .notification-toast.success {
+      border-left: 4px solid #28a745;
+    }
+
+    .notification-toast.error {
+      border-left: 4px solid #dc3545;
+    }
+
+    .notification-toast.warning {
+      border-left: 4px solid #ffc107;
+    }
+
+    .notification-toast.info {
+      border-left: 4px solid #17a2b8;
+    }
+
+    .toast-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .notification-toast.success .toast-icon {
+      background: #d4edda;
+      color: #28a745;
+    }
+
+    .notification-toast.error .toast-icon {
+      background: #f8d7da;
+      color: #dc3545;
+    }
+
+    .notification-toast.warning .toast-icon {
+      background: #fff3cd;
+      color: #ffc107;
+    }
+
+    .notification-toast.info .toast-icon {
+      background: #d1ecf1;
+      color: #17a2b8;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .order-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .order-actions {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .btn-action {
+        width: 100%;
+      }
+
+      .tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Include Header -->
+<div th:insert="~{frontend-fragments/header :: header}"></div>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-section">
+  <div class="container">
+    <ul class="breadcrumb">
+      <li><a th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a></li>
+      <li><span>Đơn hàng của tôi</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div class="container">
+  <div class="page-header">
+    <h1><i class="fas fa-shopping-bag"></i> Đơn hàng của tôi</h1>
+    <p>Quản lý và theo dõi tất cả đơn hàng của bạn</p>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <div class="tabs">
+      <button class="tab-btn active" data-status="ALL" onclick="filterOrders('ALL')">
+        Tất cả
+      </button>
+      <button class="tab-btn" data-status="PENDING" onclick="filterOrders('PENDING')">
+        <i class="fas fa-clock"></i> Chờ xác nhận
+      </button>
+      <button class="tab-btn" data-status="CONFIRMED" onclick="filterOrders('CONFIRMED')">
+        <i class="fas fa-check"></i> Đã xác nhận
+      </button>
+      <button class="tab-btn" data-status="PREPARING" onclick="filterOrders('PREPARING')">
+        <i class="fas fa-box"></i> Đang chuẩn bị
+      </button>
+      <button class="tab-btn" data-status="SHIPPING" onclick="filterOrders('SHIPPING')">
+        <i class="fas fa-truck"></i> Đang giao
+      </button>
+      <button class="tab-btn" data-status="COMPLETED" onclick="filterOrders('COMPLETED')">
+        <i class="fas fa-check-circle"></i> Hoàn thành
+      </button>
+      <button class="tab-btn" data-status="CANCELLED" onclick="filterOrders('CANCELLED')">
+        <i class="fas fa-times-circle"></i> Đã hủy
+      </button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <div class="orders-list" id="ordersList">
+    <!-- Loading State -->
+    <div class="loading" id="loadingState">
+      <div class="loading-spinner"></div>
+      <p>Đang tải đơn hàng...</p>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <i class="fas fa-shopping-bag"></i>
+      <h3>Chưa có đơn hàng nào</h3>
+      <p>Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
+      <a th:href="@{/products}" class="btn">
+        <i class="fas fa-shopping-cart"></i> Khám phá sản phẩm
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div class="notification-toast" id="notificationToast">
+  <div class="toast-icon" id="toastIcon">
+    <i class="fas fa-check-circle"></i>
+  </div>
+  <div class="toast-content">
+    <div class="toast-title" id="toastTitle">Thông báo</div>
+    <div class="toast-message" id="toastMessage">Nội dung thông báo</div>
+  </div>
+  <button class="toast-close" onclick="hideToast()">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-dialog">
+    <div class="modal-header danger" id="modalHeader">
+      <i class="modal-icon fas fa-exclamation-triangle"></i>
+      <h3 class="modal-title" id="modalTitle">Xác nhận hành động</h3>
+    </div>
+    <div class="modal-body">
+      <p class="modal-message" id="modalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="hideModal()">
+        <i class="fas fa-times"></i> Hủy
+      </button>
+      <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">
+        <i class="fas fa-check"></i> Xác nhận
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Include Footer -->
+<div th:insert="~{frontend-fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  let allOrders = [];
+  let currentFilter = 'ALL';
+  let pendingOrderId = null;
+
+  // ==================== LOAD ORDERS ====================
+  async function loadOrders() {
+    showLoading();
+
+    try {
+      const response = await fetch('/api/customer/orders');
+      const result = await response.json();
+
+      if (result.success && result.orders) {
+        allOrders = result.orders;
+        renderOrders(allOrders);
+      } else {
+        showEmptyState();
+      }
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      showEmptyState();
+    }
+  }
+
+  // ==================== RENDER ORDERS ====================
+  function renderOrders(orders) {
+    const ordersList = document.getElementById('ordersList');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+
+    loadingState.style.display = 'none';
+
+    if (orders.length === 0) {
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+
+    // Clear previous orders (except loading and empty state)
+    const orderCards = ordersList.querySelectorAll('.order-card');
+    orderCards.forEach(card => card.remove());
+
+    orders.forEach(order => {
+      const orderCard = createOrderCard(order);
+      ordersList.appendChild(orderCard);
+    });
+  }
+
+  // ==================== CREATE ORDER CARD ====================
+  function createOrderCard(order) {
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.setAttribute('data-status', order.status);
+
+    const statusClass = getStatusClass(order.status);
+    const statusText = getStatusText(order.status);
+
+    let itemsHTML = '';
+    order.items.forEach(item => {
+      itemsHTML += `
+                <div class="order-item">
+                    <div class="item-image">
+                        ${item.deviceImage ?
+              `<img src="${item.deviceImage}" alt="${item.deviceName}">` :
+              '<i class="fas fa-heartbeat" style="font-size: 40px; color: #ccc; display: flex; align-items: center; justify-content: center; height: 100%;"></i>'
+      }
+                    </div>
+                    <div class="item-info">
+                        <div class="item-name">${item.deviceName}</div>
+                        <div class="item-qty">Số lượng: ${item.quantity}</div>
+                    </div>
+                    <div class="item-price">${formatPrice(item.totalPrice)}</div>
+                </div>
+            `;
+    });
+
+    let actionsHTML = '';
+    if (order.status === 'PENDING') {
+      actionsHTML = `
+                <button class="btn-action btn-view" onclick="viewOrder(${order.orderId})">
+                    <i class="fas fa-eye"></i> Xem chi tiết
+                </button>
+                <button class="btn-action btn-cancel" onclick="cancelOrder(${order.orderId})">
+                    <i class="fas fa-times"></i> Hủy đơn
+                </button>
+            `;
+    } else if (order.status === 'COMPLETED') {
+      actionsHTML = `
+                <button class="btn-action btn-view" onclick="viewOrder(${order.orderId})">
+                    <i class="fas fa-eye"></i> Xem chi tiết
+                </button>
+                <button class="btn-action btn-review" onclick="reviewOrder(${order.orderId})">
+                    <i class="fas fa-star"></i> Đánh giá
+                </button>
+                <button class="btn-action btn-reorder" onclick="reorder(${order.orderId})">
+                    <i class="fas fa-redo"></i> Mua lại
+                </button>
+            `;
+    } else {
+      actionsHTML = `
+                <button class="btn-action btn-view" onclick="viewOrder(${order.orderId})">
+                    <i class="fas fa-eye"></i> Xem chi tiết
+                </button>
+            `;
+    }
+
+    card.innerHTML = `
+            <div class="order-header">
+                <div>
+                    <div class="order-code">
+                        <i class="fas fa-receipt"></i> ${order.orderCode}
+                    </div>
+                    <div class="order-date">
+                        <i class="far fa-calendar-alt"></i> ${formatDate(order.createdAt)}
+                    </div>
+                </div>
+                <div class="order-status ${statusClass}">
+                    ${statusText}
+                </div>
+            </div>
+
+            <div class="order-items">
+                ${itemsHTML}
+            </div>
+
+            <div class="order-footer">
+                <div class="order-total">
+                    <span class="order-total-label">Tổng tiền:</span>
+                    <span class="order-total-amount">${formatPrice(order.totalPrice)}</span>
+                </div>
+                <div class="order-actions">
+                    ${actionsHTML}
+                </div>
+            </div>
+        `;
+
+    return card;
+  }
+
+  // ==================== FILTER ORDERS ====================
+  function filterOrders(status) {
+    currentFilter = status;
+
+    // Update active tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`[data-status="${status}"]`).classList.add('active');
+
+    // Filter orders
+    let filteredOrders = allOrders;
+    if (status !== 'ALL') {
+      filteredOrders = allOrders.filter(order => order.status === status);
+    }
+
+    renderOrders(filteredOrders);
+  }
+
+  // ==================== ORDER ACTIONS ====================
+  function viewOrder(orderId) {
+    window.location.href = `/order-detail/${orderId}`;
+  }
+
+  function cancelOrder(orderId) {
+    console.log('cancelOrder called with:', orderId);
+
+    document.getElementById('modalTitle').innerText = 'Xác nhận hủy đơn';
+    document.getElementById('modalMessage').innerText = 'Bạn có chắc muốn hủy đơn hàng này?';
+
+    const modal = document.getElementById('confirmModal');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+
+    // Gắn orderId trực tiếp vào nút confirm
+    confirmBtn.setAttribute('data-order-id', orderId);
+    console.log('Set data-order-id to:', orderId);
+
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+  }
+
+  function hideModal() {
+    const modal = document.getElementById('confirmModal');
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+
+  async function confirmCancelOrder() {
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    const orderId = confirmBtn.getAttribute('data-order-id');
+
+    console.log('confirmCancelOrder - orderId from button:', orderId);
+
+    if (!orderId || orderId === 'null') {
+      console.error('Invalid orderId!');
+      showToast('error', 'Lỗi', 'Không tìm thấy ID đơn hàng');
+      return;
+    }
+
+    hideModal();
+
+    try {
+      const url = `/api/orders/${orderId}/cancel`;
+      console.log('Fetching:', url);
+
+      const response = await fetch(url, {
+        method: 'POST'
+      });
+
+      console.log('Response status:', response.status);
+
+      const result = await response.json();
+      console.log('Result:', result);
+
+      if (result.success) {
+        showToast('success', 'Thành công', 'Đã hủy đơn hàng thành công!');
+        setTimeout(() => loadOrders(), 500);
+      } else {
+        showToast('error', 'Thất bại', result.message || 'Không thể hủy đơn hàng');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('error', 'Lỗi', 'Có lỗi xảy ra khi hủy đơn hàng!');
+    }
+  }
+
+  function reviewOrder(orderId) {
+    window.location.href = `/review/order/${orderId}`;
+  }
+
+  async function reorder(orderId) {
+    if (!confirm('Thêm tất cả sản phẩm trong đơn hàng này vào giỏ hàng?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/orders/${orderId}/reorder`, {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showToast('success', 'Thành công', 'Đã thêm vào giỏ hàng!');
+        setTimeout(() => {
+          window.location.href = '/cart';
+        }, 1000);
+      } else {
+        showToast('error', 'Thất bại', result.message || 'Không thể mua lại');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('error', 'Lỗi', 'Có lỗi xảy ra!');
+    }
+  }
+
+  // ==================== TOAST NOTIFICATION ====================
+  function showToast(type, title, message) {
+    const toast = document.getElementById('notificationToast');
+    const toastIcon = document.getElementById('toastIcon');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // Remove all type classes
+    toast.classList.remove('success', 'error', 'warning', 'info');
+
+    // Add new type class
+    toast.classList.add(type);
+
+    // Set icon based on type
+    let iconHTML = '';
+    switch(type) {
+      case 'success':
+        iconHTML = '<i class="fas fa-check-circle"></i>';
+        break;
+      case 'error':
+        iconHTML = '<i class="fas fa-times-circle"></i>';
+        break;
+      case 'warning':
+        iconHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        break;
+      case 'info':
+        iconHTML = '<i class="fas fa-info-circle"></i>';
+        break;
+    }
+    toastIcon.innerHTML = iconHTML;
+
+    // Set content
+    toastTitle.textContent = title;
+    toastMessage.textContent = message;
+
+    // Show toast
+    toast.classList.add('show');
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      hideToast();
+    }, 3000);
+  }
+
+  function hideToast() {
+    const toast = document.getElementById('notificationToast');
+    toast.style.animation = 'slideOutRight 0.3s ease';
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.style.animation = '';
+    }, 300);
+  }
+
+  // ==================== HELPER FUNCTIONS ====================
+  function getStatusClass(status) {
+    const statusMap = {
+      'PENDING': 'status-pending',
+      'CONFIRMED': 'status-confirmed',
+      'PREPARING': 'status-preparing',
+      'SHIPPING': 'status-shipping',
+      'COMPLETED': 'status-completed',
+      'CANCELLED': 'status-cancelled'
+    };
+    return statusMap[status] || '';
+  }
+
+  function getStatusText(status) {
+    const statusMap = {
+      'PENDING': 'Chờ xác nhận',
+      'CONFIRMED': 'Đã xác nhận',
+      'PREPARING': 'Đang chuẩn bị',
+      'SHIPPING': 'Đang giao',
+      'COMPLETED': 'Hoàn thành',
+      'CANCELLED': 'Đã hủy'
+    };
+    return statusMap[status] || status;
+  }
+
+  function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN').format(price) + ' đ';
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function showLoading() {
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+  }
+
+  function showEmptyState() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'block';
+  }
+
+  // ==================== INIT ====================
+  document.addEventListener('DOMContentLoaded', function() {
+    loadOrders();
+
+    // Setup modal confirm button
+    document.getElementById('modalConfirmBtn').onclick = confirmCancelOrder;
+
+    // Click outside modal to close
+    document.getElementById('confirmModal').onclick = function(e) {
+      if (e.target === this) {
+        hideModal();
+      }
+    };
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

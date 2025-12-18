@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Hồ sơ Nhân viên</title>
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, #293a58 0%, #4a5f8f 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+
+        .info-card {
+            border-left: 4px solid #293a58;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #212529;
+            margin-top: 0.25rem;
+        }
+
+        .section-title {
+            border-bottom: 3px solid #293a58;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: #293a58;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #293a58;
+        }
+
+        .timeline-item {
+            border-left: 3px solid #293a58;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: #293a58;
+            border-radius: 50%;
+            position: absolute;
+            left: -9px;
+            top: 0;
+        }
+
+        .badge-custom {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 20px;
+        }
+
+        .avatar-upload {
+            position: relative;
+            display: inline-block;
+        }
+
+        .avatar-upload-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #293a58;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload-overlay:hover {
+            background: #1a2537;
+            transform: scale(1.1);
+        }
+
+        .activity-item {
+            padding: 1rem;
+            border-left: 3px solid #e9ecef;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            border-left-color: #293a58;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<h1 layout:fragment="page-title">👤 Hồ sơ Nhân viên</h1>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+    <li class="breadcrumb-item"><a href="/admin/employees">Nhân viên</a></li>
+    <li class="breadcrumb-item active">Hồ sơ</li>
+</ol>
+
+<section layout:fragment="content">
+    <div class="container-fluid">
+
+        <!-- Profile Header Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="profile-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-auto text-center text-md-left mb-3 mb-md-0">
+                                <div class="avatar-upload">
+                                    <img th:src="${employee.avatarUrl != null ? employee.avatarUrl : '/img/default-avatar.png'}"
+                                         class="profile-avatar"
+                                         alt="Avatar"
+                                         id="profileAvatar">
+                                    <label for="avatarInput" class="avatar-upload-overlay">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <h2 class="mb-2" th:text="${employee.fullName}">Nguyễn Văn A</h2>
+                                <p class="mb-1 opacity-75">
+                                    <i class="fas fa-id-badge mr-2"></i>
+                                    <span th:text="${employee.employeeCode}">EMP001</span>
+                                </p>
+                                <p class="mb-1 opacity-75">
+                                    <i class="fas fa-briefcase mr-2"></i>
+                                    <span th:text="${employee.position ?: 'Chưa xác định'}">Nhân viên</span>
+                                    <span th:if="${employee.department}"> - </span>
+                                    <span th:text="${employee.department}">Phòng IT</span>
+                                </p>
+                                <div class="mt-3">
+                                    <span th:class="${'badge badge-custom ' +
+                                        (employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ACTIVE ? 'badge-success' :
+                                         (employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ON_LEAVE ? 'badge-warning' :
+                                         (employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).RESIGNED ? 'badge-secondary' : 'badge-danger')))}"
+                                          th:text="${employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ACTIVE ? 'Đang làm việc' :
+                                                    (employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ON_LEAVE ? 'Nghỉ phép' :
+                                                    (employee.status == T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).RESIGNED ? 'Đã nghỉ việc' : 'Đã sa thải'))}">
+                                        Đang làm việc
+                                    </span>
+                                    <span class="badge badge-custom badge-info ml-2" th:text="${employee.role.roleName}">Admin</span>
+                                </div>
+                            </div>
+                            <div class="col-md-auto text-center text-md-right mt-3 mt-md-0">
+                                <a th:href="@{/admin/employees/edit/{id}(id=${employee.employeeId})}"
+                                   class="btn btn-light btn-lg mb-2 d-block">
+                                    <i class="fas fa-edit mr-2"></i>Chỉnh sửa hồ sơ
+                                </a>
+                                <button class="btn btn-outline-light btn-lg d-block" onclick="window.print()">
+                                    <i class="fas fa-print mr-2"></i>In hồ sơ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-box shadow-sm">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-label">Ngày tham gia</div>
+                    <div class="stat-value" th:text="${#temporals.format(employee.hireDate, 'dd/MM/yyyy')}">01/01/2020</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-box shadow-sm">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-label">Thâm niên</div>
+                    <div class="stat-value" th:text="${T(java.time.Period).between(employee.hireDate, T(java.time.LocalDate).now()).getYears()} + ' năm'">3 năm</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-box shadow-sm">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-label">Lương cơ bản</div>
+                    <div class="stat-value" th:text="${employee.salary != null ? #numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : 'N/A'}">15,000,000 VNĐ</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-box shadow-sm">
+                    <div class="stat-icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <div class="stat-label">Đăng nhập lần cuối</div>
+                    <div class="stat-value" th:text="${employee.lastLogin != null ? #temporals.format(employee.lastLogin, 'dd/MM HH:mm') : 'Chưa đăng nhập'}">01/11 14:30</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-user-circle mr-2 text-primary"></i>Thông tin cá nhân
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Họ và tên</div>
+                            <div class="info-value" th:text="${employee.fullName}">Nguyễn Văn A</div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Ngày sinh</div>
+                            <div class="info-value">
+                                <i class="fas fa-birthday-cake mr-2 text-primary"></i>
+                                <span th:text="${employee.dateOfBirth != null ? #temporals.format(employee.dateOfBirth, 'dd/MM/yyyy') : 'Chưa cập nhật'}">01/01/1990</span>
+                                <span th:if="${employee.dateOfBirth != null}" class="text-muted ml-2">
+                                    (<span th:text="${T(java.time.Period).between(employee.dateOfBirth, T(java.time.LocalDate).now()).getYears()}">33</span> tuổi)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Giới tính</div>
+                            <div class="info-value">
+                                <i th:class="${'fas mr-2 ' +
+                                    (employee.gender == T(com.example.do_an_tot_nghiep.model.Employee.Gender).MALE ? 'fa-mars text-primary' :
+                                     (employee.gender == T(com.example.do_an_tot_nghiep.model.Employee.Gender).FEMALE ? 'fa-venus text-danger' : 'fa-genderless text-secondary'))}"></i>
+                                <span th:text="${employee.gender == T(com.example.do_an_tot_nghiep.model.Employee.Gender).MALE ? 'Nam' :
+                                               (employee.gender == T(com.example.do_an_tot_nghiep.model.Employee.Gender).FEMALE ? 'Nữ' : 'Khác')}">Nam</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">CCCD/CMND</div>
+                            <div class="info-value">
+                                <i class="fas fa-id-card mr-2 text-primary"></i>
+                                <span th:text="${employee.citizenId ?: 'Chưa cập nhật'}">001234567890</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Địa chỉ</div>
+                            <div class="info-value">
+                                <i class="fas fa-map-marker-alt mr-2 text-danger"></i>
+                                <span th:text="${employee.address ?: 'Chưa cập nhật'}">123 Đường ABC, Quận 1, TP.HCM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Work Information -->
+            <div class="col-lg-6 mb-4">
+                <!-- Contact Info -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-address-book mr-2 text-success"></i>Thông tin liên hệ
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">
+                                <i class="fas fa-envelope mr-2 text-primary"></i>
+                                <a th:href="'mailto:' + ${employee.email}" th:text="${employee.email}">email@example.com</a>
+                            </div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Số điện thoại</div>
+                            <div class="info-value">
+                                <i class="fas fa-phone mr-2 text-success"></i>
+                                <a th:href="'tel:' + ${employee.phone}" th:text="${employee.phone}">0123456789</a>
+                            </div>
+                        </div>
+
+                        <div class="info-card p-3 bg-light rounded">
+                            <div class="info-label">Tên đăng nhập</div>
+                            <div class="info-value">
+                                <i class="fas fa-user mr-2 text-info"></i>
+                                <span th:text="${employee.username}">username</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Info -->
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-briefcase mr-2 text-warning"></i>Thông tin công việc
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Chức vụ</div>
+                            <div class="info-value" th:text="${employee.position ?: 'Chưa xác định'}">Nhân viên</div>
+                        </div>
+
+                        <div class="info-card p-3 mb-3 bg-light rounded">
+                            <div class="info-label">Phòng ban</div>
+                            <div class="info-value" th:text="${employee.department ?: 'Chưa xác định'}">Phòng IT</div>
+                        </div>
+
+                        <div class="info-card p-3 bg-light rounded">
+                            <div class="info-label">Vai trò hệ thống</div>
+                            <div class="info-value">
+                                <span class="badge badge-info badge-custom" th:text="${employee.role.roleName}">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline & Activity -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-history mr-2 text-info"></i>Lịch sử công việc
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Bắt đầu làm việc</strong>
+                                <span class="text-muted" th:text="${#temporals.format(employee.hireDate, 'dd/MM/yyyy')}">01/01/2020</span>
+                            </div>
+                            <p class="text-muted mb-0">
+                                Gia nhập công ty với vị trí <span class="font-weight-bold" th:text="${employee.position}">Nhân viên</span>
+                            </p>
+                        </div>
+
+                        <div class="timeline-item" th:if="${employee.lastLogin != null}">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Đăng nhập gần nhất</strong>
+                                <span class="text-muted" th:text="${#temporals.format(employee.lastLogin, 'dd/MM/yyyy HH:mm')}">01/11/2024 14:30</span>
+                            </div>
+                            <p class="text-muted mb-0">Truy cập hệ thống</p>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>Cập nhật hồ sơ</strong>
+                                <span class="text-muted" th:text="${employee.updatedAt != null ? #temporals.format(employee.updatedAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}">05/11/2024 10:15</span>
+                            </div>
+                            <p class="text-muted mb-0">Thông tin hồ sơ được cập nhật lần cuối</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-chart-line mr-2 text-danger"></i>Hoạt động gần đây
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-item">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-sign-in-alt fa-2x text-success"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">Đăng nhập hệ thống</div>
+                                    <small class="text-muted" th:text="${employee.lastLogin != null ? #temporals.format(employee.lastLogin, 'dd/MM/yyyy HH:mm') : 'Chưa có hoạt động'}">01/11/2024 14:30</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-edit fa-2x text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">Cập nhật thông tin</div>
+                                    <small class="text-muted" th:text="${employee.updatedAt != null ? #temporals.format(employee.updatedAt, 'dd/MM/yyyy HH:mm') : 'Chưa có cập nhật'}">05/11/2024 10:15</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <i class="fas fa-user-plus fa-2x text-info"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">Tạo tài khoản</div>
+                                    <small class="text-muted" th:text="${#temporals.format(employee.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2020 08:00</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="section-title mb-0">
+                            <i class="fas fa-cog mr-2 text-secondary"></i>Thông tin hệ thống
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="info-card p-3 bg-light rounded text-center">
+                                    <div class="info-label">Mã nhân viên</div>
+                                    <div class="info-value" th:text="${employee.employeeCode}"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card p-3 bg-light rounded text-center">
+                                    <div class="info-label">Ngày tạo</div>
+                                    <div class="info-value" th:text="${#temporals.format(employee.createdAt, 'dd/MM/yyyy')}">01/01/2020</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card p-3 bg-light rounded text-center">
+                                    <div class="info-label">Cập nhật lần cuối</div>
+                                    <div class="info-value" th:text="${employee.updatedAt != null ? #temporals.format(employee.updatedAt, 'dd/MM/yyyy') : 'N/A'}">05/11/2024</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card p-3 bg-light rounded text-center">
+                                    <div class="info-label">Người tạo</div>
+                                    <div class="info-value" th:text="${employee.createdBy != null ? employee.createdBy.fullName : 'Hệ thống'}">Admin</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Avatar upload preview and upload
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Chỉ chấp nhận file ảnh'
+                    });
+                    return;
+                }
+
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Kích thước file không được vượt quá 5MB'
+                    });
+                    return;
+                }
+
+                const reader = new FileReader();
+                const originalSrc = document.getElementById('profileAvatar').src;
+
+                reader.onload = function(e) {
+                    // Preview image
+                    document.getElementById('profileAvatar').src = e.target.result;
+
+                    // Show upload confirmation
+                    Swal.fire({
+                        title: 'Cập nhật ảnh đại diện?',
+                        text: 'Bạn có muốn lưu ảnh đại diện mới?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Lưu',
+                        cancelButtonText: 'Hủy',
+                        confirmButtonColor: '#293a58',
+                        showLoaderOnConfirm: true,
+                        preConfirm: () => {
+                            // Upload to server
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+
+                            return fetch('/admin/employees/profile/upload-avatar', {
+                                method: 'POST',
+                                body: formData
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (!data.success) {
+                                        throw new Error(data.message || 'Upload failed');
+                                    }
+                                    return data;
+                                })
+                                .catch(error => {
+                                    Swal.showValidationMessage(
+                                        `Lỗi: ${error.message}`
+                                    );
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value) {
+                            // Update avatar with new URL from Cloudinary
+                            document.getElementById('profileAvatar').src = result.value.avatarUrl;
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã cập nhật!',
+                                text: result.value.message || 'Ảnh đại diện đã được cập nhật thành công',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else if (result.isDismissed) {
+                            // Restore original image
+                            document.getElementById('profileAvatar').src = originalSrc;
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Print functionality
+        window.onbeforeprint = function() {
+            document.body.classList.add('printing');
+        };
+
+        window.onafterprint = function() {
+            document.body.classList.remove('printing');
+        };
+    </script>
+</th:block>
+</body>
+</html>
