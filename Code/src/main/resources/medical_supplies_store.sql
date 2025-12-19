@@ -987,71 +987,94 @@ DELIMITER ;
 -- ===============================
 -- EMPLOYEES (Nhân viên)
 -- ===============================
-INSERT INTO employee (employee_code, username, password_hash, full_name, email, phone, address, role_id,
-                      date_of_birth, gender, citizen_id, position, department, hire_date, salary, status)
-VALUES ('EMP001', 'admin', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Bùi Trung Nguyên',
-        'admin@vattuyteabc.com', '0964772715', '123 Lê Lợi, Q.1, TP.HCM', 1, '2003-12-05', 'Male', '079085001234',
-        'Giám đốc', 'Ban Giám đốc', '2020-01-01', 25000000, 'ACTIVE'),
-       ('EMP002', 'manager01', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Trần Thị Bích',
-        'manager@vattuyteabc.com', '0901234568', '456 Trần Hưng Đạo, Q.5, TP.HCM', 2, '1988-08-20', 'Female',
-        '079088002345', 'Quản lý cửa hàng', 'Kinh doanh', '2020-03-15', 18000000, 'ACTIVE'),
-       ('EMP003', 'staff01', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phạm Văn Cường',
-        'staff01@vattuyteabc.com', '0901234569', '789 Nguyễn Trãi, Q.5, TP.HCM', 3, '1992-03-10', 'Male',
-        '079092003456', 'Nhân viên bán hàng', 'Kinh doanh', '2021-06-01', 12000000, 'ACTIVE'),
-       ('EMP004', 'staff02', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Lê Thị Dung',
-        'staff02@vattuyteabc.com', '0901234570', '321 Võ Văn Tần, Q.3, TP.HCM', 3, '1995-11-25', 'Female',
-        '079095004567', 'Nhân viên bán hàng', 'Kinh doanh', '2022-01-15', 11000000, 'ACTIVE'),
-       ('EMP005', 'warehouse01', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Hoàng Văn Em',
-        'warehouse@vattuyteabc.com', '0901234571', '654 Lý Thường Kiệt, Q.10, TP.HCM', 4, '1990-07-18', 'Male',
-        '079090005678', 'Thủ kho', 'Kho vận', '2020-08-01', 13000000, 'ACTIVE'),
-       ('EMP006', 'staff03', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Võ Thị Phương',
-        'staff03@vattuyteabc.com', '0901234572', '987 Pasteur, Q.1, TP.HCM', 3, '1994-02-14', 'Female',
-        '079094006789', 'Nhân viên chăm sóc KH', 'Kinh doanh', '2022-05-20', 11500000, 'ACTIVE'),
-       ('EMP007', 'staff04', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Đặng Văn Giang',
-        'staff04@vattuyteabc.com', '0901234573', '147 Hai Bà Trưng, Q.3, TP.HCM', 3, '1993-09-30', 'Male',
-        '079093007890', 'Nhân viên bán hàng', 'Kinh doanh', '2023-02-01', 11000000, 'ACTIVE'),
-       ('EMP008', 'staff05', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Bùi Thị Hoa',
-        'staff05@vattuyteabc.com', '0901234574', '258 Cách Mạng Tháng 8, Q.10, TP.HCM', 3, '1996-06-12', 'Female',
-        '079096008901', 'Nhân viên bán hàng', 'Kinh doanh', '2023-08-15', 10500000, 'ON_LEAVE');
-INSERT INTO employee (employee_code, username, password_hash, full_name, email, phone, address, role_id,
-                      date_of_birth, gender, citizen_id, position, department, hire_date, salary, status)
-VALUES ('EMP009', 'staff06', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Nguyễn Văn Hùng',
-        'staff06@vattuyteabc.com', '0901234575', '369 Nguyễn Đình Chiểu, Q.3, TP.HCM', 3, '1991-04-10', 'Male',
-        '079091009012', 'Nhân viên bán hàng', 'Kinh doanh', '2023-09-01', 10500000, 'ACTIVE'),
-       ('EMP010', 'staff07', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Trần Thị Lan',
-        'staff07@vattuyteabc.com', '0901234576', '741 Lê Văn Sỹ, Q.3, TP.HCM', 3, '1997-01-22', 'Female',
-        '079097010123', 'Nhân viên chăm sóc KH', 'Kinh doanh', '2023-09-15', 11000000, 'ACTIVE'),
-       ('EMP011', 'staff08', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phạm Văn Minh',
-        'staff08@vattuyteabc.com', '0901234577', '258 Nguyễn Văn Cừ, Q.5, TP.HCM', 3, '1990-06-18', 'Male',
-        '079090011234', 'Nhân viên bán hàng', 'Kinh doanh', '2023-10-01', 10800000, 'ACTIVE'),
-       ('EMP012', 'staff09', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Lê Thị Hạnh',
-        'staff09@vattuyteabc.com', '0901234578', '123 Trường Chinh, Tân Bình, TP.HCM', 3, '1995-03-05', 'Female',
-        '079095012345', 'Nhân viên bán hàng', 'Kinh doanh', '2023-10-15', 10700000, 'ACTIVE'),
-       ('EMP013', 'staff10', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Võ Văn Tùng',
-        'staff10@vattuyteabc.com', '0901234579', '456 Hoàng Văn Thụ, Tân Bình, TP.HCM', 3, '1992-12-12', 'Male',
-        '079092013456', 'Nhân viên bán hàng', 'Kinh doanh', '2023-11-01', 10600000, 'ACTIVE'),
-       ('EMP014', 'staff11', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Đặng Thị Mai',
-        'staff11@vattuyteabc.com', '0901234580', '789 Lũy Bán Bích, Tân Phú, TP.HCM', 3, '1996-09-09', 'Female',
-        '079096014567', 'Nhân viên chăm sóc KH', 'Kinh doanh', '2023-11-15', 10900000, 'ACTIVE'),
-       ('EMP015', 'staff12', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Ngô Văn Sơn',
-        'staff12@vattuyteabc.com', '0901234581', '321 Nguyễn Văn Linh, Q.7, TP.HCM', 3, '1993-05-25', 'Male',
-        '079093015678', 'Nhân viên bán hàng', 'Kinh doanh', '2023-12-01', 10400000, 'ACTIVE'),
-       ('EMP016', 'staff13', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Trần Thị Thảo',
-        'staff13@vattuyteabc.com', '0901234582', '654 Nguyễn Văn Cừ, Q.5, TP.HCM', 3, '1994-07-07', 'Female',
-        '079094016789', 'Nhân viên chăm sóc KH', 'Kinh doanh', '2023-12-15', 11000000, 'ACTIVE'),
-       ('EMP017', 'staff14', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phan Văn Quân',
-        'staff14@vattuyteabc.com', '0901234583', '147 Quang Trung, Gò Vấp, TP.HCM', 3, '1991-11-11', 'Male',
-        '079091017890', 'Nhân viên bán hàng', 'Kinh doanh', '2024-01-01', 10800000, 'ACTIVE'),
-       ('EMP018', 'staff15', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Lê Thị Xuân',
-        'staff15@vattuyteabc.com', '0901234584', '258 Phan Văn Trị, Gò Vấp, TP.HCM', 3, '1997-02-02', 'Female',
-        '079097018901', 'Nhân viên bán hàng', 'Kinh doanh', '2024-01-15', 10700000, 'ACTIVE'),
-       ('EMP019', 'staff16', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Cao Văn Tú',
-        'staff16@vattuyteabc.com', '0901234585', '369 Hoàng Diệu, Hải Châu, Đà Nẵng', 3, '1990-10-10', 'Male',
-        '079090019012', 'Nhân viên bán hàng', 'Kinh doanh', '2024-02-01', 10600000, 'ACTIVE'),
-       ('EMP020', 'staff17', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phạm Thị Uyên',
-        'staff17@vattuyteabc.com', '0901234586', '741 Nguyễn Văn Linh, Hải Châu, Đà Nẵng', 3, '1995-05-05', 'Female',
-        '079095020123', 'Nhân viên chăm sóc KH', 'Kinh doanh', '2024-02-15', 10900000, 'ACTIVE');
+-- ===============================
+-- EMPLOYEES (Nhân viên)
+-- ===============================
+INSERT INTO employee (
+    employee_code,
+    username,
+    password_hash,
+    full_name,
+    email,
+    phone,
+    address,
+    role_id,
+    date_of_birth,
+    gender,
+    citizen_id,
+    position,
+    department,
+    hire_date,
+    salary,
+    status
+) VALUES
+-- 1. ADMIN
+('EMP001', 'admin',
+ '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
+ 'Bùi Trung Nguyên',
+ 'admin@vattuyteabc.com',
+ '0964772715',
+ '123 Lê Lợi, Q.1, TP.HCM',
+ 1,
+ '2003-12-05',
+ 'MALE',
+ '079085001234',
+ 'Giám đốc',
+ 'Ban Giám đốc',
+ '2020-01-01',
+ 25000000,
+ 'ACTIVE'),
 
+-- 2. MANAGER
+('EMP002', 'huynhnhan',
+ '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
+ 'Huỳnh Nhân',
+ 'huynhnhan@vattuyteabc.com',
+ '0901234568',
+ '456 Trần Hưng Đạo, Q.5, TP.HCM',
+ 2,
+ '2003-04-16',
+ 'MALE',
+ '079088002345',
+ 'Quản lý cửa hàng',
+ 'Kinh doanh',
+ '2020-03-15',
+ 18000000,
+ 'ACTIVE'),
+
+-- 3. STAFF 01
+('EMP003', 'hoangthai',
+ '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
+ 'Đặng Ngọc Hoàng Thái',
+ 'hoangthai@vattuyteabc.com',
+ '0901234569',
+ '789 Nguyễn Trãi, Q.5, TP.HCM',
+ 3,
+ '2003-12-16',
+ 'MALE',
+ '079092003456',
+ 'Nhân viên bán hàng',
+ 'Kinh doanh',
+ '2021-06-01',
+ 12000000,
+ 'ACTIVE'),
+
+-- 4. STAFF 02
+('EMP004', 'tuankiet',
+ '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
+ 'Ngô Tuấn Kiệt',
+ 'tuankiet@vattuyteabc.com',
+ '0901234570',
+ '321 Võ Văn Tần, Q.3, TP.HCM',
+ 3,
+ '1995-11-25',
+ 'MALE',
+ '079095004567',
+ 'Nhân viên bán hàng',
+ 'Kinh doanh',
+ '2022-01-15',
+ 11000000,
+ 'ACTIVE');
 -- ===============================
 -- CUSTOMERS (Khách hàng)
 -- ===============================
@@ -1296,13 +1319,21 @@ VALUES (1, 'MD001', 1, 5, 'Máy đo rất chính xác, dễ sử dụng. Giao h�
 -- ===============================
 -- STOCK IMPORT (Nhập kho)
 -- ===============================
-INSERT INTO stock_import (import_code, supplier_id, import_date, total_amount, status, created_by, approved_by,
-                          approved_at)
-VALUES ('IMP202409010001', 1, '2024-09-01 08:00:00', 45000000, 'COMPLETED', 5, 2, '2024-09-01 09:00:00'),
-       ('IMP202409150002', 2, '2024-09-15 09:30:00', 28000000, 'COMPLETED', 5, 2, '2024-09-15 10:30:00'),
-       ('IMP202410010003', 3, '2024-10-01 10:00:00', 35000000, 'COMPLETED', 5, 2, '2024-10-01 11:00:00'),
-       ('IMP202410080004', 1, '2024-10-08 14:00:00', 52000000, 'Pending', 5, NULL, NULL);
-
+INSERT INTO stock_import (
+    import_code,
+    supplier_id,
+    import_date,
+    total_amount,
+    status,
+    created_by,
+    approved_by,
+    approved_at
+)
+VALUES
+('IMP202409010001', 1, '2024-09-01 08:00:00', 45000000, 'COMPLETED', 1, 2, '2024-09-01 09:00:00'),
+('IMP202409150002', 2, '2024-09-15 09:30:00', 28000000, 'COMPLETED', 1, 2, '2024-09-15 10:30:00'),
+('IMP202410010003', 3, '2024-10-01 10:00:00', 35000000, 'COMPLETED', 1, 2, '2024-10-01 11:00:00'),
+('IMP202410080004', 1, '2024-10-08 14:00:00', 52000000, 'PENDING', 1, NULL, NULL);
 -- ===============================
 -- STOCK IMPORT DETAILS (Chi tiết nhập kho)
 -- ===============================
@@ -1345,14 +1376,14 @@ VALUES (1, 4, 4, 35000, '2024-10-04 14:20:00'),
 -- ===============================
 INSERT INTO order_status_history (order_id, old_status, new_status, note, changed_by, changed_at)
 VALUES (1, 'Chờ xác nhận', 'CONFIRMED', 'Đơn hàng đã được xác nhận', 2, '2024-10-01 09:00:00'),
-       (1, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 5, '2024-10-01 10:00:00'),
+       (1, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 4, '2024-10-01 10:00:00'),
        (1, 'PREPARING', 'Đang giao', 'Đơn hàng đã xuất kho', 3, '2024-10-01 14:00:00'),
        (1, 'Đang giao', 'Hoàn thành', 'Giao hàng thành công', 3, '2024-10-02 10:00:00'),
        (2, 'Chờ xác nhận', 'CONFIRMED', 'Đơn hàng đã được xác nhận', 2, '2024-10-02 10:00:00'),
-       (2, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 5, '2024-10-02 11:00:00'),
+       (2, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 4, '2024-10-02 11:00:00'),
        (2, 'PREPARING', 'Đang giao', 'Đơn hàng đã xuất kho', 3, '2024-10-02 15:00:00'),
        (3, 'Chờ xác nhận', 'CONFIRMED', 'Đơn hàng đã được xác nhận', 2, '2024-10-03 11:00:00'),
-       (3, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 5, '2024-10-03 13:00:00'),
+       (3, 'CONFIRMED', 'PREPARING', 'PREPARING hàng', 4, '2024-10-03 13:00:00'),
        (3, 'PREPARING', 'Đang giao', 'Đơn hàng đã xuất kho', 4, '2024-10-03 16:00:00'),
        (3, 'Đang giao', 'Hoàn thành', 'Giao hàng thành công', 4, '2024-10-04 11:00:00');
 
@@ -1371,7 +1402,7 @@ VALUES ('Customer', 1, NULL, 'Đơn hàng đã được xác nhận', 'Đơn hà
         FALSE, '2024-10-02 15:00:00'),
        ('Employee', NULL, 3, 'Đơn hàng mới cần xử lý', 'Có đơn hàng mới #ORD202410080008 cần xác nhận', 'Order', 8,
         FALSE, '2024-10-08 16:45:00'),
-       ('Employee', NULL, 5, 'Sản phẩm sắp hết hàng', 'Sản phẩm MD015 còn 10 cái, cần nhập thêm', 'Stock', NULL, TRUE,
+       ('Employee', NULL, 3, 'Sản phẩm sắp hết hàng', 'Sản phẩm MD015 còn 10 cái, cần nhập thêm', 'Stock', NULL, TRUE,
         '2024-10-10 08:00:00'),
        ('Customer', 3, NULL, 'Khuyến mãi đặc biệt', 'Giảm 20% tất cả sản phẩm - Áp dụng đến 31/12', 'Promotion', 5,
         FALSE, '2024-10-01 00:00:00');
@@ -1426,13 +1457,19 @@ VALUES ('Làm thế nào để đặt hàng?',
 -- CONTACT MESSAGES (Tin nhắn liên hệ)
 -- ===============================
 INSERT INTO contact_message (customer_id, name, email, phone, subject, message, status, assigned_to, created_at)
-VALUES (1, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0912345678', 'Hỏi về sản phẩm',
-        'Cho tôi hỏi máy đo huyết áp Omron có bảo hành bao lâu?', 'Resolved', 6, '2024-10-01 15:00:00'),
-       (NULL, 'Trần Văn Bình', 'binh.tran@gmail.com', '0987654321', 'Khiếu nại giao hàng',
-        'Đơn hàng của tôi giao chậm 3 ngày so với dự kiến', 'Processing', 6, '2024-10-05 10:00:00'),
-       (4, 'Lê Văn Phát', 'phat.le@gmail.com', '0912345681', 'Hỏi về khuyến mãi',
-        'Mã giảm giá WELCOME10 có áp dụng cho tất cả sản phẩm không?', 'New', NULL, '2024-10-08 14:00:00');
-
+VALUES
+(1, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0912345678',
+ 'Hỏi về sản phẩm',
+ 'Cho tôi hỏi máy đo huyết áp Omron có bảo hành bao lâu?',
+ 'Resolved', 3, '2024-10-01 15:00:00'),
+(NULL, 'Trần Văn Bình', 'binh.tran@gmail.com', '0987654321',
+ 'Khiếu nại giao hàng',
+ 'Đơn hàng của tôi giao chậm 3 ngày so với dự kiến',
+ 'Processing', 3, '2024-10-05 10:00:00'),
+(4, 'Lê Văn Phát', 'phat.le@gmail.com', '0912345681',
+ 'Hỏi về khuyến mãi',
+ 'Mã giảm giá WELCOME10 có áp dụng cho tất cả sản phẩm không?',
+ 'New', NULL, '2024-10-08 14:00:00');
 -- ===============================
 -- EMPLOYEE SCHEDULE (Lịch làm việc)
 -- ===============================
@@ -1441,11 +1478,12 @@ VALUES (3, '2024-10-01', 'MORNING', '08:00:00', '12:00:00', 'COMPLETED'),
        (3, '2024-10-01', 'AFTERNOON', '13:00:00', '17:00:00', 'COMPLETED'),
        (4, '2024-10-01', 'AFTERNOON', '13:00:00', '17:00:00', 'COMPLETED'),
        (4, '2024-10-01', 'EVENING', '17:00:00', '21:00:00', 'COMPLETED'),
-       (5, '2024-10-01', 'FULL_DAY', '08:00:00', '17:00:00', 'COMPLETED'),
+       (2, '2024-10-01', 'FULL_DAY', '08:00:00', '17:00:00', 'COMPLETED'),
        (3, '2024-10-02', 'FULL_DAY', '08:00:00', '17:00:00', 'COMPLETED'),
        (4, '2024-10-02', 'FULL_DAY', '08:00:00', '17:00:00', 'COMPLETED'),
-       (6, '2024-10-02', 'MORNING', '08:00:00', '12:00:00', 'COMPLETED'),
-       (7, '2024-10-02', 'AFTERNOON', '13:00:00', '17:00:00', 'COMPLETED');
+       (2, '2024-10-02', 'MORNING', '08:00:00', '12:00:00', 'COMPLETED'),
+       (2, '2024-10-02', 'AFTERNOON', '13:00:00', '17:00:00', 'COMPLETED');
+
 
 -- ===============================
 -- ATTENDANCE (Chấm công)
@@ -1453,14 +1491,13 @@ VALUES (3, '2024-10-01', 'MORNING', '08:00:00', '12:00:00', 'COMPLETED'),
 INSERT INTO attendance (employee_id, check_in, check_out, work_hours, overtime_hours, status)
 VALUES (3, '2024-10-01 07:55:00', '2024-10-01 17:10:00', 8.25, 0.25, 'ON_TIME'),
        (4, '2024-10-01 13:05:00', '2024-10-01 21:00:00', 7.92, 0, 'LATE'),
-       (5, '2024-10-01 08:00:00', '2024-10-01 17:00:00', 8.0, 0, 'ON_TIME'),
+       (2, '2024-10-01 08:00:00', '2024-10-01 17:00:00', 8.0, 0, 'ON_TIME'),
        (3, '2024-10-02 08:10:00', '2024-10-02 17:05:00', 7.92, 0, 'LATE'),
        (4, '2024-10-02 07:50:00', '2024-10-02 17:30:00', 8.67, 0.67, 'ON_TIME'),
-       (6, '2024-10-02 08:00:00', '2024-10-02 12:00:00', 4.0, 0, 'ON_TIME'),
-       (7, '2024-10-02 13:00:00', '2024-10-02 17:00:00', 4.0, 0, 'ON_TIME'),
-       (3, '2024-10-03 08:00:00', '2024-10-03 17:00:00', 8.0, 0, 'ON_TIME'),
-       (4, '2024-10-03 08:05:00', '2024-10-03 17:00:00', 7.92, 0, 'LATE'),
-       (5, '2024-10-03 08:00:00', '2024-10-03 17:15:00', 8.25, 0.25, 'ON_TIME');
+       (2, '2024-10-02 08:00:00', '2024-10-02 12:00:00', 4.0, 0, 'ON_TIME'),
+       (2, '2024-10-02 13:00:00', '2024-10-02 17:00:00', 4.0, 0, 'ON_TIME'),
+       (3, '2024-10-03 08:00:00', '2024-10-03 17:00:00', 8.0, 0, 'ON_TIME');
+
 
 -- ===============================
 -- PROMOTION CATEGORY (Áp dụng KM cho danh mục)
@@ -1561,13 +1598,6 @@ VALUES (2, 'MD006', 2, 5, 'Máy xông rất tốt, con nhỏ dùng rất hiệu 
        (6, 'MD007', 7, 4, 'Máy đo cổ tay tiện lợi khi đi công tác', TRUE, 'Approved', '2024-10-13 10:00:00'),
        (8, 'MD003', 9, 5, 'Máy đo đường huyết chính xác, đo nhanh', TRUE, 'Pending', '2024-10-14 14:00:00'),
        (8, 'MD012', 9, 4, 'Máy đo SpO2 nhỏ gọn, dễ mang theo', TRUE, 'Approved', '2024-10-14 14:15:00');
-
--- Thêm nhân viên nghỉ phép
-INSERT INTO employee (employee_code, username, password_hash, full_name, email, phone, address, role_id,
-                      date_of_birth, gender, position, department, hire_date, salary, status)
-VALUES ('EMP021', 'staff021', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Ngô Thị Lan',
-        'staff21@vattuyteabc.com', '0901234575', '369 Nguyễn Văn Cừ, Q.5, TP.HCM', 3, '1997-04-20', 'Female',
-        'Nhân viên bán hàng', 'Kinh doanh', '2024-06-01', 10500000, 'ACTIVE');
 
 -- Thêm khách hàng mới (chưa mua hàng)
 INSERT INTO customer (customer_code, username, password_hash, full_name, email, phone, date_of_birth, gender, status)
