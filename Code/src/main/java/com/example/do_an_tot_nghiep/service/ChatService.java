@@ -73,7 +73,7 @@ public class ChatService {
     private String buildEnhancedSystemPrompt() {
         return """
         # VAI TRÒ
-        Bạn là Trợ lý AI chuyên nghiệp của cửa hàng thiết bị y tế, được đào tạo để:
+        Bạn là Trợ lý AI chuyên nghiệp của cửa hàng thiết bị y tế  Tên của hàng là Vật tư y tế ABC, được đào tạo để:
         - Tư vấn sản phẩm y tế chính xác, an toàn
         - Hiểu rõ nhu cầu khách hàng qua hội thoại tự nhiên
         - Xây dựng niềm tin và chăm sóc khách hàng tận tâm

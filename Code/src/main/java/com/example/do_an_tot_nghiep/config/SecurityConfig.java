@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
 
                         // User area - CUSTOMER only
+                        .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/user/**").hasRole("CUSTOMER")
 
                         // Các request còn lại cần authenticate
