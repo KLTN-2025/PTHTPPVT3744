@@ -77,7 +77,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        .failureUrl("/auth/login?error")
+                        .failureUrl("/auth/login?error=true")
                         .defaultSuccessUrl("/redirectByRole", true)
                         .permitAll()
                 )

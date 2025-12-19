@@ -385,7 +385,7 @@ public class CartController {
             }
 
             BigDecimal discountAmount = calculateDiscount(subtotal, promotion);
-            BigDecimal shippingFee = promotion.getDiscountType() == Promotion.DiscountType.FreeShip ?
+            BigDecimal shippingFee = promotion.getDiscountType() == Promotion.DiscountType.FREESHIP ?
                     BigDecimal.ZERO : calculateShippingFee(subtotal);
             BigDecimal total = subtotal.subtract(discountAmount).add(shippingFee);
 
@@ -481,7 +481,7 @@ public class CartController {
     private BigDecimal calculateDiscount(BigDecimal subtotal, Promotion promotion) {
         BigDecimal discount = BigDecimal.ZERO;
 
-        if (promotion.getDiscountType() == Promotion.DiscountType.Percent) {
+        if (promotion.getDiscountType() == Promotion.DiscountType.PERCENT) {
             discount = subtotal.multiply(
                     promotion.getDiscountValue().divide(BigDecimal.valueOf(100))
             );
@@ -491,7 +491,7 @@ public class CartController {
                     discount.compareTo(promotion.getMaxDiscountAmount()) > 0) {
                 discount = promotion.getMaxDiscountAmount();
             }
-        } else if (promotion.getDiscountType() == Promotion.DiscountType.Fixed) {
+        } else if (promotion.getDiscountType() == Promotion.DiscountType.FIXED) {
             discount = promotion.getDiscountValue();
         }
 

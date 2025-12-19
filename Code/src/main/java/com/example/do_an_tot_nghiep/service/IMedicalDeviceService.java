@@ -28,8 +28,11 @@ public interface IMedicalDeviceService {
 
     void deleteProduct(String id);
 
-    void updateProduct(String id, MedicalDeviceDTO product, MultipartFile imageFile)throws IOException;
+    void updateProduct(String id, MedicalDeviceDTO product, MultipartFile imageFile) throws IOException;
 
-    void createProduct(MedicalDeviceDTO product)throws IOException ;
+    void createProduct(MedicalDeviceDTO product) throws IOException;
 
+    List<MedicalDevice> getAllActiveDevices();
+
+    List<MedicalDevice> searchDevicesByName(String keyword);
 }

@@ -77,10 +77,14 @@ public interface IOrderRepository extends JpaRepository<Order, Integer> {
     /**
      * Lấy tổng doanh thu trong khoảng thời gian
      */
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED' " +
-            "AND o.completedAt BETWEEN :startDate AND :endDate")
-    BigDecimal getTotalRevenue(@Param("startDate") LocalDateTime startDate,
-                               @Param("endDate") LocalDateTime endDate);
+    @Query("""
+    SELECT COALESCE(SUM(o.totalPrice), 0)
+    FROM Order o
+    WHERE o.createdAt BETWEEN :start AND :end
+      AND o.status = 'COMPLETED'
+""")
+    BigDecimal getTotalRevenue(LocalDateTime start, LocalDateTime end);
+
 
     /**
      * Lấy thống kê tổng quan đơn hàng

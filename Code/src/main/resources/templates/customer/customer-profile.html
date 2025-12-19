@@ -240,15 +240,14 @@
                         <span th:text="${customer.username}">username</span>
                     </p>
                     <div>
-                        <span class="tier-badge me-2"
-                              th:classappend="${'tier-' + #strings.toLowerCase(customer.customerTier)}"
-                              th:text="${customer.customerTier == 'BRONZE' ? 'Đồng' :
-                                (customer.customerTier == 'SILVER' ? 'Bạc' :
-                                (customer.customerTier == 'GOLD' ? 'Vàng' : 'Bạch Kim'))}">
-                        </span>
-                        <span class="badge bg-success" th:if="${customer.status == 'ACTIVE'}">
-                            <i class="fas fa-check-circle"></i> Đang hoạt động
-                        </span>
+              <span class="tier-badge me-2"
+                    th:classappend="${customer.customerTier != null ? 'tier-' + #strings.toLowerCase(customer.customerTier.name()) : 'tier-bronze'}"
+                    th:text="${customer.customerTier != null ?
+                (customer.customerTier.name() == 'BRONZE' ? 'Đồng' :
+                (customer.customerTier.name() == 'SILVER' ? 'Bạc' :
+                (customer.customerTier.name() == 'GOLD' ? 'Vàng' :
+                (customer.customerTier.name() == 'PLATINUM' ? 'Bạch Kim' : 'Đồng')))) : 'Đồng'}">
+                </span>
                     </div>
                 </div>
 

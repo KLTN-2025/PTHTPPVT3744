@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -78,23 +80,44 @@ public class CustomerController {
      * ============================================
      */
     @GetMapping("/profile")
-    public String viewProfile(@AuthenticationPrincipal Object principal, Model model) {
+    public String viewProfile(Authentication authentication, Model model) {
         try {
-            // Lấy customer từ principal (hỗ trợ cả LOCAL và OAuth2)
-            Customer customer = getCustomerFromPrincipal(principal);
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return "redirect:/auth/login";
+            }
 
-            // Refresh data từ database để đảm bảo dữ liệu mới nhất
-            customer = customerRepository.findById(customer.getCustomerId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin khách hàng"));
+            Customer customer;
+
+            // ===== GOOGLE LOGIN =====
+            if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+                OAuth2User oauthUser = oauthToken.getPrincipal();
+                String email = oauthUser.getAttribute("email");
+
+                if (email == null) {
+                    throw new RuntimeException("Không lấy được email từ Google");
+                }
+
+                customer = customerRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng Google"));
+            }
+
+            // ===== LOCAL LOGIN =====
+            else {
+                String username = authentication.getName();
+                customer = customerRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
+            }
 
             model.addAttribute("customer", customer);
             return "customer/customer-profile";
 
         } catch (Exception e) {
-            model.addAttribute("error", "Lỗi khi tải thông tin: " + e.getMessage());
+            model.addAttribute("error", e.getMessage());
             return "redirect:/home";
         }
     }
+
+
 
     /**
      * ============================================

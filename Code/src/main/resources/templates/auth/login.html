@@ -365,7 +365,7 @@
         <span id="successMessage">Đăng xuất thành công!</span>
     </div>
 
-    <form action="/auth/login" method="post" onsubmit="return handleLogin(event)">
+    <form action="/auth/login" method="post">
         <div class="form-group">
             <label for="username">Tên đăng nhập hoặc Email</label>
             <input
@@ -430,18 +430,6 @@
         }
     }
 
-    function handleLogin(event) {
-        // Để form submit bình thường, bỏ comment dòng dưới nếu muốn test
-        // event.preventDefault();
-
-        // Đây là nơi xử lý logic đăng nhập
-        return true;
-    }
-
-    function loginWithFacebook() {
-        // Xử lý đăng nhập Facebook
-        window.location.href = "/auth/facebook";
-    }
 
     // Hiển thị thông báo lỗi (có thể gọi từ backend)
     function showError(message) {

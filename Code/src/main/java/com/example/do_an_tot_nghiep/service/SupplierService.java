@@ -252,4 +252,9 @@ public class SupplierService implements ISupplierService {
 
         return statistics;
     }
+
+    @Override
+    public List<Supplier> getAllActiveSuppliers() {
+        return supplierRepository.findAllActiveSuppliers();
+    }
 }

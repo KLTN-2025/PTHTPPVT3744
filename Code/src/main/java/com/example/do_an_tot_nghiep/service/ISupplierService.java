@@ -1,6 +1,7 @@
 package com.example.do_an_tot_nghiep.service;
 
 import com.example.do_an_tot_nghiep.dto.SupplierDTO;
+import com.example.do_an_tot_nghiep.model.Supplier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -114,4 +115,6 @@ public interface ISupplierService {
      * @return Map chứa các thông tin thống kê (productCount, importCount, totalValue)
      */
     Map<String, Object> getSupplierStatistics(Integer supplierId);
+
+    List<Supplier> getAllActiveSuppliers();
 }

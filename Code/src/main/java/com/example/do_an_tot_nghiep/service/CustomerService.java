@@ -19,16 +19,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomerService implements ICustomerService {
+
     @Autowired
     private ICustomerRepository customerRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // ===================== REGISTER =====================
     @Transactional
     @Override
     public CustomerDTO registerCustomer(CustomerRegistrationRequest request) {
-        // Validate username and email uniqueness
+
         if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("Username already exists");
         }
@@ -36,60 +38,141 @@ public class CustomerService implements ICustomerService {
             throw new RuntimeException("Email already exists");
         }
 
-        // Generate customer code
-        String customerCode = generateCustomerCode();
-
-        // Create customer entity
         Customer customer = Customer.builder()
-                .customerCode(customerCode)
+                .customerCode(generateCustomerCode())
                 .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .provider("LOCAL")  // ✅ Đăng ký thông thường
+                .provider("LOCAL")
                 .hasCustomPassword(true)
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .address(request.getAddress())
+
+                // 🔒 KHÓA CỨNG BRONZE
                 .customerTier(Customer.CustomerTier.BRONZE)
+
                 .loyaltyPoints(0)
                 .totalSpent(BigDecimal.ZERO)
                 .totalOrders(0)
                 .status(Customer.CustomerStatus.ACTIVE)
+                .emailVerified(false)
+                .phoneVerified(false)
                 .referralCode(generateReferralCode())
                 .build();
 
         customer = customerRepository.save(customer);
-
         return convertToDTO(customer);
     }
 
+    // ===================== CRUD / ADMIN SAVE =====================
     @Override
-    public CustomerDTO getCustomerById(Integer customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    @Transactional
+    public CustomerDTO save(CustomerDTO customerDTO) {
+
+        Customer customer;
+
+        // ===== UPDATE =====
+        if (customerDTO.getCustomerId() != null) {
+            customer = customerRepository.findById(customerDTO.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+            updateCustomerFromDTO(customer, customerDTO);
+
+        }
+        // ===== CREATE =====
+        else {
+            customer = Customer.builder()
+                    .customerCode(
+                            customerDTO.getCustomerCode() != null
+                                    ? customerDTO.getCustomerCode()
+                                    : generateCustomerCode()
+                    )
+                    .username(customerDTO.getUsername())
+                    .passwordHash(customerDTO.getPasswordHash())
+                    .provider(customerDTO.getProvider())
+                    .providerId(customerDTO.getProviderId())
+                    .hasCustomPassword(customerDTO.getHasCustomPassword() != null
+                            ? customerDTO.getHasCustomPassword()
+                            : false)
+                    .fullName(customerDTO.getFullName())
+                    .email(customerDTO.getEmail())
+                    .phone(customerDTO.getPhone())
+                    .address(customerDTO.getAddress())
+                    .avatarUrl(customerDTO.getAvatarUrl())
+                    .dateOfBirth(customerDTO.getDateOfBirth())
+                    .gender(customerDTO.getGender() != null
+                            ? Customer.Gender.valueOf(customerDTO.getGender())
+                            : null)
+
+                    // 🔒 TẠO MỚI → LUÔN BRONZE (KHÔNG DÙNG DTO)
+                    .customerTier(Customer.CustomerTier.BRONZE)
+
+                    .loyaltyPoints(0)
+                    .totalSpent(BigDecimal.ZERO)
+                    .totalOrders(0)
+                    .status(Customer.CustomerStatus.ACTIVE)
+                    .emailVerified(false)
+                    .phoneVerified(false)
+                    .referralCode(generateReferralCode())
+                    .build();
+        }
+
+        // 🔒 ÉP LẠI LẦN CUỐI (CHỐNG GHI ĐÈ)
+        if (customer.getCustomerId() == null) {
+            customer.setCustomerTier(Customer.CustomerTier.BRONZE);
+        }
+
+        customer = customerRepository.save(customer);
         return convertToDTO(customer);
     }
 
-    public CustomerDTO getCustomerByUsername(String username) {
-        Customer customer = customerRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
-        return convertToDTO(customer);
+    // ===================== UPDATE FROM DTO =====================
+    private void updateCustomerFromDTO(Customer customer, CustomerDTO dto) {
+
+        if (dto.getUsername() != null) customer.setUsername(dto.getUsername());
+        if (dto.getPasswordHash() != null) customer.setPasswordHash(dto.getPasswordHash());
+        if (dto.getProvider() != null) customer.setProvider(dto.getProvider());
+        if (dto.getProviderId() != null) customer.setProviderId(dto.getProviderId());
+        if (dto.getHasCustomPassword() != null) customer.setHasCustomPassword(dto.getHasCustomPassword());
+        if (dto.getFullName() != null) customer.setFullName(dto.getFullName());
+        if (dto.getEmail() != null) customer.setEmail(dto.getEmail());
+        if (dto.getPhone() != null) customer.setPhone(dto.getPhone());
+        if (dto.getAddress() != null) customer.setAddress(dto.getAddress());
+        if (dto.getAvatarUrl() != null) customer.setAvatarUrl(dto.getAvatarUrl());
+        if (dto.getDateOfBirth() != null) customer.setDateOfBirth(dto.getDateOfBirth());
+        if (dto.getGender() != null) customer.setGender(Customer.Gender.valueOf(dto.getGender()));
+
+        // ⚠️ UPDATE mới cho phép set tier (admin)
+        if (dto.getCustomerTier() != null) {
+            customer.setCustomerTier(Customer.CustomerTier.valueOf(dto.getCustomerTier()));
+        }
+
+        if (dto.getLoyaltyPoints() != null) customer.setLoyaltyPoints(dto.getLoyaltyPoints());
+        if (dto.getTotalSpent() != null) customer.setTotalSpent(dto.getTotalSpent());
+        if (dto.getTotalOrders() != null) customer.setTotalOrders(dto.getTotalOrders());
+        if (dto.getStatus() != null) customer.setStatus(Customer.CustomerStatus.valueOf(dto.getStatus()));
+        if (dto.getEmailVerified() != null) customer.setEmailVerified(dto.getEmailVerified());
+        if (dto.getPhoneVerified() != null) customer.setPhoneVerified(dto.getPhoneVerified());
+        if (dto.getReferralCode() != null) customer.setReferralCode(dto.getReferralCode());
     }
 
+    // ===================== BUSINESS LOGIC =====================
     @Transactional
     @Override
     public void updateCustomerTier(Integer customerId) {
+
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
         BigDecimal totalSpent = customer.getTotalSpent();
         Customer.CustomerTier newTier;
 
-        if (totalSpent.compareTo(new BigDecimal("50000000")) >= 0) {
+        if (totalSpent != null && totalSpent.compareTo(new BigDecimal("50000000")) >= 0) {
             newTier = Customer.CustomerTier.PLATINUM;
-        } else if (totalSpent.compareTo(new BigDecimal("15000000")) >= 0) {
+        } else if (totalSpent != null && totalSpent.compareTo(new BigDecimal("15000000")) >= 0) {
             newTier = Customer.CustomerTier.GOLD;
-        } else if (totalSpent.compareTo(new BigDecimal("5000000")) >= 0) {
+        } else if (totalSpent != null && totalSpent.compareTo(new BigDecimal("5000000")) >= 0) {
             newTier = Customer.CustomerTier.SILVER;
         } else {
             newTier = Customer.CustomerTier.BRONZE;
@@ -105,7 +188,9 @@ public class CustomerService implements ICustomerService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        customer.setLoyaltyPoints(customer.getLoyaltyPoints() + points);
+        int safePoints = points != null ? points : 0;
+        customer.setLoyaltyPoints((customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0) + safePoints);
+
         customerRepository.save(customer);
     }
 
@@ -115,27 +200,32 @@ public class CustomerService implements ICustomerService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        if (customer.getLoyaltyPoints() < points) {
+        int current = customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0;
+        int need = points != null ? points : 0;
+
+        if (need <= 0) return;
+
+        if (current < need) {
             throw new RuntimeException("Insufficient loyalty points");
         }
 
-        customer.setLoyaltyPoints(customer.getLoyaltyPoints() - points);
+        customer.setLoyaltyPoints(current - need);
         customerRepository.save(customer);
     }
 
     @Override
     public List<CustomerDTO> getTopCustomers(int limit) {
+        // Nếu repo bạn có findTopCustomers(PageRequest) giống code cũ:
         return customerRepository.findTopCustomers(PageRequest.of(0, limit))
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    // ===================== HELPERS =====================
     @Override
     public String generateCustomerCode() {
-        String prefix = "CUS";
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        return prefix + timestamp.substring(timestamp.length() - 8);
+        return "CUS" + System.currentTimeMillis();
     }
 
     @Override
@@ -156,20 +246,59 @@ public class CustomerService implements ICustomerService {
                 .avatarUrl(customer.getAvatarUrl())
                 .dateOfBirth(customer.getDateOfBirth())
                 .gender(customer.getGender() != null ? customer.getGender().name() : null)
-                .customerTier(customer.getCustomerTier().name())
+                .customerTier(customer.getCustomerTier() != null ? customer.getCustomerTier().name() : null)
                 .loyaltyPoints(customer.getLoyaltyPoints())
                 .totalSpent(customer.getTotalSpent())
                 .totalOrders(customer.getTotalOrders())
-                .status(customer.getStatus().name())
+                .status(customer.getStatus() != null ? customer.getStatus().name() : null)
                 .emailVerified(customer.getEmailVerified())
                 .phoneVerified(customer.getPhoneVerified())
-                .provider(customer.getProvider())  // ✅ Thêm
-                .providerId(customer.getProviderId())  // ✅ Thêm
-                .hasCustomPassword(customer.getHasCustomPassword())  // ✅ Thêm
+                .provider(customer.getProvider())
+                .providerId(customer.getProviderId())
+                .hasCustomPassword(customer.getHasCustomPassword())
                 .referralCode(customer.getReferralCode())
                 .createdAt(customer.getCreatedAt())
                 .updatedAt(customer.getUpdatedAt())
                 .build();
+    }
+
+    // ===================== OTHER =====================
+    @Override
+    public CustomerDTO getCustomerById(Integer customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        return convertToDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO findByEmail(String email) {
+        return customerRepository.findByEmail(email)
+                .map(this::convertToDTO)
+                .orElse(null);
+    }
+
+    // ✅ Set password cho OAuth2 user (giống bản bạn từng có)
+    @Override
+    @Transactional
+    public CustomerDTO setPassword(Integer customerId, String newPassword) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        customer.setPasswordHash(passwordEncoder.encode(newPassword));
+        customer.setHasCustomPassword(true);
+
+        customer = customerRepository.save(customer);
+        return convertToDTO(customer);
+    }
+
+    @Override
+    @Transactional
+    public void updateLastLogin(Integer customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        customer.setLastLogin(LocalDateTime.now());
+        customerRepository.save(customer);
     }
 
     @Override
@@ -188,181 +317,25 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    @Transactional
-    public CustomerDTO save(CustomerDTO customerDTO) {
-        Customer customer;
-
-        // ✅ Nếu đã có customerId -> Update
-        if (customerDTO.getCustomerId() != null) {
-            customer = customerRepository.findById(customerDTO.getCustomerId())
-                    .orElseThrow(() -> new RuntimeException("Customer not found"));
-
-            // Update fields
-            updateCustomerFromDTO(customer, customerDTO);
-
-        } else {
-            // ✅ Tạo mới
-            customer = Customer.builder()
-                    .customerCode(customerDTO.getCustomerCode() != null ?
-                            customerDTO.getCustomerCode() : generateCustomerCode())
-                    .username(customerDTO.getUsername())
-                    .passwordHash(customerDTO.getPasswordHash())
-                    .provider(customerDTO.getProvider())
-                    .providerId(customerDTO.getProviderId())
-                    .hasCustomPassword(customerDTO.getHasCustomPassword() != null ?
-                            customerDTO.getHasCustomPassword() : false)
-                    .fullName(customerDTO.getFullName())
-                    .email(customerDTO.getEmail())
-                    .phone(customerDTO.getPhone())
-                    .address(customerDTO.getAddress())
-                    .avatarUrl(customerDTO.getAvatarUrl())
-                    .dateOfBirth(customerDTO.getDateOfBirth())
-                    .gender(customerDTO.getGender() != null ?
-                            Customer.Gender.valueOf(customerDTO.getGender()) : null)
-                    .customerTier(customerDTO.getCustomerTier() != null ?
-                            Customer.CustomerTier.valueOf(customerDTO.getCustomerTier()) :
-                            Customer.CustomerTier.BRONZE)
-                    .loyaltyPoints(customerDTO.getLoyaltyPoints() != null ?
-                            customerDTO.getLoyaltyPoints() : 0)
-                    .totalSpent(customerDTO.getTotalSpent() != null ?
-                            customerDTO.getTotalSpent() : BigDecimal.ZERO)
-                    .totalOrders(customerDTO.getTotalOrders() != null ?
-                            customerDTO.getTotalOrders() : 0)
-                    .status(customerDTO.getStatus() != null ?
-                            Customer.CustomerStatus.valueOf(customerDTO.getStatus()) :
-                            Customer.CustomerStatus.ACTIVE)
-                    .emailVerified(customerDTO.getEmailVerified() != null ?
-                            customerDTO.getEmailVerified() : false)
-                    .phoneVerified(customerDTO.getPhoneVerified() != null ?
-                            customerDTO.getPhoneVerified() : false)
-                    .referralCode(customerDTO.getReferralCode() != null ?
-                            customerDTO.getReferralCode() : generateReferralCode())
-                    .build();
-        }
-
-        customer = customerRepository.save(customer);
-        return convertToDTO(customer);
-    }
-
-    /**
-     * ✅ Helper method để update customer từ DTO
-     */
-    private void updateCustomerFromDTO(Customer customer, CustomerDTO dto) {
-        if (dto.getUsername() != null) {
-            customer.setUsername(dto.getUsername());
-        }
-        if (dto.getPasswordHash() != null) {
-            customer.setPasswordHash(dto.getPasswordHash());
-        }
-        if (dto.getProvider() != null) {
-            customer.setProvider(dto.getProvider());
-        }
-        if (dto.getProviderId() != null) {
-            customer.setProviderId(dto.getProviderId());
-        }
-        if (dto.getHasCustomPassword() != null) {
-            customer.setHasCustomPassword(dto.getHasCustomPassword());
-        }
-        if (dto.getFullName() != null) {
-            customer.setFullName(dto.getFullName());
-        }
-        if (dto.getEmail() != null) {
-            customer.setEmail(dto.getEmail());
-        }
-        if (dto.getPhone() != null) {
-            customer.setPhone(dto.getPhone());
-        }
-        if (dto.getAddress() != null) {
-            customer.setAddress(dto.getAddress());
-        }
-        if (dto.getAvatarUrl() != null) {
-            customer.setAvatarUrl(dto.getAvatarUrl());
-        }
-        if (dto.getDateOfBirth() != null) {
-            customer.setDateOfBirth(dto.getDateOfBirth());
-        }
-        if (dto.getGender() != null) {
-            customer.setGender(Customer.Gender.valueOf(dto.getGender()));
-        }
-        if (dto.getCustomerTier() != null) {
-            customer.setCustomerTier(Customer.CustomerTier.valueOf(dto.getCustomerTier()));
-        }
-        if (dto.getLoyaltyPoints() != null) {
-            customer.setLoyaltyPoints(dto.getLoyaltyPoints());
-        }
-        if (dto.getTotalSpent() != null) {
-            customer.setTotalSpent(dto.getTotalSpent());
-        }
-        if (dto.getTotalOrders() != null) {
-            customer.setTotalOrders(dto.getTotalOrders());
-        }
-        if (dto.getStatus() != null) {
-            customer.setStatus(Customer.CustomerStatus.valueOf(dto.getStatus()));
-        }
-        if (dto.getEmailVerified() != null) {
-            customer.setEmailVerified(dto.getEmailVerified());
-        }
-        if (dto.getPhoneVerified() != null) {
-            customer.setPhoneVerified(dto.getPhoneVerified());
-        }
-        if (dto.getReferralCode() != null) {
-            customer.setReferralCode(dto.getReferralCode());
-        }
-    }
-
-    @Override
-    public CustomerDTO findByEmail(String email) {
-        return customerRepository.findByEmail(email)
-                .map(this::convertToDTO)
-                .orElse(null);
-    }
-
-    /**
-     * ✅ Method mới: Set password cho OAuth2 user
-     */
-    @Transactional
-    public CustomerDTO setPassword(Integer customerId, String newPassword) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
-
-        // Encode và set password
-        customer.setPasswordHash(passwordEncoder.encode(newPassword));
-        customer.setHasCustomPassword(true);
-
-        customer = customerRepository.save(customer);
-
-        System.out.println("✅ Password set for customer: " + customer.getEmail() +
-                " (ID: " + customerId + ")");
-
-        return convertToDTO(customer);
-    }
-
-    /**
-     * ✅ Method mới: Update last login
-     */
-    @Transactional
-    public void updateLastLogin(Integer customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
-
-        customer.setLastLogin(LocalDateTime.now());
-        customerRepository.save(customer);
-    }
-
-    @Override
     public Page<Customer> findAll(PageRequest of) {
         return customerRepository.findAll(of);
     }
 
     @Override
     public Page<Customer> findCustomers(String keyword, String tier, String status, int page, int pageSize) {
+        int safePage = Math.max(page, 0); // ✅ CHỐT CHẶN CUỐI
         return customerRepository.searchCustomers(
                 keyword,
-                tier != null && !tier.isEmpty() ? Customer.CustomerTier.valueOf(tier) : null,
-                status != null && !status.isEmpty() ? Customer.CustomerStatus.valueOf(status) : null,
-                PageRequest.of(page - 1, pageSize)
+                tier != null && !tier.isEmpty()
+                        ? Customer.CustomerTier.valueOf(tier)
+                        : null,
+                status != null && !status.isEmpty()
+                        ? Customer.CustomerStatus.valueOf(status)
+                        : null,
+                PageRequest.of(safePage, pageSize)
         );
     }
+
 
     @Override
     public void deleteCustomerById(Integer id) {
@@ -373,5 +346,4 @@ public class CustomerService implements ICustomerService {
     public void deleteCustomers(List<Integer> ids) {
         customerRepository.deleteAllById(ids);
     }
-
 }

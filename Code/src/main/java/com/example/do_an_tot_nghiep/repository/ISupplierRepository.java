@@ -61,4 +61,7 @@ public interface ISupplierRepository extends JpaRepository<Supplier, Integer> {
 
     // Đếm số nhà cung cấp theo trạng thái
     long countByStatus(Supplier.SupplierStatus status);
+    // Lấy tất cả nhà cung cấp đang hoạt động
+    @Query("SELECT s FROM Supplier s WHERE s.status = 'ACTIVE'")
+    List<Supplier> findAllActiveSuppliers();
 }

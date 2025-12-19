@@ -2,6 +2,7 @@ package com.example.do_an_tot_nghiep.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Promotion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "promotion_id")
@@ -26,9 +28,11 @@ public class Promotion {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    /* ================= DISCOUNT ================= */
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "discount_type", columnDefinition = "ENUM('Percent','Fixed','FreeShip') DEFAULT 'Percent'")
-    private DiscountType discountType = DiscountType.Percent;
+    @Column(name = "discount_type", nullable = false)
+    private DiscountType discountType = DiscountType.PERCENT;
 
     @Column(name = "discount_value", nullable = false, precision = 15, scale = 2)
     private BigDecimal discountValue;
@@ -39,18 +43,30 @@ public class Promotion {
     @Column(name = "max_discount_amount", precision = 15, scale = 2)
     private BigDecimal maxDiscountAmount;
 
+    /* ================= USAGE ================= */
+
     @Column(name = "usage_limit")
     private Integer usageLimit;
 
-    @Column(name = "used_count")
+    @Column(name = "used_count", nullable = false)
     private Integer usedCount = 0;
 
-    @Column(name = "usage_per_customer")
+    @Column(name = "usage_per_customer", nullable = false)
     private Integer usagePerCustomer = 1;
 
+    /* ================= CUSTOMER TIER ================= */
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "customer_tier", columnDefinition = "ENUM('All','Bronze','Silver','Gold','Platinum') DEFAULT 'All'")
-    private CustomerTier customerTier = CustomerTier.All;
+    @Column(name = "customer_tier", nullable = false)
+    private CustomerTier customerTier = CustomerTier.ALL;
+
+    /* ================= APPLY ================= */
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "applicable_to", nullable = false)
+    private ApplicableTo applicableTo = ApplicableTo.ALL;
+
+    /* ================= TIME ================= */
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -58,12 +74,12 @@ public class Promotion {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "applicable_to", columnDefinition = "ENUM('All','Category','Product') DEFAULT 'All'")
-    private ApplicableTo applicableTo = ApplicableTo.All;
+    /* ================= STATUS ================= */
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    /* ================= AUDIT ================= */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -77,9 +93,8 @@ public class Promotion {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        createdAt = now;
-        updatedAt = now;
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
     @PreUpdate
@@ -87,15 +102,25 @@ public class Promotion {
         updatedAt = LocalDateTime.now();
     }
 
+    /* ================= ENUMS ================= */
+
     public enum DiscountType {
-        Percent, Fixed, FreeShip
+        PERCENT,
+        FIXED,
+        FREESHIP
     }
 
     public enum ApplicableTo {
-        All, Category, Product
+        ALL,
+        CATEGORY,
+        PRODUCT
     }
 
     public enum CustomerTier {
-        All, Bronze, Silver, Gold, Platinum
+        ALL,
+        BRONZE,
+        SILVER,
+        GOLD,
+        PLATINUM
     }
 }

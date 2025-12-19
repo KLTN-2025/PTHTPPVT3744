@@ -261,6 +261,16 @@ public class MedicalDeviceService implements IMedicalDeviceService {
         deviceRepository.save(device);
     }
 
+    @Override
+    public List<MedicalDevice> getAllActiveDevices() {
+        return deviceRepository.findByStatusOrderByNameAsc(MedicalDevice.DeviceStatus.Còn_hàng);
+    }
+
+    @Override
+    public List<MedicalDevice> searchDevicesByName(String keyword) {
+        return deviceRepository.searchByName(keyword);
+    }
+
 
     @Transactional
     public int deleteProducts(List<String> ids) {

@@ -32,9 +32,10 @@ public class AdminCustomerController {
                                 @RequestParam(required = false) String keyword,
                                 @RequestParam(required = false) String tier,
                                 @RequestParam(required = false) String status,
-                                @RequestParam(defaultValue = "1") int page) {
+                                @RequestParam(defaultValue = "0") int page) {
 
         int pageSize = 10;
+        int safePage = Math.max(page, 1);
         Page<Customer> customerPage = customerService.findCustomers(keyword, tier, status, page, pageSize);
 
         model.addAttribute("customers", customerPage);

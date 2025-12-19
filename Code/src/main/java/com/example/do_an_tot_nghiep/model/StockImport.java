@@ -36,8 +36,8 @@ public class StockImport {
     private String note;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "ENUM('Pending','Completed','Cancelled') DEFAULT 'Pending'")
-    private ImportStatus status = ImportStatus.Pending;
+    @Column(name = "status", columnDefinition = "ENUM('Pending','COMPLETED','CANCEllED') DEFAULT 'Pending'")
+    private ImportStatus status = ImportStatus.PENDING;
 
     // Người tạo (nhân viên)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -77,6 +77,6 @@ public class StockImport {
     }
 
     public enum ImportStatus {
-        Pending, Completed, Cancelled
+        PENDING,COMPLETED, CANCEllED
     }
 }

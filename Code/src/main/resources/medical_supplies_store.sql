@@ -20,85 +20,84 @@ CREATE TABLE employee
 (
     employee_id   INT AUTO_INCREMENT PRIMARY KEY,
     employee_code VARCHAR(50) UNIQUE  NOT NULL,
-    username      VARCHAR(100)        NOT NULL UNIQUE,
+    username      VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255)        NOT NULL,
     full_name     VARCHAR(255)        NOT NULL,
     email         VARCHAR(255) UNIQUE NOT NULL,
     phone         VARCHAR(20)         NOT NULL,
     address       VARCHAR(255),
-    avatar_url    VARCHAR(255),
     role_id       INT                 NOT NULL,
     date_of_birth DATE,
     gender        ENUM ('MALE','FEMALE','OTHER'),
-    citizen_id    VARCHAR(20) UNIQUE COMMENT 'CMND/CCCD',
-    position      VARCHAR(100) COMMENT 'Chức vụ cụ thể',
-    department    VARCHAR(100) COMMENT 'Phòng ban',
+    citizen_id    VARCHAR(20) UNIQUE,
+    position      VARCHAR(100),
+    department    VARCHAR(100),
     hire_date     DATE                NOT NULL,
-    salary        DECIMAL(15, 2) COMMENT 'Lương cơ bản',
+    salary        DECIMAL(15, 2),
     status        ENUM ('ACTIVE','ON_LEAVE','RESIGNED','TERMINATED') DEFAULT 'ACTIVE',
     last_login    DATETIME,
     created_at    DATETIME                                           DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME                                           DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    created_by    INT COMMENT 'ID nhân viên tạo',
+    created_by    INT,
     FOREIGN KEY (role_id) REFERENCES role (role_id),
-    FOREIGN KEY (created_by) REFERENCES employee (employee_id),
-    INDEX idx_employee_code (employee_code),
-    INDEX idx_username (username),
-    INDEX idx_email (email),
-    INDEX idx_status (status),
-    INDEX idx_role (role_id)
-) ENGINE = InnoDB
+    FOREIGN KEY (created_by) REFERENCES employee (employee_id)
+) ENGINE = InnoDB,
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE customer
 (
-    customer_id     INT AUTO_INCREMENT PRIMARY KEY,
-    customer_code   VARCHAR(50) UNIQUE,
-    username        VARCHAR(100) NOT NULL UNIQUE,
-    password_hash   VARCHAR(255) NOT NULL,
-    full_name       VARCHAR(255),
-    email           VARCHAR(255) UNIQUE,
-    phone           VARCHAR(20),
-    address         VARCHAR(255),
-    avatar_url      VARCHAR(255),
-    date_of_birth   DATE,
-    gender          ENUM ('MALE','FEMALE','OTHER'),
-    customer_tier   ENUM ('BRONZE','SILVER','GOLD','PLATINUM') DEFAULT 'BRONZE',
-    loyalty_points  INT                                        DEFAULT 0,
-    total_spent     DECIMAL(15, 2)                             DEFAULT 0,
-    total_orders    INT                                        DEFAULT 0,
-    status          ENUM ('ACTIVE','INACTIVE','BLOCKED')       DEFAULT 'ACTIVE',
-    email_verified  BOOLEAN                                    DEFAULT FALSE,
-    phone_verified  BOOLEAN                                    DEFAULT FALSE,
-    last_login      DATETIME,
-    last_order_date DATETIME,
-    referral_code   VARCHAR(20) UNIQUE COMMENT 'Mã giới thiệu của khách hàng',
-    referred_by     INT COMMENT 'ID khách hàng giới thiệu',
-    created_at      DATETIME                                   DEFAULT CURRENT_TIMESTAMP,
-    updated_at      DATETIME                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    customer_id         INT AUTO_INCREMENT PRIMARY KEY,
+    customer_code       VARCHAR(50) UNIQUE,
+    username            VARCHAR(100) UNIQUE,
+    password_hash       VARCHAR(255),
+    provider            VARCHAR(20) COMMENT 'LOCAL, GOOGLE, FACEBOOK',
+    provider_id         VARCHAR(255),
+    has_custom_password BOOLEAN                                    DEFAULT FALSE,
+
+    full_name           VARCHAR(255),
+    email               VARCHAR(255),
+    phone               VARCHAR(20),
+    address             VARCHAR(255),
+    avatar_url          VARCHAR(255),
+    date_of_birth       DATE,
+    gender              ENUM ('MALE','FEMALE','OTHER'),
+
+    customer_tier       ENUM ('BRONZE','SILVER','GOLD','PLATINUM') DEFAULT 'BRONZE',
+    loyalty_points      INT                                        DEFAULT 0,
+    total_spent         DECIMAL(15, 2)                             DEFAULT 0,
+    total_orders        INT                                        DEFAULT 0,
+
+    status              ENUM ('ACTIVE','INACTIVE','BLOCKED')       DEFAULT 'ACTIVE',
+    email_verified      BOOLEAN                                    DEFAULT FALSE,
+    phone_verified      BOOLEAN                                    DEFAULT FALSE,
+
+    last_login          DATETIME,
+    last_order_date     DATETIME,
+
+    referral_code       VARCHAR(20) UNIQUE,
+    referred_by         INT,
+
+    created_at          DATETIME                                   DEFAULT CURRENT_TIMESTAMP,
+    updated_at          DATETIME                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     FOREIGN KEY (referred_by) REFERENCES customer (customer_id),
-    INDEX idx_customer_code (customer_code),
-    INDEX idx_username (username),
-    INDEX idx_email (email),
-    INDEX idx_phone (phone),
-    INDEX idx_status (status),
-    INDEX idx_tier (customer_tier)
-) ENGINE = InnoDB
+    INDEX idx_tier (customer_tier),
+    INDEX idx_provider (provider),
+    INDEX idx_provider_id (provider_id)
+) ENGINE = InnoDB,
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE loyalty_history
 (
     history_id   INT AUTO_INCREMENT PRIMARY KEY,
     customer_id  INT NOT NULL,
-    points       INT NOT NULL COMMENT 'Số điểm (dương: cộng, âm: trừ)',
+    points       INT NOT NULL,
     type         ENUM ('EARNED','REDEEMED','EXPIRED','BONUS','REFUND') DEFAULT 'EARNED',
-    reference_id INT COMMENT 'order_id hoặc promotion_id',
+    reference_id INT,
     description  VARCHAR(255),
     created_at   DATETIME                                              DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ON DELETE CASCADE,
-    INDEX idx_customer (customer_id),
-    INDEX idx_created (created_at)
-) ENGINE = InnoDB
+    FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ON DELETE CASCADE
+) ENGINE = InnoDB,
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE category
@@ -209,7 +208,7 @@ CREATE TABLE stock_import
     import_date  DATETIME                                 DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(15, 2) NOT NULL,
     note         TEXT,
-    status       ENUM ('Pending','COMPLETED','Cancelled') DEFAULT 'Pending',
+    status       ENUM ('PENDING','COMPLETED','CANCEllED') DEFAULT 'PENDING',
     created_by   INT COMMENT 'employee_id',
     approved_by  INT COMMENT 'employee_id',
     approved_at  DATETIME,
@@ -247,26 +246,22 @@ CREATE TABLE promotion
     code                VARCHAR(50) UNIQUE NOT NULL,
     name                VARCHAR(255),
     description         TEXT,
-    discount_type       ENUM ('Percent','Fixed','FreeShip')              DEFAULT 'Percent',
+    discount_type       ENUM ('PERCENT','FIXED','FREESHIP')              DEFAULT 'PERCENT',
     discount_value      DECIMAL(15, 2)     NOT NULL,
     min_order_amount    DECIMAL(15, 2)                                   DEFAULT 0,
     max_discount_amount DECIMAL(15, 2),
-    usage_limit         INT COMMENT 'Giới hạn số lần sử dụng tổng',
+    usage_limit         INT,
     used_count          INT                                              DEFAULT 0,
-    usage_per_customer  INT                                              DEFAULT 1 COMMENT 'Số lần mỗi khách hàng được dùng',
-    customer_tier       ENUM ('All','Bronze','Silver','Gold','Platinum') DEFAULT 'All',
+    usage_per_customer  INT                                              DEFAULT 1,
+    customer_tier       ENUM ('ALL','BRONZE','SILVER','GOLD','PLATINUM') DEFAULT 'ALL',
     start_date          DATETIME,
     end_date            DATETIME,
-    applicable_to       ENUM ('All','Category','Product')                DEFAULT 'All',
     is_active           BOOLEAN                                          DEFAULT TRUE,
-    created_by          INT COMMENT 'employee_id',
+    created_by          INT,
     created_at          DATETIME                                         DEFAULT CURRENT_TIMESTAMP,
     updated_at          DATETIME                                         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES employee (employee_id),
-    INDEX idx_code (code),
-    INDEX idx_dates (start_date, end_date),
-    INDEX idx_active (is_active)
-) ENGINE = InnoDB
+    FOREIGN KEY (created_by) REFERENCES employee (employee_id)
+) ENGINE = InnoDB,
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE promotion_category
@@ -309,50 +304,79 @@ CREATE TABLE customer_address
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE `order`
-(
-    order_id            INT AUTO_INCREMENT PRIMARY KEY,
-    order_code          VARCHAR(50) UNIQUE NOT NULL,
-    customer_id         INT,
-    address_id          INT COMMENT 'Địa chỉ giao hàng',
-    receiver_name       VARCHAR(255)       NOT NULL,
-    receiver_phone      VARCHAR(20)        NOT NULL,
-    receiver_address    VARCHAR(500)       NOT NULL,
-    subtotal            DECIMAL(15, 2)     NOT NULL COMMENT 'Tổng tiền hàng',
-    shipping_fee        DECIMAL(10, 2)                                                                         DEFAULT 0,
-    discount_amount     DECIMAL(10, 2)                                                                         DEFAULT 0,
-    loyalty_points_used INT                                                                                    DEFAULT 0,
-    loyalty_discount    DECIMAL(10, 2)                                                                         DEFAULT 0,
-    total_price         DECIMAL(15, 2)     NOT NULL COMMENT 'Tổng thanh toán',
-    promotion_id        INT,
-    payment_method      ENUM ('COD','VNPAY')                                   DEFAULT 'COD',
-    payment_status      ENUM ('UNPAID','PAID','REFUNDED')                                                      DEFAULT 'UNPAID',
-    transaction_id      VARCHAR(100),
-    status              ENUM ('PENDING','CONFIRMED','PREPARING','SHIPPING','COMPLETED','CANCELLED','RETURNED') DEFAULT 'PENDING',
-    note                TEXT COMMENT 'Ghi chú từ khách hàng',
-    internal_note       TEXT COMMENT 'Ghi chú nội bộ',
-    cancel_reason       TEXT,
-    assigned_to         INT COMMENT 'employee_id xử lý đơn',
-    confirmed_by        INT COMMENT 'employee_id xác nhận',
-    confirmed_at        DATETIME,
-    prepared_at         DATETIME COMMENT 'Thời gian chuẩn bị xong',
-    shipped_at          DATETIME,
-    COMPLETED_at        DATETIME,
-    cancelled_at        DATETIME,
-    created_at          DATETIME                                                                               DEFAULT CURRENT_TIMESTAMP,
-    updated_at          DATETIME                                                                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
-    FOREIGN KEY (promotion_id) REFERENCES promotion (promotion_id),
-    FOREIGN KEY (assigned_to) REFERENCES employee (employee_id),
-    FOREIGN KEY (confirmed_by) REFERENCES employee (employee_id),
-    INDEX idx_order_code (order_code),
-    INDEX idx_customer (customer_id),
-    INDEX idx_status (status),
-    INDEX idx_payment_status (payment_status),
-    INDEX idx_created (created_at),
-    INDEX idx_assigned (assigned_to)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+CREATE TABLE `order` (
+                         order_id            INT AUTO_INCREMENT PRIMARY KEY,
+                         order_code          VARCHAR(50) NOT NULL UNIQUE,
+
+                         customer_id         INT,
+                         address_id          INT,
+                         promotion_id        INT,
+
+                         receiver_name       VARCHAR(255) NOT NULL,
+                         receiver_phone      VARCHAR(20)  NOT NULL,
+                         receiver_address    VARCHAR(500) NOT NULL,
+
+                         subtotal            DECIMAL(15,2) NOT NULL,
+                         shipping_fee        DECIMAL(10,2) DEFAULT 0,
+                         discount_amount     DECIMAL(10,2) DEFAULT 0,
+                         loyalty_points_used INT          DEFAULT 0,
+                         loyalty_discount    DECIMAL(10,2) DEFAULT 0,
+                         total_price         DECIMAL(15,2) NOT NULL,
+
+                         payment_method      ENUM('COD','VNPAY') DEFAULT 'COD',
+                         payment_status      ENUM('UNPAID','PAID','REFUNDED') DEFAULT 'UNPAID',
+                         transaction_id      VARCHAR(100),
+
+                         status              ENUM(
+                             'PENDING',
+                             'CONFIRMED',
+                             'PREPARING',
+                             'SHIPPING',
+                             'COMPLETED',
+                             'CANCELLED',
+                             'RETURNED'
+                             ) DEFAULT 'PENDING',
+
+                         note                TEXT,
+                         internal_note       TEXT,
+                         cancel_reason       TEXT,
+
+                         assigned_to         INT,
+                         confirmed_by        INT,
+
+                         confirmed_at        DATETIME,
+                         prepared_at         DATETIME,
+                         shipped_at          DATETIME,
+                         completed_at        DATETIME,
+                         cancelled_at        DATETIME,
+
+                         created_at          DATETIME DEFAULT CURRENT_TIMESTAMP,
+                         updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- ================= FOREIGN KEYS =================
+                         CONSTRAINT fk_order_customer
+                             FOREIGN KEY (customer_id) REFERENCES customer(customer_id),
+
+                         CONSTRAINT fk_order_address
+                             FOREIGN KEY (address_id) REFERENCES customer_address(address_id),
+
+                         CONSTRAINT fk_order_promotion
+                             FOREIGN KEY (promotion_id) REFERENCES promotion(promotion_id),
+
+                         CONSTRAINT fk_order_assigned
+                             FOREIGN KEY (assigned_to) REFERENCES employee(employee_id),
+
+                         CONSTRAINT fk_order_confirmed
+                             FOREIGN KEY (confirmed_by) REFERENCES employee(employee_id),
+
+    -- ================= INDEXES =================
+                         INDEX idx_order_code (order_code),
+                         INDEX idx_order_customer (customer_id),
+                         INDEX idx_order_status (status),
+                         INDEX idx_payment_status (payment_status),
+                         INDEX idx_created_at (created_at)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE order_detail
 (
@@ -609,11 +633,11 @@ CREATE TABLE attendance
 
 
 INSERT INTO role (role_name, description)
-VALUES ('Admin', 'Toàn quyền quản lý hệ thống'),
-       ('Manager', 'Quản lý cửa hàng, kho hàng'),
-       ('Staff', 'Nhân viên bán hàng, xử lý đơn hàng'),
-       ('Warehouse', 'Nhân viên kho'),
-       ('Customer', 'Khách hàng mua hàng');
+VALUES ('ADMIN', 'Toàn quyền hệ thống'),
+       ('MANAGER', 'Quản lý'),
+       ('STAFF', 'Nhân viên'),
+       ('WAREHOUSE', 'Kho'),
+       ('CUSTOMER', 'Khách hàng');
 
 -- Trigger tính tổng giá nhập kho
 DELIMITER $$
@@ -647,33 +671,36 @@ DELIMITER ;
 
 -- Trigger cập nhật thông tin khách hàng khi hoàn thành đơn hàng
 DELIMITER $$
-CREATE TRIGGER trg_order_COMPLETED
-    AFTER UPDATE
-    ON `order`
+
+CREATE TRIGGER trg_order_completed
+    AFTER UPDATE ON `order`
     FOR EACH ROW
 BEGIN
-    IF NEW.status = 'Hoàn thành' AND OLD.status != 'Hoàn thành' THEN
-        -- Cập nhật tổng chi tiêu và số đơn hàng
+    IF NEW.status = 'COMPLETED' AND OLD.status <> 'COMPLETED' THEN
+
         UPDATE customer
-        SET total_spent     = total_spent + NEW.total_price,
-            total_orders    = total_orders + 1,
-            last_order_date = NEW.COMPLETED_at
+        SET total_spent = total_spent + NEW.total_price,
+            total_orders = total_orders + 1,
+            last_order_date = NEW.completed_at
         WHERE customer_id = NEW.customer_id;
 
-        -- Thêm điểm thưởng (1 điểm cho mỗi 10,000 VNĐ)
         INSERT INTO loyalty_history (customer_id, points, type, reference_id, description)
-        VALUES (NEW.customer_id, FLOOR(NEW.total_price / 10000), 'Earned', NEW.order_id,
-                CONCAT('Tích điểm từ đơn hàng #', NEW.order_code));
+        VALUES (
+                   NEW.customer_id,
+                   FLOOR(NEW.total_price / 10000),
+                   'EARNED',
+                   NEW.order_id,
+                   CONCAT('Order ', NEW.order_code)
+               );
 
-        -- Cập nhật điểm thưởng
         UPDATE customer
         SET loyalty_points = loyalty_points + FLOOR(NEW.total_price / 10000)
         WHERE customer_id = NEW.customer_id;
+
+        CALL sp_update_customer_tier(NEW.customer_id);
     END IF;
 END$$
 DELIMITER ;
-
-
 INSERT INTO system_config (config_key, config_value, description)
 VALUES ('site_name', 'Vật Tư Y Tế ABC', 'Tên website'),
        ('site_email', 'info@vattuyteabc.com', 'Email liên hệ'),
@@ -863,10 +890,10 @@ BEGIN
 
     UPDATE customer
     SET customer_tier = CASE
-                            WHEN v_total_spent >= 50000000 THEN 'Platinum'
-                            WHEN v_total_spent >= 15000000 THEN 'Gold'
-                            WHEN v_total_spent >= 5000000 THEN 'Silver'
-                            ELSE 'Bronze'
+                            WHEN v_total_spent >= 50000000 THEN 'PLATINUM'
+                            WHEN v_total_spent >= 15000000 THEN 'GOLD'
+                            WHEN v_total_spent >= 5000000 THEN 'SILVER'
+                            ELSE 'BRONZE'
         END
     WHERE customer_id = p_customer_id;
 END$
@@ -990,24 +1017,23 @@ DELIMITER ;
 -- ===============================
 -- EMPLOYEES (Nhân viên)
 -- ===============================
-INSERT INTO employee (
-    employee_code,
-    username,
-    password_hash,
-    full_name,
-    email,
-    phone,
-    address,
-    role_id,
-    date_of_birth,
-    gender,
-    citizen_id,
-    position,
-    department,
-    hire_date,
-    salary,
-    status
-) VALUES
+INSERT INTO employee (employee_code,
+                      username,
+                      password_hash,
+                      full_name,
+                      email,
+                      phone,
+                      address,
+                      role_id,
+                      date_of_birth,
+                      gender,
+                      citizen_id,
+                      position,
+                      department,
+                      hire_date,
+                      salary,
+                      status)
+VALUES
 -- 1. ADMIN
 ('EMP001', 'admin',
  '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
@@ -1058,7 +1084,6 @@ INSERT INTO employee (
  '2021-06-01',
  12000000,
  'ACTIVE'),
-
 -- 4. STAFF 02
 ('EMP004', 'tuankiet',
  '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO',
@@ -1237,30 +1262,63 @@ VALUES (1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn Việt', 'Phường
 -- ===============================
 -- ORDERS (Đơn hàng)
 -- ===============================
-INSERT INTO `order` (order_code, customer_id, receiver_name, receiver_phone, receiver_address,
-                     subtotal, shipping_fee, discount_amount, total_price, payment_method, payment_status,
-                     status, assigned_to, confirmed_by, created_at)
-VALUES ('ORD202410010001', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn Việt, P.Tăng Nhơn Phú A, Q.9, TP.HCM', 970000,
-        30000, 0, 1000000, 'VNPAY', 'PAID', 'COMPLETED', 3, 2, '2024-10-01 08:30:00'),
-       ('ORD202410020002', 2, 'Trần Văn Nam', '0912345679', '456 Võ Văn Ngân, P.Linh Chiểu, Thủ Đức, TP.HCM', 1220000,
-        30000, 0, 1250000, 'COD', 'UNPAID', 'SHIPPING', 3, 2, '2024-10-02 09:15:00'),
-       ('ORD202410030003', 3, 'Phạm Thị Oanh', '0912345680', '789 Nguyễn Duy Trinh, P.Bình Trưng Đông, Q.2, TP.HCM',
-        2450000, 0, 100000, 2350000, 'VNPAY', 'PAID', 'COMPLETED', 4, 2, '2024-10-03 10:45:00'),
-       ('ORD202410040004', 4, 'Lê Văn Phát', '0912345681', '321 Điện Biên Phủ, P.1, Q.3, TP.HCM', 320000, 30000, 35000,
-        315000, 'VNPAY', 'PAID', 'COMPLETED', 3, 2, '2024-10-04 14:20:00'),
-       ('ORD202410050005', 5, 'Hoàng Thị Quỳnh', '0912345682', '654 Xa lộ Hà Nội, P.Hiệp Phú, Q.9, TP.HCM', 1700000,
-        30000, 0, 1730000, 'COD', 'UNPAID', 'CONFIRMED', 4, 2, '2024-10-05 11:30:00'),
-       ('ORD202410060006', 1, 'Nguyễn Thị Mai', '0912345678', '123 Lê Văn Việt, P.Tăng Nhơn Phú A, Q.9, TP.HCM', 850000,
-        30000, 0, 880000, 'COD', 'PAID', 'COMPLETED', 3, 2, '2024-10-06 15:00:00'),
-       ('ORD202410070007', 6, 'Võ Văn Sang', '0912345683', '987 Kha Vạn Cân, P.Linh Chiểu, Thủ Đức, TP.HCM', 550000,
-        30000, 0, 580000, 'VNPAY', 'PAID', 'COMPLETED', 4, 2, '2024-10-07 09:00:00'),
-       ('ORD202410080008', 7, 'Đặng Thị Tâm', '0912345684', '147 Quang Trung, P.10, Gò Vấp, TP.HCM', 240000, 30000, 0,
-        270000, 'COD', 'UNPAID', 'PENDING', 3, NULL, '2024-10-08 16:45:00'),
-       ('ORD202410090009', 8, 'Bùi Văn Út', '0912345685', '258 Phan Văn Trị, P.11, Gò Vấp, TP.HCM', 1380000, 30000, 0,
-        1410000, 'VNPAY', 'PAID', 'PREPARING', 4, 2, '2024-10-09 13:15:00'),
-       ('ORD202410100010', 9, 'Cao Thị Vân', '0912345686', '369 Hoàng Văn Thụ, P.4, Tân Bình, TP.HCM', 950000, 30000, 0,
-        980000, 'VNPAY', 'PAID', 'COMPLETED', 3, 2, '2024-10-10 10:30:00');
--- ===============================
+INSERT INTO `order` (
+    order_code, customer_id, receiver_name, receiver_phone, receiver_address,
+    subtotal, shipping_fee, discount_amount, total_price,
+    payment_method, payment_status, status,
+    assigned_to, confirmed_by, created_at
+)
+VALUES
+    ('ORD202512010001', 1, 'Nguyễn Thị Mai', '0912345678',
+     '123 Lê Văn Việt, P.Tăng Nhơn Phú A, Q.9, TP.HCM',
+     970000, 30000, 0, 1000000, 'VNPAY', 'PAID', 'COMPLETED',
+     3, 2, '2025-12-01 08:30:00'),
+
+    ('ORD202512030002', 2, 'Trần Văn Nam', '0912345679',
+     '456 Võ Văn Ngân, P.Linh Chiểu, Thủ Đức, TP.HCM',
+     1220000, 30000, 0, 1250000, 'COD', 'UNPAID', 'SHIPPING',
+     3, 2, '2025-12-03 09:15:00'),
+
+    ('ORD202512050003', 3, 'Phạm Thị Oanh', '0912345680',
+     '789 Nguyễn Duy Trinh, P.Bình Trưng Đông, Q.2, TP.HCM',
+     2450000, 0, 100000, 2350000, 'VNPAY', 'PAID', 'COMPLETED',
+     4, 2, '2025-12-05 10:45:00'),
+
+    ('ORD202512070004', 4, 'Lê Văn Phát', '0912345681',
+     '321 Điện Biên Phủ, P.1, Q.3, TP.HCM',
+     320000, 30000, 35000, 315000, 'VNPAY', 'PAID', 'COMPLETED',
+     3, 2, '2025-12-07 14:20:00'),
+
+    ('ORD202512090005', 5, 'Hoàng Thị Quỳnh', '0912345682',
+     '654 Xa lộ Hà Nội, P.Hiệp Phú, Q.9, TP.HCM',
+     1700000, 30000, 0, 1730000, 'COD', 'UNPAID', 'CONFIRMED',
+     4, 2, '2025-12-09 11:30:00'),
+
+    ('ORD202512110006', 1, 'Nguyễn Thị Mai', '0912345678',
+     '123 Lê Văn Việt, P.Tăng Nhơn Phú A, Q.9, TP.HCM',
+     850000, 30000, 0, 880000, 'COD', 'PAID', 'COMPLETED',
+     3, 2, '2025-12-11 15:00:00'),
+
+    ('ORD202512130007', 6, 'Võ Văn Sang', '0912345683',
+     '987 Kha Vạn Cân, P.Linh Chiểu, Thủ Đức, TP.HCM',
+     550000, 30000, 0, 580000, 'VNPAY', 'PAID', 'COMPLETED',
+     4, 2, '2025-12-13 09:00:00'),
+
+    ('ORD202512150008', 7, 'Đặng Thị Tâm', '0912345684',
+     '147 Quang Trung, P.10, Gò Vấp, TP.HCM',
+     240000, 30000, 0, 270000, 'COD', 'UNPAID', 'PENDING',
+     3, NULL, '2025-12-15 16:45:00'),
+
+    ('ORD202512180009', 8, 'Bùi Văn Út', '0912345685',
+     '258 Phan Văn Trị, P.11, Gò Vấp, TP.HCM',
+     1380000, 30000, 0, 1410000, 'VNPAY', 'PAID', 'PREPARING',
+     4, 2, '2025-12-18 13:15:00'),
+
+    ('ORD202512200010', 9, 'Cao Thị Vân', '0912345686',
+     '369 Hoàng Văn Thụ, P.4, Tân Bình, TP.HCM',
+     950000, 30000, 0, 980000, 'VNPAY', 'PAID', 'COMPLETED',
+     3, 2, '2025-12-20 10:30:00');
+
 -- ORDER DETAILS (Chi tiết đơn hàng)
 -- ===============================
 INSERT INTO order_detail (order_id, device_id, device_name, quantity, unit_price)
@@ -1319,21 +1377,18 @@ VALUES (1, 'MD001', 1, 5, 'Máy đo rất chính xác, dễ sử dụng. Giao h�
 -- ===============================
 -- STOCK IMPORT (Nhập kho)
 -- ===============================
-INSERT INTO stock_import (
-    import_code,
-    supplier_id,
-    import_date,
-    total_amount,
-    status,
-    created_by,
-    approved_by,
-    approved_at
-)
-VALUES
-('IMP202409010001', 1, '2024-09-01 08:00:00', 45000000, 'COMPLETED', 1, 2, '2024-09-01 09:00:00'),
-('IMP202409150002', 2, '2024-09-15 09:30:00', 28000000, 'COMPLETED', 1, 2, '2024-09-15 10:30:00'),
-('IMP202410010003', 3, '2024-10-01 10:00:00', 35000000, 'COMPLETED', 1, 2, '2024-10-01 11:00:00'),
-('IMP202410080004', 1, '2024-10-08 14:00:00', 52000000, 'PENDING', 1, NULL, NULL);
+INSERT INTO stock_import (import_code,
+                          supplier_id,
+                          import_date,
+                          total_amount,
+                          status,
+                          created_by,
+                          approved_by,
+                          approved_at)
+VALUES ('IMP202409010001', 1, '2024-09-01 08:00:00', 45000000, 'COMPLETED', 1, 2, '2024-09-01 09:00:00'),
+       ('IMP202409150002', 2, '2024-09-15 09:30:00', 28000000, 'COMPLETED', 1, 2, '2024-09-15 10:30:00'),
+       ('IMP202410010003', 3, '2024-10-01 10:00:00', 35000000, 'COMPLETED', 1, 2, '2024-10-01 11:00:00'),
+       ('IMP202410080004', 1, '2024-10-08 14:00:00', 52000000, 'PENDING', 1, NULL, NULL);
 -- ===============================
 -- STOCK IMPORT DETAILS (Chi tiết nhập kho)
 -- ===============================
@@ -1457,19 +1512,18 @@ VALUES ('Làm thế nào để đặt hàng?',
 -- CONTACT MESSAGES (Tin nhắn liên hệ)
 -- ===============================
 INSERT INTO contact_message (customer_id, name, email, phone, subject, message, status, assigned_to, created_at)
-VALUES
-(1, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0912345678',
- 'Hỏi về sản phẩm',
- 'Cho tôi hỏi máy đo huyết áp Omron có bảo hành bao lâu?',
- 'Resolved', 3, '2024-10-01 15:00:00'),
-(NULL, 'Trần Văn Bình', 'binh.tran@gmail.com', '0987654321',
- 'Khiếu nại giao hàng',
- 'Đơn hàng của tôi giao chậm 3 ngày so với dự kiến',
- 'Processing', 3, '2024-10-05 10:00:00'),
-(4, 'Lê Văn Phát', 'phat.le@gmail.com', '0912345681',
- 'Hỏi về khuyến mãi',
- 'Mã giảm giá WELCOME10 có áp dụng cho tất cả sản phẩm không?',
- 'New', NULL, '2024-10-08 14:00:00');
+VALUES (1, 'Nguyễn Thị Mai', 'mai.nguyen@gmail.com', '0912345678',
+        'Hỏi về sản phẩm',
+        'Cho tôi hỏi máy đo huyết áp Omron có bảo hành bao lâu?',
+        'Resolved', 3, '2024-10-01 15:00:00'),
+       (NULL, 'Trần Văn Bình', 'binh.tran@gmail.com', '0987654321',
+        'Khiếu nại giao hàng',
+        'Đơn hàng của tôi giao chậm 3 ngày so với dự kiến',
+        'Processing', 3, '2024-10-05 10:00:00'),
+       (4, 'Lê Văn Phát', 'phat.le@gmail.com', '0912345681',
+        'Hỏi về khuyến mãi',
+        'Mã giảm giá WELCOME10 có áp dụng cho tất cả sản phẩm không?',
+        'New', NULL, '2024-10-08 14:00:00');
 -- ===============================
 -- EMPLOYEE SCHEDULE (Lịch làm việc)
 -- ===============================
@@ -1788,25 +1842,30 @@ FROM `order`
 WHERE status = 'Hoàn thành';
 -- =============================================
 -- 1. Sửa columns cho phép NULL
-ALTER TABLE customer 
-MODIFY COLUMN password_hash VARCHAR(255) NULL,
-MODIFY COLUMN username VARCHAR(100) NULL;
+ALTER TABLE customer
+    MODIFY COLUMN password_hash VARCHAR(255) NULL,
+    MODIFY COLUMN username VARCHAR(100) NULL;
 
 -- 2. Thêm OAuth2 columns
-ALTER TABLE customer 
-ADD COLUMN provider VARCHAR(20) COMMENT 'LOCAL, GOOGLE, FACEBOOK' AFTER password_hash,
-ADD COLUMN provider_id VARCHAR(255) COMMENT 'OAuth2 Provider ID' AFTER provider,
-ADD COLUMN has_custom_password BOOLEAN DEFAULT FALSE AFTER provider_id;
+ALTER TABLE customer
+    ADD COLUMN provider            VARCHAR(20) COMMENT 'LOCAL, GOOGLE, FACEBOOK' AFTER password_hash,
+    ADD COLUMN provider_id         VARCHAR(255) COMMENT 'OAuth2 Provider ID' AFTER provider,
+    ADD COLUMN has_custom_password BOOLEAN DEFAULT FALSE AFTER provider_id;
 
 -- 3. Thêm indexes
-CREATE INDEX idx_provider ON customer(provider);
-CREATE INDEX idx_provider_id ON customer(provider_id);
+CREATE INDEX idx_provider ON customer (provider);
+CREATE INDEX idx_provider_id ON customer (provider_id);
 
 -- 4. Update existing data
-UPDATE customer 
-SET provider = 'LOCAL', 
-    has_custom_password = TRUE 
-WHERE provider IS NULL AND password_hash IS NOT NULL;
+UPDATE customer
+SET provider            = 'LOCAL',
+    has_custom_password = TRUE
+WHERE provider IS NULL
+  AND password_hash IS NOT NULL;
+  
+  ALTER TABLE medical_device
+ADD COLUMN image_public_id VARCHAR(255)
+COMMENT 'Cloudinary public id';
 -- =============================================
 -- =============================================
 -- KẾT THÚC SCRIPT

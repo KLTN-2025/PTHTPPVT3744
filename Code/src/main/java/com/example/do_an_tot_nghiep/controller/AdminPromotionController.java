@@ -1,7 +1,6 @@
 package com.example.do_an_tot_nghiep.controller;
 
 import com.example.do_an_tot_nghiep.model.*;
-import com.example.do_an_tot_nghiep.service.PromotionService;
 import com.example.do_an_tot_nghiep.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -199,7 +199,7 @@ public class AdminPromotionController {
 
             // Save categories
             if (categoryIds != null && !categoryIds.isEmpty() &&
-                    promotion.getApplicableTo() == Promotion.ApplicableTo.Category) {
+                    promotion.getApplicableTo() == Promotion.ApplicableTo.CATEGORY) {
                 for (Integer categoryId : categoryIds) {
                     Category category = categoryRepository.findById((int) categoryId.longValue()).orElse(null);
                     if (category != null) {
@@ -214,7 +214,7 @@ public class AdminPromotionController {
 
             // Save products
             if (productIds != null && !productIds.isEmpty() &&
-                    promotion.getApplicableTo() == Promotion.ApplicableTo.Product) {
+                    promotion.getApplicableTo() == Promotion.ApplicableTo.PRODUCT) {
                 for (String productId : productIds) {
                     MedicalDevice device = deviceRepository.findById(productId).orElse(null);
                     if (device != null) {

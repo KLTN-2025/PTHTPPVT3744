@@ -1,6 +1,9 @@
 package com.example.do_an_tot_nghiep.repository;
 
 import com.example.do_an_tot_nghiep.model.StockImport;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +24,10 @@ public interface IStockImportRepository extends JpaRepository<StockImport, Integ
             "WHERE supplier_id = :supplierId AND status = 'COMPLETED'",
             nativeQuery = true)
     BigDecimal sumTotalAmountBySupplierIdAndStatusCompleted(@Param("supplierId") Integer supplierId);
+
+    Page<StockImport> findAll(Specification<StockImport> spec, Pageable pageable);
+
+    Long countByImportCodeStartingWith(String s);
+
+    Long countByStatus(StockImport.ImportStatus status);
 }

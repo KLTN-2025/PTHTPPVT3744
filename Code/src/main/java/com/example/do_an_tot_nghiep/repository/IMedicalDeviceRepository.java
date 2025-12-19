@@ -92,4 +92,8 @@ public interface IMedicalDeviceRepository extends JpaRepository<MedicalDevice, S
     List<MedicalDevice> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String searchTerm, String searchTerm1);
 
     List<MedicalDevice> findTop20ByStatusOrderByViewCountDesc(MedicalDevice.DeviceStatus deviceStatus);
+
+    List<MedicalDevice> searchByName(String keyword);
+
+    List<MedicalDevice> findByStatusOrderByNameAsc(MedicalDevice.DeviceStatus deviceStatus);
 }

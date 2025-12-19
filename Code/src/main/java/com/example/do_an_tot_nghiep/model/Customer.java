@@ -68,6 +68,7 @@ public class Customer {
     @Column(name = "gender", length = 10)
     private Gender gender;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "customer_tier", length = 20, nullable = false)
     private CustomerTier customerTier = CustomerTier.BRONZE;
@@ -115,7 +116,7 @@ public class Customer {
         LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
-
+        customerTier = CustomerTier.BRONZE;
         if (customerCode == null) {
             customerCode = "CUST" + System.currentTimeMillis();
         }

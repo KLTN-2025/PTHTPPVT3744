@@ -113,31 +113,32 @@ public class PromotionService {
             return false;
         }
 
-        // Trường hợp 1: Khuyến mãi áp dụng cho tất cả
-        if (promotion.getApplicableTo() == Promotion.ApplicableTo.All) {
+        // 1️⃣ Áp dụng cho tất cả
+        if (promotion.getApplicableTo() == Promotion.ApplicableTo.ALL) {
             return true;
         }
 
-        // Trường hợp 2: Khuyến mãi áp dụng cho danh mục cụ thể
-        if (promotion.getApplicableTo() == Promotion.ApplicableTo.Category) {
-            List<PromotionCategory> promotionCategories = promotionCategoryRepository.findByPromotion(promotion);
-            return promotionCategories.stream()
-                    .anyMatch(pc -> pc.getCategory() != null &&
-                            pc.getCategory().getCategoryId().equals(categoryId.longValue()));
+        // 2️⃣ Áp dụng theo danh mục
+        if (promotion.getApplicableTo() == Promotion.ApplicableTo.CATEGORY) {
+            return promotionCategoryRepository.findByPromotion(promotion)
+                    .stream()
+                    .anyMatch(pc ->
+                            pc.getCategory() != null &&
+                                    pc.getCategory().getCategoryId().equals(categoryId.longValue())
+                    );
         }
-
-        // Trường hợp 3: Khuyến mãi áp dụng cho sản phẩm cụ thể
-        if (promotion.getApplicableTo() == Promotion.ApplicableTo.Product) {
-            List<PromotionProduct> promotionProducts = promotionProductRepository.findByPromotion(promotion);
-            return promotionProducts.stream()
-                    .anyMatch(pp -> pp.getDevice() != null &&
-                            pp.getDevice().getCategory() != null &&
-                            pp.getDevice().getCategory().getCategoryId().equals(categoryId.longValue()));
+        // 3️⃣ Áp dụng theo sản phẩm
+        if (promotion.getApplicableTo() == Promotion.ApplicableTo.PRODUCT) {
+            return promotionProductRepository.findByPromotion(promotion)
+                    .stream()
+                    .anyMatch(pp ->
+                            pp.getDevice() != null &&
+                                    pp.getDevice().getCategory() != null &&
+                                    pp.getDevice().getCategory().getCategoryId().equals(categoryId.longValue())
+                    );
         }
-
         return false;
     }
-
     // =============================================
     // PHẦN CŨ: ÁP DỤNG MÃ GIẢM GIÁ
     // =============================================
@@ -169,9 +170,11 @@ public class PromotionService {
         }
 
         // Check customer tier
-        if (!promotion.getCustomerTier().equals(Promotion.CustomerTier.All) &&
-                !customer.getCustomerTier().name().equals(promotion.getCustomerTier().name())) {
-            return buildFailureResponse("Mã này chỉ dành cho khách hàng hạng " + promotion.getCustomerTier());
+        if (promotion.getCustomerTier() != Promotion.CustomerTier.ALL &&
+                customer.getCustomerTier() != Customer.CustomerTier.valueOf(promotion.getCustomerTier().name())) {
+            return buildFailureResponse(
+                    "Mã này chỉ dành cho khách hàng hạng " + promotion.getCustomerTier()
+            );
         }
 
         // Check minimum order amount
@@ -208,24 +211,44 @@ public class PromotionService {
      * Tính toán số tiền giảm giá
      */
     private BigDecimal calculateDiscount(Promotion promotion, BigDecimal orderAmount) {
-        BigDecimal discount;
 
-        if (promotion.getDiscountType().equals(Promotion.DiscountType.Percent)) {
-            discount = orderAmount.multiply(promotion.getDiscountValue())
-                    .divide(new BigDecimal("100"));
+        if (promotion == null || orderAmount == null) {
+            return BigDecimal.ZERO;
+        }
 
-            if (promotion.getMaxDiscountAmount() != null &&
-                    discount.compareTo(promotion.getMaxDiscountAmount()) > 0) {
-                discount = promotion.getMaxDiscountAmount();
-            }
-        } else if (promotion.getDiscountType().equals(Promotion.DiscountType.Fixed)) {
-            discount = promotion.getDiscountValue();
-        } else { // FreeShip
-            discount = new BigDecimal("30000"); // Default shipping fee
+        BigDecimal discount = BigDecimal.ZERO;
+
+        switch (promotion.getDiscountType()) {
+
+            case PERCENT:
+                discount = orderAmount
+                        .multiply(promotion.getDiscountValue())
+                        .divide(BigDecimal.valueOf(100));
+
+                if (promotion.getMaxDiscountAmount() != null &&
+                        discount.compareTo(promotion.getMaxDiscountAmount()) > 0) {
+                    discount = promotion.getMaxDiscountAmount();
+                }
+                break;
+
+            case FIXED:
+                discount = promotion.getDiscountValue();
+                break;
+
+            case FREESHIP:
+                // Có thể lấy từ config sau này
+                discount = BigDecimal.valueOf(30000);
+                break;
+        }
+
+        // Không cho giảm âm
+        if (discount.compareTo(BigDecimal.ZERO) < 0) {
+            discount = BigDecimal.ZERO;
         }
 
         return discount;
     }
+
 
     /**
      * Ghi nhận việc sử dụng khuyến mãi
