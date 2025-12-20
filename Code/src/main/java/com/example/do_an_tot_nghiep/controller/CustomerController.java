@@ -193,7 +193,7 @@ public class CustomerController {
 
     /**
      * ============================================
-     * UPDATE PROFILE
+     * UPDATE PROFILE - ĐÃ SỬA
      * ============================================
      */
     @PostMapping("/profile/update")
@@ -207,28 +207,58 @@ public class CustomerController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Get current customer (hỗ trợ cả LOCAL và OAuth2)
             Customer customer = getCustomerFromPrincipal(principal);
             customer = customerRepository.findById(customer.getCustomerId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
 
-            // Update information
+            // Validate dateOfBirth
+            if (dateOfBirth != null) {
+                // Kiểm tra ngày trong tương lai
+                if (dateOfBirth.isAfter(LocalDate.now())) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Ngày sinh không được là ngày trong tương lai!");
+                    return "redirect:/customer/profile";
+                }
+
+                // Kiểm tra tuổi tối thiểu 13
+                LocalDate minDate = LocalDate.now().minusYears(13);
+                if (dateOfBirth.isAfter(minDate)) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Bạn phải đủ 13 tuổi để sử dụng dịch vụ!");
+                    return "redirect:/customer/profile";
+                }
+
+                // Kiểm tra tuổi tối đa 150
+                LocalDate maxDate = LocalDate.now().minusYears(150);
+                if (dateOfBirth.isBefore(maxDate)) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Ngày sinh không hợp lệ!");
+                    return "redirect:/customer/profile";
+                }
+
+                customer.setDateOfBirth(dateOfBirth);
+            }
+
+            // Validate gender
+            if (gender != null && !gender.isEmpty()) {
+                try {
+                    Customer.Gender genderEnum = Customer.Gender.valueOf(gender.toUpperCase());
+                    customer.setGender(genderEnum);
+                } catch (IllegalArgumentException e) {
+                    redirectAttributes.addFlashAttribute("error", "Giới tính không hợp lệ!");
+                    return "redirect:/customer/profile";
+                }
+            }
+
             customer.setFullName(fullName);
             customer.setPhone(phone);
             customer.setAddress(address);
 
-            if (dateOfBirth != null) {
-                customer.setDateOfBirth(dateOfBirth);
-            }
-
-            if (gender != null && !gender.isEmpty()) {
-                customer.setGender(Customer.Gender.valueOf(gender));
-            }
-
             customerRepository.save(customer);
-
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công!");
+
         } catch (Exception e) {
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật: " + e.getMessage());
         }
 

@@ -1524,14 +1524,16 @@
                     -<span th:text="${product.discountPercent}">0</span>%
                 </div>
 
-                <div class="product-image">
+                <a th:href="@{/products/{id}(id=${product.deviceId})}" class="product-image">
                     <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" th:alt="${product.name}">
                     <i th:unless="${product.imageUrl}" class="fas fa-heartbeat"></i>
-                </div>
+                </a>
 
                 <div class="product-info">
                     <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
-                    <h4 th:text="${product.name}">Product Name</h4>
+                    <h4>
+                        <a th:href="@{/products/{id}(id=${product.deviceId})}" th:text="${product.name}">Product Name</a>
+                    </h4>
                     <div class="product-rating">
                         <span th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
                         <i class="fas fa-star text-warning"></i>
@@ -1586,14 +1588,16 @@
             <div class="product-card" th:each="product : ${newProducts}">
                 <div class="product-badge new">MỚI</div>
 
-                <div class="product-image">
+                <a th:href="@{/products/{id}(id=${product.deviceId})}" class="product-image">
                     <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" th:alt="${product.name}">
                     <i th:unless="${product.imageUrl}" class="fas fa-heartbeat"></i>
-                </div>
+                </a>
 
                 <div class="product-info">
                     <div class="product-brand" th:if="${product.brand}" th:text="${product.brand.name}">Brand</div>
-                    <h4 th:text="${product.name}"></h4>
+                    <h4>
+                        <a th:href="@{/products/{id}(id=${product.deviceId})}" th:text="${product.name}">Product Name</a>
+                    </h4>
 
                     <div class="product-rating" th:if="${product.averageRating != null}">
                         <div class="stars" th:utext="${@helper.createStars(product.averageRating)}">★★★★★</div>

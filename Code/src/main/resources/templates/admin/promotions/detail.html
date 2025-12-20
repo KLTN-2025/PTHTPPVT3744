@@ -238,7 +238,7 @@
                     <td th:text="${#temporals.format(usage.usedAt, 'dd/MM/yyyy HH:mm')}">Date</td>
                     <td th:text="${usage.customer.fullName}">Customer</td>
                     <td>
-                      <a th:href="@{/admin/orders/detail/{id}(id=${usage.order.orderId})}"
+                      <a th:href="@{/admin/orders/view/{id}(id=${usage.order.orderId})}"
                          th:text="${usage.order.orderCode}">
                         Order
                       </a>

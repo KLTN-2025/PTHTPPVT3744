@@ -106,12 +106,12 @@
                       <div class="form-group">
                         <label>Loại giảm giá <span class="text-danger">*</span></label>
                         <select name="discountType" class="form-control" id="discountType" required>
+                          <option value="">-- Chọn loại giảm giá --</option>
                           <option th:each="type : ${discountTypes}"
                                   th:value="${type.name()}"
-                                  th:selected="${promotion.discountType != null && promotion.discountType.name() == type.name()}">
-                            <span th:if="${type.name() == 'Percent'}">Giảm theo %</span>
-                            <span th:if="${type.name() == 'Fixed'}">Giảm cố định</span>
-                            <span th:if="${type.name() == 'FreeShip'}">Miễn phí ship</span>
+                                  th:selected="${promotion.discountType != null && promotion.discountType.name() == type.name()}"
+                                  th:text="${type.name() == 'PERCENT' ? 'Giảm theo %' :
+                             (type.name() == 'FIXED' ? 'Giảm cố định' : 'Miễn phí ship')}">
                           </option>
                         </select>
                       </div>
@@ -157,12 +157,12 @@
                   <div class="form-group">
                     <label>Đối tượng áp dụng</label>
                     <select name="applicableTo" class="form-control" id="applicableTo">
+                      <option value="">-- Chọn đối tượng --</option>
                       <option th:each="opt : ${applicableToOptions}"
                               th:value="${opt.name()}"
-                              th:selected="${promotion.applicableTo != null && promotion.applicableTo.name() == opt.name()}">
-                        <span th:if="${opt.name() == 'All'}">Tất cả sản phẩm</span>
-                        <span th:if="${opt.name() == 'Category'}">Theo danh mục</span>
-                        <span th:if="${opt.name() == 'Product'}">Theo sản phẩm</span>
+                              th:selected="${promotion.applicableTo != null && promotion.applicableTo.name() == opt.name()}"
+                              th:text="${opt.name() == 'ALL' ? 'Tất cả sản phẩm' :
+                         (opt.name() == 'CATEGORY' ? 'Theo danh mục' : 'Theo sản phẩm')}">
                       </option>
                     </select>
                   </div>

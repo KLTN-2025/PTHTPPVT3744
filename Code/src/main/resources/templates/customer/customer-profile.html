@@ -338,11 +338,11 @@
                             <div class="info-label">
                                 <i class="fas fa-venus-mars text-primary"></i> Giới tính
                             </div>
-                            <div class="info-value"
-                                 th:text="${customer.gender == 'MALE' ? 'Nam' :
-                                   (customer.gender == 'FEMALE' ? 'Nữ' :
-                                   (customer.gender == 'OTHER' ? 'Khác' : 'Chưa cập nhật'))}">
-                                Không xác định
+                            <div class="info-value">
+                                <span th:if="${customer.gender == null}">Chưa cập nhật</span>
+                                <span th:if="${customer.gender != null && customer.gender.name() == 'MALE'}">Nam</span>
+                                <span th:if="${customer.gender != null && customer.gender.name() == 'FEMALE'}">Nữ</span>
+                                <span th:if="${customer.gender != null && customer.gender.name() == 'OTHER'}">Khác</span>
                             </div>
                         </div>
 
@@ -401,16 +401,31 @@
                                th:value="${customer.address}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Ngày sinh</label>
-                        <input type="date" class="form-control" name="dateOfBirth"
-                               th:value="${customer.dateOfBirth}">
+                        <label class="form-label">Ngày sinh <span class="text-danger">*</span></label>
+                        <input type="date"
+                               class="form-control"
+                               name="dateOfBirth"
+                               th:value="${customer.dateOfBirth}"
+                               id="dateOfBirthInput"
+                               required>
+                        <small class="text-muted">Bạn phải đủ 13 tuổi để sử dụng dịch vụ</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Giới tính</label>
-                        <select class="form-select" name="gender">
-                            <option value="MALE" th:selected="${customer.gender == 'MALE'}">Nam</option>
-                            <option value="FEMALE" th:selected="${customer.gender == 'FEMALE'}">Nữ</option>
-                            <option value="OTHER" th:selected="${customer.gender == 'OTHER'}">Khác</option>
+                        <label class="form-label">Giới tính <span class="text-danger">*</span></label>
+                        <select class="form-select" name="gender" required>
+                            <option value="">-- Chọn giới tính --</option>
+                            <option value="MALE"
+                                    th:selected="${customer.gender != null && customer.gender.name() == 'MALE'}">
+                                Nam
+                            </option>
+                            <option value="FEMALE"
+                                    th:selected="${customer.gender != null && customer.gender.name() == 'FEMALE'}">
+                                Nữ
+                            </option>
+                            <option value="OTHER"
+                                    th:selected="${customer.gender != null && customer.gender.name() == 'OTHER'}">
+                                Khác
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -596,6 +611,74 @@
             alert.classList.remove('show');
         });
     }, 3000);
+
+    // ============================================
+    // VALIDATION NGÀY SINH VÀ GIỚI TÍNH
+    // ============================================
+    // Set max và min cho input ngày sinh
+    const dateInput = document.getElementById('dateOfBirthInput');
+    if (dateInput) {
+        // Max = hôm nay
+        const today = new Date();
+        const maxDate = today.toISOString().split('T')[0];
+        dateInput.setAttribute('max', maxDate);
+
+        // Min = 150 năm trước
+        const minDateObj = new Date();
+        minDateObj.setFullYear(minDateObj.getFullYear() - 150);
+        const minDate = minDateObj.toISOString().split('T')[0];
+        dateInput.setAttribute('min', minDate);
+
+        // Validate khi thay đổi
+        dateInput.addEventListener('change', function(e) {
+            const selectedDate = new Date(e.target.value);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+
+            // Kiểm tra ngày trong tương lai
+            if (selectedDate > todayDate) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Không được chọn ngày sinh trong tương lai!'
+                });
+                e.target.value = '';
+                return;
+            }
+
+            // Kiểm tra tuổi tối thiểu (13 tuổi)
+            const minAgeDate = new Date();
+            minAgeDate.setFullYear(minAgeDate.getFullYear() - 13);
+            minAgeDate.setHours(0, 0, 0, 0);
+
+            if (selectedDate > minAgeDate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cảnh báo!',
+                    text: 'Bạn phải đủ 13 tuổi để sử dụng dịch vụ!'
+                });
+                e.target.value = '';
+                return;
+            }
+        });
+    }
+
+    // Validate form trước khi submit
+    const editForm = document.querySelector('#editProfileModal form');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            const genderSelect = document.querySelector('select[name="gender"]');
+            if (!genderSelect.value) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Vui lòng chọn giới tính!'
+                });
+                return false;
+            }
+        });
+    }
 </script>
 </body>
 </html>
