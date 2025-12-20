@@ -237,67 +237,79 @@
                             </div>
 
                             <!-- Thông tin công việc -->
-                            <!-- Chỉ admin được sửa -->
-                            <div class="col-md-6 mb-3">
-                                <label>Chức vụ</label>
-                                <input type="text"
-                                       class="form-control"
-                                       th:field="*{position}"
-                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
-                                       placeholder="VD: Nhân viên, Trưởng phòng...">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Phòng ban</label>
-                                <input type="text"
-                                       class="form-control"
-                                       th:field="*{department}"
-                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
-                                       placeholder="VD: IT, Kế toán, Nhân sự...">
-                            </div>
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-briefcase"></i>
+                                    Thông tin công việc
+                                </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label>Ngày vào làm</label>
-                                <input type="date"
-                                       class="form-control"
-                                       th:field="*{hireDate}"
-                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
-                                       th:max="${T(java.time.LocalDate).now()}">
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Chức vụ</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{position}"
+                                               placeholder="VD: Nhân viên, Trưởng phòng...">
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label>Lương cơ bản</label>
-                                <input type="number"
-                                       class="form-control"
-                                       th:field="*{salary}"
-                                       th:readonly="${currentEmployee.roleName != 'ADMIN'}"
-                                       placeholder="0">
-                            </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Phòng ban</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{department}"
+                                               placeholder="VD: IT, Kế toán, Nhân sự...">
+                                    </div>
+                                </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label>Vai trò</label>
-                                <select class="form-control"
-                                        th:field="*{roleId}"
-                                        th:disabled="${currentEmployee.roleName != 'ADMIN'}"
-                                        required>
-                                    <option th:each="role : ${roles}"
-                                            th:value="${role.roleId}"
-                                            th:text="${role.roleName}"></option>
-                                </select>
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Ngày vào làm</label>
+                                        <input type="date"
+                                               class="form-control"
+                                               th:field="*{hireDate}"
+                                               th:max="${T(java.time.LocalDate).now()}">
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label>Trạng thái</label>
-                                <select class="form-control"
-                                        th:field="*{status}"
-                                        th:disabled="${currentEmployee.roleName != 'ADMIN'}"
-                                        required>
-                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ACTIVE}">Đang làm việc</option>
-                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ON_LEAVE}">Nghỉ phép</option>
-                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).RESIGNED}">Đã nghỉ việc</option>
-                                    <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).TERMINATED}">Đã sa thải</option>
-                                </select>
-                            </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Lương cơ bản</label>
+                                        <div class="salary-input-group">
+                                            <input type="number"
+                                                   class="form-control"
+                                                   th:field="*{salary}"
+                                                   placeholder="0"
+                                                   min="0"
+                                                   step="100000">
+                                            <span class="salary-unit">VNĐ</span>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Vai trò</label>
+                                        <select class="form-control"
+                                                th:field="*{roleId}"
+                                                required>
+                                            <option value="">-- Chọn vai trò --</option>
+                                            <option th:each="role : ${roles}"
+                                                    th:value="${role.roleId}"
+                                                    th:text="${role.roleName}"></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="required-field">Trạng thái</label>
+                                        <select class="form-control"
+                                                th:field="*{status}"
+                                                required>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ACTIVE}">Đang làm việc</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).ON_LEAVE}">Nghỉ phép</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).RESIGNED}">Đã nghỉ việc</option>
+                                            <option th:value="${T(com.example.do_an_tot_nghiep.model.Employee.EmployeeStatus).TERMINATED}">Đã sa thải</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Thông tin tài khoản (chỉ hiện khi thêm mới) -->
                             <div class="form-section" th:if="${employee.employeeId == null}">

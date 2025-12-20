@@ -695,80 +695,411 @@
             color: #bdc3c7;
         }
 
-        /* Chatbot */
+        /* Chatbot Button */
         .chatbot-button {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 60px;
-            height: 60px;
-            background: #0066cc;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
-            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+            border: 3px solid white;
         }
 
         .chatbot-button:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.5);
+        }
+
+        .chatbot-button:active {
+            transform: scale(0.95);
         }
 
         .chatbot-button i {
             color: white;
-            font-size: 28px;
+            font-size: 30px;
+            animation: pulse 2s ease-in-out infinite;
         }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Chatbot Box */
         .chatbot-box {
             position: fixed;
             bottom: 110px;
             right: 30px;
-            width: 320px;
-            height: 420px;
+            width: 400px;
+            height: 600px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.25);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             display: none;
             flex-direction: column;
             z-index: 1000;
+            overflow: hidden;
+            animation: slideUp 0.3s ease-out;
         }
 
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
         .chatbot-header {
-            background: #0066cc;
+            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
             color: white;
-            padding: 10px;
-            font-weight: bold;
+            padding: 18px 20px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .chatbot-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chatbot-avatar {
+            width: 42px;
+            height: 42px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0066cc;
+            font-size: 20px;
+        }
+
+        .chatbot-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .chatbot-status {
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .close-btn {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            font-size: 20px;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Messages Area */
         .chatbot-messages {
             flex: 1;
-            padding: 10px;
+            padding: 20px;
             overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
             font-size: 14px;
         }
 
+        .message-user .message-avatar {
+            background: #0066cc;
+            color: white;
+        }
+
+        .message-bot .message-avatar {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message-user .message-content {
+            background: #0066cc;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bot .message-content {
+            background: white;
+            color: #1f2937;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-content a {
+            color: inherit;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+
+        .message-user .message-content a {
+            color: #e0f2fe;
+        }
+
+        .message-bot .message-content a {
+            color: #0066cc;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .welcome-message i {
+            font-size: 48px;
+            color: #0066cc;
+            margin-bottom: 12px;
+        }
+
+        .welcome-message h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .welcome-message p {
+            font-size: 14px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .quick-action-btn {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .quick-action-btn:hover {
+            background: #e5e7eb;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+
+        /* Input Area */
         .chatbot-input {
             display: flex;
-            border-top: 1px solid #ddd;
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            gap: 10px;
         }
 
         .chatbot-input input {
             flex: 1;
-            border: none;
-            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 12px 18px;
             outline: none;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .chatbot-input input:focus {
+            border-color: #0066cc;
         }
 
         .chatbot-input button {
             border: none;
-            background: #0066cc;
+            background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
             color: white;
-            padding: 0 16px;
+            padding: 0 24px;
+            border-radius: 24px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chatbot-input button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .chatbot-input button:active {
+            transform: translateY(0);
+        }
+
+        .chatbot-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin: 4px 0;
+            border-left: 3px solid #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-box {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 140px);
+                right: 20px;
+                bottom: 100px;
+            }
+
+            .chatbot-button {
+                right: 20px;
+                bottom: 20px;
+            }
         }
         .empty-state {
             text-align: center;
@@ -889,6 +1220,166 @@
                 left: 10px;
                 max-width: none;
             }
+        }
+        /* Product Card in Chat */
+        .chat-product-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 8px 0;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .chat-product-card:hover {
+            border-color: #0066cc;
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .chat-product-image {
+            width: 100%;
+            height: 180px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-product-image i {
+            font-size: 48px;
+            color: #cbd5e1;
+        }
+
+        .chat-product-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .chat-product-info {
+            padding: 12px;
+        }
+
+        .chat-product-brand {
+            color: #0066cc;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .chat-product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .chat-product-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .chat-product-rating i {
+            color: #fbbf24;
+        }
+
+        .chat-product-price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .chat-product-current-price {
+            color: #ff4444;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-product-original-price {
+            color: #9ca3af;
+            font-size: 13px;
+            text-decoration: line-through;
+        }
+
+        .chat-product-stock {
+            color: #10b981;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chat-product-stock i {
+            font-size: 11px;
+        }
+
+        .chat-product-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chat-product-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .chat-product-btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .chat-product-btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .chat-product-btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+
+        .chat-product-btn-secondary:hover {
+            background: #e5e7eb;
         }
     </style>
 </head>
@@ -1286,24 +1777,65 @@
     <i class="fas fa-comments"></i>
 </div>
 
+<!-- Chatbot Button -->
+<div class="chatbot-button" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+</div>
+
+<!-- Chatbot Box -->
+<div class="chatbot-button" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+</div>
+
 <!-- Chatbot Box -->
 <div class="chatbot-box" id="chatbotBox">
     <div class="chatbot-header">
-        Vật Tư Y Tế ABC - Hỗ trợ AI
-        <span onclick="toggleChat()">✖</span>
+        <div class="chatbot-header-left">
+            <div class="chatbot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="chatbot-title">
+                <div class="chatbot-name">Trợ lý AI</div>
+                <div class="chatbot-status">
+                    <span class="status-dot"></span>
+                    Đang hoạt động
+                </div>
+            </div>
+        </div>
+        <div class="close-btn" onclick="toggleChat()">✖</div>
     </div>
 
-    <div class="chatbot-messages" id="chatMessages"></div>
+    <div class="quick-actions">
+        <button class="quick-action-btn" onclick="sendQuickMessage('Tư vấn sản phẩm')">
+            <i class="fas fa-box"></i> Tư vấn sản phẩm
+        </button>
+        <button class="quick-action-btn" onclick="sendQuickMessage('Chính sách đổi trả')">
+            <i class="fas fa-sync"></i> Chính sách
+        </button>
+        <button class="quick-action-btn" onclick="sendQuickMessage('Liên hệ')">
+            <i class="fas fa-phone"></i> Liên hệ
+        </button>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages">
+        <div class="welcome-message">
+            <i class="fas fa-comments"></i>
+            <h3>Xin chào!</h3>
+            <p>Tôi là trợ lý AI của Vật Tư Y Tế ABC. Tôi có thể giúp gì cho bạn?</p>
+        </div>
+    </div>
 
     <div class="chatbot-input">
-        <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." />
-        <button onclick="sendMessage()">Gửi</button>
+        <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." onkeypress="handleKeyPress(event)" />
+        <button onclick="sendMessage()" id="sendButton">
+            <i class="fas fa-paper-plane"></i>
+            Gửi
+        </button>
     </div>
 </div>
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
 
+<script th:inline="javascript">
     // ==================== SLIDER FUNCTIONALITY ====================
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
@@ -1332,44 +1864,322 @@
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => showSlide(index));
     });
+
+    // ==================== CHATBOT FUNCTIONALITY ====================
+    function toggleChat() {
+        const box = document.getElementById("chatbotBox");
+        if (box.style.display === "flex") {
+            box.style.display = "none";
+        } else {
+            box.style.display = "flex";
+            document.getElementById("chatInput").focus();
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendQuickMessage(text) {
+        document.getElementById("chatInput").value = text;
+        sendMessage();
+    }
+
     function linkify(text) {
         const urlRegex = /(https?:\/\/[^\s"'<>]+)/g;
         return text.replace(urlRegex, url =>
-            `<a href="${url}" target="_blank">${url}</a>`
+            `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
         );
     }
-    function toggleChat() {
-        const box = document.getElementById("chatbotBox");
-        box.style.display = box.style.display === "flex" ? "none" : "flex";
+
+    function parseProductData(message) {
+        // Parse product data from message if it contains product info
+        const productPattern = /(.+?)\s*-\s*([\d,\.]+)\s*đ/;
+        const match = message.match(productPattern);
+
+        if (!match) return null;
+
+        // Extract product link - try multiple patterns
+        let productLink = '';
+        const linkPatterns = [
+            /(https?:\/\/[^\s\)\]_]+)/g
+        ];
+
+
+        for (const pattern of linkPatterns) {
+            const linkMatch = message.match(pattern);
+            if (linkMatch && linkMatch[1]) {
+                productLink = linkMatch[1].trim();
+                break;
+            }
+        }
+
+        // Extract image URL - try multiple patterns
+        let imageUrl = '';
+        const imagePatterns = [
+            /(https?:\/\/res\.cloudinary\.com\/[^\s\)\]]+)/g
+        ];
+
+        for (const pattern of imagePatterns) {
+            const imgMatch = message.match(pattern);
+            if (imgMatch) {
+                // Try to get URL from group 2 first (markdown link), then group 1
+                imageUrl = (imgMatch[2] || imgMatch[1] || '').trim();
+                if (imageUrl && (imageUrl.includes('cloudinary') || imageUrl.includes('.jpg') || imageUrl.includes('.png'))) {
+                    break;
+                }
+            }
+        }
+
+        // Extract brand
+        const brandMatch = message.match(/Thương hiệu:\s*(.+?)(?:\n|$)/);
+        const brand = brandMatch ? brandMatch[1].trim() : '';
+
+        // Extract stock status with quantity
+        const stockMatch = message.match(/Tình trạng:\s*(.+?)(?:\n|$)/);
+        let stock = 'Còn hàng';
+        if (stockMatch) {
+            stock = stockMatch[1].trim();
+            // Remove parentheses content if exists
+            stock = stock.replace(/\([^)]*\)/, '').trim();
+        }
+
+        // Extract discount
+        const discountMatch = message.match(/-(\d+)%/);
+        const discount = discountMatch ? discountMatch[1] : null;
+
+        // Get product name - clean it up
+        let productName = match[1].trim();
+        // Remove markdown bold markers
+        productName = productName.replace(/\*\*/g, '');
+
+        return {
+            name: productName,
+            price: match[2],
+            brand: brand,
+            stock: stock,
+            link: productLink,
+            image: imageUrl,
+            discount: discount
+        };
     }
 
-    function sendMessage() {
+    function createProductCard(product) {
+        return `
+        <a href="${product.link}" target="_blank" class="chat-product-card">
+            <div class="chat-product-image">
+                ${product.image ?
+            `<img src="${product.image}" alt="${product.name}">` :
+            '<i class="fas fa-heartbeat"></i>'
+        }
+                ${product.discount ? `<div class="chat-product-badge">-${product.discount}%</div>` : ''}
+            </div>
+            <div class="chat-product-info">
+                ${product.brand ? `<div class="chat-product-brand">${product.brand}</div>` : ''}
+                <div class="chat-product-name">${product.name}</div>
+                <div class="chat-product-rating">
+                    <i class="fas fa-star"></i>
+                    <span>4.5</span>
+                    <span style="color: #9ca3af;">(120 đánh giá)</span>
+                </div>
+                <div class="chat-product-price">
+                    <span class="chat-product-current-price">${product.price}đ</span>
+                </div>
+                <div class="chat-product-stock">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${product.stock}</span>
+                </div>
+                <div class="chat-product-actions">
+                    <button class="chat-product-btn chat-product-btn-primary"
+                            onclick="event.preventDefault(); event.stopPropagation(); addToCartFromChat('${product.name.replace(/'/g, "\\'")}', '${product.price}', '${product.link}', '${product.image || ''}');">
+                        <i class="fas fa-cart-plus"></i>
+                        Thêm vào giỏ
+                    </button>
+                    <button class="chat-product-btn chat-product-btn-secondary"
+                            onclick="event.preventDefault(); event.stopPropagation(); window.open('${product.link}', '_blank');">
+                        <i class="fas fa-eye"></i>
+                        Xem chi tiết
+                    </button>
+                </div>
+            </div>
+        </a>
+    `;
+    }
+
+    function addToCartFromChat(productName, price, link, image) {
+        // Extract product ID from link
+        const productId = link.split('/').pop();
+
+        // Create product data compatible with existing cart system
+        const productData = {
+            id: productId,
+            name: productName,
+            price: parseFloat(price.replace(/,/g, '')),
+            image: image || null
+        };
+
+        // Use existing cart manager
+        if (window.cartManager) {
+            const result = cartManager.addItem(productData);
+            if (result.success) {
+                cartManager.saveCart();
+                if (window.notificationManager) {
+                    notificationManager.show(
+                        result.message,
+                        'success',
+                        result.isUpdate ? 'Đã cập nhật' : 'Thành công!'
+                    );
+                } else {
+                    alert(result.message);
+                }
+            }
+        } else {
+            alert(`Đã thêm "${productName}" vào giỏ hàng!`);
+        }
+    }
+
+    function formatMessage(text) {
+        // Format bold text
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+        // Format bullet points
+        text = text.replace(/^\* (.+)$/gm, '• $1');
+        text = text.replace(/^- (.+)$/gm, '• $1');
+
+        // Format line breaks
+        text = text.replace(/\n/g, '<br>');
+
+        // Linkify URLs
+        text = linkify(text);
+
+        return text;
+    }
+
+    function addMessage(text, isUser) {
+        const chat = document.getElementById("chatMessages");
+
+        // Remove welcome message if exists
+        const welcome = chat.querySelector('.welcome-message');
+        if (welcome) {
+            welcome.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'message message-user' : 'message message-bot';
+
+        // Check if message contains product data
+        let messageContent = text;
+        const productData = !isUser ? parseProductData(text) : null;
+
+        if (productData && productData.link) {
+            // Remove product links from text to avoid duplication
+            messageContent = text.replace(/🔗 \*\*Link sản phẩm:\*\*.+?\n/g, '');
+            messageContent = messageContent.replace(/🖼️ \*\*Hình ảnh:\*\*.+?\n/g, '');
+
+            // Format the remaining text
+            messageContent = formatMessage(messageContent);
+
+            messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+            </div>
+            <div class="message-content">
+                ${messageContent}
+                ${createProductCard(productData)}
+            </div>
+        `;
+        } else {
+            messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+            </div>
+            <div class="message-content">${formatMessage(text)}</div>
+        `;
+        }
+
+        chat.appendChild(messageDiv);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const chat = document.getElementById("chatMessages");
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message message-bot';
+        typingDiv.id = 'typing-indicator';
+        typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+        chat.appendChild(typingDiv);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    async function sendMessage() {
         const input = document.getElementById("chatInput");
         const message = input.value.trim();
+        const sendButton = document.getElementById("sendButton");
+
         if (!message) return;
 
-        const chat = document.getElementById("chatMessages");
-        chat.innerHTML += `<div><b>Bạn:</b> ${message}</div>`;
+        // Disable input while sending
+        input.disabled = true;
+        sendButton.disabled = true;
+
+        // Add user message
+        addMessage(message, true);
         input.value = "";
 
-        fetch("/api/chat/message", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                message: message
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                chat.innerHTML += `<div><b>AI:</b> ${linkify(data.message)}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-            })
-            .catch(() => {
-                chat.innerHTML += `<div style="color:red">Lỗi chatbot</div>`;
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const response = await fetch("/api/chat/message", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: message })
             });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            // Remove typing indicator
+            removeTypingIndicator();
+
+            // Add bot response
+            addMessage(data.message || 'Xin lỗi, tôi không hiểu câu hỏi của bạn.', false);
+
+        } catch (error) {
+            console.error('Chat error:', error);
+            removeTypingIndicator();
+            addMessage('Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.', false);
+        } finally {
+            // Re-enable input
+            input.disabled = false;
+            sendButton.disabled = false;
+            input.focus();
+        }
     }
+
     // ==================== CART MANAGEMENT ====================
     class CartManager {
         constructor() {
@@ -1522,13 +2332,13 @@
             const toast = document.createElement('div');
             toast.className = `notification-toast ${notification.type}`;
             toast.innerHTML = `
-                <i class="icon fas ${notification.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                <div class="content">
-                    <div class="title">${notification.title}</div>
-                    <div class="message">${notification.message}</div>
-                </div>
-                <i class="close fas fa-times"></i>
-            `;
+            <i class="icon fas ${notification.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <div class="content">
+                <div class="title">${notification.title}</div>
+                <div class="message">${notification.message}</div>
+            </div>
+            <i class="close fas fa-times"></i>
+        `;
 
             document.body.appendChild(toast);
 
@@ -1647,9 +2457,8 @@
     window.notificationManager = notificationManager;
 
     console.log('Cart system initialized successfully');
+    console.log('Chatbot with product card initialized');
     console.log('Current cart items:', cartManager.getTotalItems());
-
-    /*]]>*/
 </script>
 </body>
 </html>

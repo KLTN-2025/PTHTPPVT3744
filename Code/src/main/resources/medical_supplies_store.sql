@@ -185,6 +185,7 @@ CREATE TABLE medical_device
     meta_description  TEXT,
     created_at        DATETIME                                 DEFAULT CURRENT_TIMESTAMP,
     updated_at        DATETIME                                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    image_public_id VARCHAR(255),
     FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE SET NULL,
     FOREIGN KEY (brand_id) REFERENCES brand (brand_id) ON DELETE SET NULL,
     FOREIGN KEY (supplier_id) REFERENCES supplier (supplier_id) ON DELETE SET NULL,
@@ -1014,9 +1015,6 @@ DELIMITER ;
 -- ===============================
 -- EMPLOYEES (Nhân viên)
 -- ===============================
--- ===============================
--- EMPLOYEES (Nhân viên)
--- ===============================
 INSERT INTO employee (employee_code,
                       username,
                       password_hash,
@@ -1107,34 +1105,34 @@ INSERT INTO customer (customer_code, username, password_hash, full_name, email, 
                       date_of_birth, gender, customer_tier, loyalty_points, total_spent, total_orders, status)
 VALUES ('CUS001', 'customer01', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Nguyễn Thị Mai',
         'mai.nguyen@gmail.com', '0912345678', '123 Lê Văn Việt, Q.9, TP.HCM', '1985-03-15', 'Female', 'Gold', 2500,
-        18500000, 45, 'Active'),
+        18500000, 45, 'ACTIVE'),
        ('CUS002', 'customer02', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Trần Văn Nam',
         'nam.tran@gmail.com', '0912345679', '456 Võ Văn Ngân, Thủ Đức, TP.HCM', '1990-07-22', 'Male', 'Silver', 850,
-        7200000, 18, 'Active'),
+        7200000, 18, 'ACTIVE'),
        ('CUS003', 'customer03', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phạm Thị Oanh',
         'oanh.pham@gmail.com', '0912345680', '789 Nguyễn Duy Trinh, Q.2, TP.HCM', '1988-11-10', 'Female', 'Platinum',
-        5200, 55000000, 120, 'Active'),
+        5200, 55000000, 120, 'ACTIVE'),
        ('CUS004', 'customer04', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Lê Văn Phát',
         'phat.le@gmail.com', '0912345681', '321 Điện Biên Phủ, Q.3, TP.HCM', '1992-05-18', 'Male', 'Bronze', 320,
-        2800000, 8, 'Active'),
+        2800000, 8, 'ACTIVE'),
        ('CUS005', 'customer05', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Hoàng Thị Quỳnh',
         'quynh.hoang@gmail.com', '0912345682', '654 Xa lộ Hà Nội, Q.9, TP.HCM', '1995-09-25', 'Female', 'Silver', 1100,
-        9500000, 25, 'Active'),
+        9500000, 25, 'ACTIVE'),
        ('CUS006', 'customer06', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Võ Văn Sang',
         'sang.vo@gmail.com', '0912345683', '987 Kha Vạn Cân, Thủ Đức, TP.HCM', '1987-12-05', 'Male', 'Gold', 1850,
-        16000000, 35, 'Active'),
+        16000000, 35, 'ACTIVE'),
        ('CUS007', 'customer07', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Đặng Thị Tâm',
         'tam.dang@gmail.com', '0912345684', '147 Quang Trung, Gò Vấp, TP.HCM', '1991-04-30', 'Female', 'Bronze', 180,
-        1200000, 4, 'Active'),
+        1200000, 4, 'ACTIVE'),
        ('CUS008', 'customer08', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Bùi Văn Út',
         'ut.bui@gmail.com', '0912345685', '258 Phan Văn Trị, Gò Vấp, TP.HCM', '1993-08-14', 'Male', 'Silver', 680,
-        5800000, 15, 'Active'),
+        5800000, 15, 'ACTIVE'),
        ('CUS009', 'customer09', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Cao Thị Vân',
         'van.cao@gmail.com', '0912345686', '369 Hoàng Văn Thụ, Tân Bình, TP.HCM', '1989-06-20', 'Female', 'Gold', 2100,
-        19000000, 42, 'Active'),
+        19000000, 42, 'ACTIVE'),
        ('CUS010', 'customer10', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Phan Văn Xuân',
         'xuan.phan@gmail.com', '0912345687', '741 Lũy Bán Bích, Tân Phú, TP.HCM', '1994-02-28', 'Male', 'Bronze', 150,
-        950000, 3, 'Active');
+        950000, 3, 'ACTIVE');
 
 -- ===============================
 -- CATEGORIES (Danh mục)
@@ -1171,63 +1169,443 @@ VALUES ('Omron', 'omron', 'Nhật Bản', 'Thương hiệu thiết bị y tế h
 -- ===============================
 INSERT INTO supplier (name, contact_person, address, phone, email, tax_code, status)
 VALUES ('Công ty TNHH Thiết bị Y tế Việt Nam', 'Nguyễn Văn A', '123 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM', '0283456789',
-        'info@medviet.com', '0123456789', 'Active'),
+        'info@medviet.com', '0123456789', 'ACTIVE'),
        ('Công ty CP Dược phẩm Trung ương 1', 'Trần Thị B', '456 Nguyễn Thị Minh Khai, Q.1, TP.HCM', '0287654321',
-        'contact@pharbaco.com', '0234567890', 'Active'),
+        'contact@pharbaco.com', '0234567890', 'ACTIVE'),
        ('Công ty TNHH Medico Việt', 'Phạm Văn C', '789 Võ Văn Kiệt, Q.5, TP.HCM', '0289876543', 'sales@medico.vn',
-        '0345678901', 'Active'),
+        '0345678901', 'ACTIVE'),
        ('Công ty CP Thiết bị Y khoa Hải Phòng', 'Lê Thị D', '321 Lạch Tray, Hải Phòng', '0225123456',
-        'info@haiphongmedical.vn', '0456789012', 'Active'),
+        'info@haiphongmedical.vn', '0456789012', 'ACTIVE'),
        ('Công ty TNHH Import Y tế Nam Sài Gòn', 'Hoàng Văn E', '654 Trường Chinh, Q.Tân Bình, TP.HCM', '0281234567',
-        'import@namsaigon.com', '0567890123', 'Active');
+        'import@namsaigon.com', '0567890123', 'ACTIVE');
 
 -- ===============================
 -- MEDICAL DEVICES (Sản phẩm)
 -- ===============================
-INSERT INTO medical_device (device_id, name, slug, sku, category_id, brand_id, supplier_id, description, price,
-                            original_price, discount_percent, stock_quantity, min_stock_level, unit, status,
-                            is_featured)
-VALUES ('MD001', 'Máy đo huyết áp Omron HEM-7120', 'may-do-huyet-ap-omron-hem-7120', 'OMRON-HEM7120', 3, 1, 1,
-        'Máy đo huyết áp tự động, công nghệ Intellisense, độ chính xác cao', 850000, 1000000, 15, 50, 10, 'Cái',
-        'Còn_hàng', TRUE),
-       ('MD002', 'Nhiệt kế điện tử Microlife MT-1622', 'nhiet-ke-dien-tu-microlife-mt-1622', 'MICRO-MT1622', 3, 2, 1,
-        'Nhiệt kế điện tử đo nhanh, chính xác, an toàn', 120000, 150000, 20, 100, 20, 'Cái', 'Còn_hàng', TRUE),
-       ('MD003', 'Máy đo đường huyết Beurer GL44', 'may-do-duong-huyet-beurer-gl44', 'BEURER-GL44', 3, 3, 2,
-        'Máy đo đường huyết với màn hình LCD lớn, dễ đọc', 650000, 750000, 13, 30, 10, 'Cái', 'Còn_hàng', TRUE),
-       ('MD004', 'Khẩu trang y tế 3M 4 lớp (Hộp 50 cái)', 'khau-trang-y-te-3m-4-lop', '3M-MASK-50', 5, 5, 3,
-        'Khẩu trang y tế kháng khuẩn 4 lớp, đạt chuẩn quốc tế', 85000, 100000, 15, 500, 100, 'Hộp', 'Còn_hàng', FALSE),
-       ('MD005', 'Băng gạc y tế Medline 10x10cm', 'bang-gac-y-te-medline-10x10', 'MEDLINE-GAUZE10', 4, 6, 3,
-        'Băng gạc vô trùng, thấm hút tốt, an toàn', 45000, 50000, 10, 200, 50, 'Gói', 'Còn_hàng', FALSE),
-       ('MD006', 'Máy xông khí dung Omron NE-C803', 'may-xong-khi-dung-omron-ne-c803', 'OMRON-NEC803', 9, 1, 1,
-        'Máy xông khí dung công nghệ piston, hiệu quả cao', 1250000, 1500000, 17, 25, 5, 'Cái', 'Còn_hàng', TRUE),
-       ('MD007', 'Máy đo huyết áp cổ tay Beurer BC32', 'may-do-huyet-ap-co-tay-beurer-bc32', 'BEURER-BC32', 3, 3, 2,
-        'Máy đo huyết áp cổ tay nhỏ gọn, tiện lợi', 550000, 650000, 15, 40, 10, 'Cái', 'Còn_hàng', FALSE),
-       ('MD008', 'Que thử đường huyết Abbott (Hộp 50 que)', 'que-thu-duong-huyet-abbott', 'ABBOTT-STRIP50', 3, 9, 2,
-        'Que thử đường huyết chính xác cao cho máy FreeStyle', 350000, 400000, 13, 80, 20, 'Hộp', 'Còn_hàng', FALSE),
-       ('MD009', 'Gối massage hồng ngoại Beurer MG145', 'goi-massage-hong-ngoai-beurer-mg145', 'BEURER-MG145', 10, 3, 2,
-        'Gối massage cổ vai gáy với đèn hồng ngoại', 950000, 1200000, 21, 15, 5, 'Cái', 'Còn_hàng', TRUE),
-       ('MD010', 'Ống nghe y tế Littmann Classic II', 'ong-nghe-y-te-littmann-classic', 'LITTMANN-C2', 1, 5, 4,
-        'Ống nghe y tế chuyên nghiệp, âm thanh rõ nét', 1800000, 2000000, 10, 20, 5, 'Cái', 'Còn_hàng', FALSE),
-       ('MD011', 'Kim tiêm insulin B.Braun 0.3ml', 'kim-tiem-insulin-braun', 'BRAUN-INS03', 8, 7, 3,
-        'Kim tiêm insulin siêu mỏng, ít đau', 180000, 200000, 10, 150, 30, 'Hộp', 'Còn_hàng', FALSE),
-       ('MD012', 'Máy đo SpO2 kẹp ngón tay Beurer PO30', 'may-do-spo2-beurer-po30', 'BEURER-PO30', 3, 3, 2,
-        'Máy đo nồng độ oxy trong máu và nhịp tim', 480000, 600000, 20, 35, 10, 'Cái', 'Còn_hàng', TRUE),
-       ('MD013', 'Cân sức khỏe điện tử Omron HN-289', 'can-suc-khoe-dien-tu-omron-hn289', 'OMRON-HN289', 2, 1, 1,
-        'Cân điện tử đo chính xác, màn hình LCD lớn', 420000, 500000, 16, 45, 10, 'Cái', 'Còn_hàng', FALSE),
-       ('MD014', 'Túi chườm nóng lạnh Medline', 'tui-chuom-nong-lanh-medline', 'MEDLINE-COMP', 2, 6, 3,
-        'Túi chườm đa năng, có thể dùng nóng hoặc lạnh', 75000, 90000, 17, 120, 30, 'Cái', 'Còn_hàng', FALSE),
-       ('MD015', 'Máy massage chân Beurer FM60', 'may-massage-chan-beurer-fm60', 'BEURER-FM60', 10, 3, 2,
-        'Máy massage chân với chức năng nhiệt', 1850000, 2200000, 16, 10, 3, 'Cái', 'Còn_hàng', TRUE),
-       ('MD016', 'Băng dính y tế 3M Micropore 2.5cm', 'bang-dinh-y-te-3m-micropore', '3M-MICRO25', 4, 5, 3,
-        'Băng dính y tế không gây dị ứng, thoáng khí', 35000, 40000, 13, 250, 50, 'Cuộn', 'Còn_hàng', FALSE),
-       ('MD017', 'Máy đo huyết áp Rossmax MW701f', 'may-do-huyet-ap-rossmax-mw701f', 'ROSSMAX-MW701F', 3, 4, 1,
-        'Máy đo huyết áp tự động, có cảnh báo rối loạn nhịp tim', 780000, 950000, 18, 30, 8, 'Cái', 'Còn_hàng', FALSE),
-       ('MD018', 'Khẩu trang N95 3M 9502+ (Hộp 20 cái)', 'khau-trang-n95-3m-9502', '3M-N95-20', 5, 5, 3,
-        'Khẩu trang N95 lọc bụi mịn, vi khuẩn hiệu quả', 420000, 500000, 16, 200, 40, 'Hộp', 'Còn_hàng', TRUE),
-       ('MD019', 'Bộ test COVID-19 Abbott Panbio', 'bo-test-covid-19-abbott-panbio', 'ABBOTT-COVID', 8, 9, 2,
-        'Bộ test nhanh COVID-19 tại nhà, kết quả 15 phút', 95000, 120000, 21, 300, 50, 'Hộp', 'Còn_hàng', FALSE),
-       ('MD020', 'Máy massage cầm tay Beurer MG70', 'may-massage-cam-tay-beurer-mg70', 'BEURER-MG70', 10, 3, 2,
-        'Máy massage cầm tay đa năng 5 đầu', 680000, 800000, 15, 25, 8, 'Cái', 'Còn_hàng', FALSE);
+INSERT INTO medical_device (
+    device_id, name, slug, sku,
+    category_id, brand_id, supplier_id,
+    description, specification, usage_instruction,
+    price, original_price, discount_percent,
+    stock_quantity, min_stock_level,
+    unit, weight, dimensions, warranty_period,
+    status, is_featured, is_new,
+    view_count, sold_count,
+    image_url, gallery_urls,
+    meta_keywords, meta_description,
+    created_at, updated_at,
+    image_public_id
+) VALUES
+-- MD001
+('MD001','Máy đo huyết áp Omron HEM-7120','may-do-huyet-ap-omron-hem-7120','OMRON-7120',
+ 3,1,1,'Máy đo huyết áp bắp tay chính xác cao',NULL,NULL,
+ 850000,850000,0,50,10,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',1,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/v1766189295/medical_devices/MD001/main_adbc99f9-8890-4438-af49-38349fd06fd6.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD001/main'),
+
+-- MD002
+('MD002','Nhiệt kế điện tử Microlife MT-1622','nhiet-ke-dien-tu-microlife-mt-1622','MICROLIFE-MT1622',
+ 3,2,1,'Nhiệt kế điện tử đo nhanh',NULL,NULL,
+ 120000,120000,0,100,20,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD002/main_437ac7ac-a172-4de6-83f4-540b1137d1d6.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD002/main'),
+
+-- MD003
+('MD003','Máy đo đường huyết Beurer GL44','may-do-duong-huyet-beurer-gl44','BEURER-GL44',
+ 3,3,2,'Máy đo đường huyết nhỏ gọn',NULL,NULL,
+ 650000,650000,0,40,10,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD003/main_e02737cc-d497-4f55-a6ab-4eeac94d0bfe.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD003/main'),
+
+-- MD004
+('MD004','Khẩu trang y tế 3M 4 lớp (Hộp 50 cái)','khau-trang-y-te-3m-4-lop','3M-MASK-50',
+ 5,5,3,'Khẩu trang y tế kháng khuẩn',NULL,NULL,
+ 85000,85000,0,300,50,'Hộp',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD004/main_32a46968-5356-45a7-a264-6453ec113202.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD004/main'),
+
+-- MD005
+('MD005','Băng gạc y tế Medline 10x10cm','bang-gac-y-te-medline-10x10','MEDLINE-1010',
+ 4,6,3,'Băng gạc vô trùng',NULL,NULL,
+ 45000,45000,0,200,40,'Gói',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD005/main_b0af1a82-57bd-446a-98de-b46509afbb55.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD005/main'),
+
+-- MD006
+('MD006','Máy xông khí dung Omron NE-C803','may-xong-khi-dung-omron-ne-c803','OMRON-C803',
+ 3,1,1,'Máy xông mũi họng gia đình',NULL,NULL,
+ 1250000,1250000,0,20,5,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',1,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD006/main_be1a2b3b-baf6-401b-a0b4-e1a97c636c6c.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD006/main'),
+
+-- MD007
+('MD007','Máy đo huyết áp cổ tay Beurer BC32','may-do-huyet-ap-co-tay-beurer-bc32','BEURER-BC32',
+ 3,3,2,'Máy đo huyết áp cổ tay',NULL,NULL,
+ 550000,550000,0,30,8,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/medical_devices/MD007/main_970f6dc9-2bef-4677-820a-7baed24ca68e.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD007/main'),
+
+-- MD008
+('MD008','Que thử đường huyết Abbott (Hộp 50 que)','que-thu-duong-huyet-abbott-hop-50-que','ABBOTT-STRIP50',
+ 3,9,2,'Que thử đường huyết chính xác cao cho máy FreeStyle',NULL,NULL,
+ 400000,400000,0,80,20,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/v1766185802/medical_devices/MD008/main_24aed49e-182a-4210-963f-b2edbe1a809c.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD008/main'),
+
+-- MD009
+('MD009','Gối massage hồng ngoại Beurer MG145','goi-massage-hong-ngoai-beurer-mg145','BEURER-MG145',
+ 10,3,2,'Gối massage cổ vai gáy với đèn hồng ngoại',NULL,NULL,
+ 1200000,1200000,0,15,5,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',1,0,110,15,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/v1766185868/medical_devices/MD009/main_0202d0b2-aa6c-4b15-b46b-5e80dba95943.png','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD009/main'),
+
+-- MD010
+('MD010','Ống nghe y tế Littmann Classic II','ong-nghe-y-te-littmann-classic-ii','LITTMANN-C2',
+ 1,5,4,'Ống nghe y tế chuyên nghiệp, âm thanh rõ nét',NULL,NULL,
+ 2000000,2000000,0,20,5,'Cái',NULL,NULL,NULL,
+ 'Còn_hàng',0,0,0,0,
+ 'https://res.cloudinary.com/dkzoqr001/image/upload/v1766185755/medical_devices/MD010/main_14188358-be8a-4fa2-8cc1-122932e40f3b.jpg','',
+ NULL,NULL,'2025-12-20 05:09:46','2025-12-20 06:31:58','medical_devices/MD010/main'),
+-- MD011
+    (
+    'MD011',
+    'Kim tiêm insulin B.Braun 0.3ml',
+    'kim-tiem-insulin-bbraun-03ml',
+    'BRAUN-INS03',
+    8, 7, 3,
+    'Kim tiêm insulin siêu mỏng, ít đau',
+    NULL, NULL,
+    200000.00, 200000.00, 0,
+    150, 30,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766185901/medical_devices/MD011/main_434945b5-60e7-4ccd-8c67-d9f7612c0418.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD011/main_434945b5-60e7-4ccd-8c67-d9f7612c0418'
+    ),
+-- MD012
+(
+    'MD012',
+    'Máy đo SpO2 kẹp ngón tay Beurer PO30',
+    'may-do-spo2-kep-ngon-tay-beurer-po30',
+    'BEURER-PO30',
+    3, 3, 2,
+    'Máy đo nồng độ oxy trong máu và nhịp tim',
+    NULL, NULL,
+    600000.00, 600000.00, 0,
+    35, 10,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 1, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766185977/medical_devices/MD012/main_f421842f-88ce-4fde-8f22-22eba42ce554.png',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD012/main_f421842f-88ce-4fde-8f22-22eba42ce554'
+),
+
+-- MD013
+(
+    'MD013',
+    'Cân sức khỏe điện tử Omron HN-289',
+    'can-suc-khoe-dien-tu-omron-hn-289',
+    'OMRON-HN289',
+    2, 1, 1,
+    'Cân điện tử đo chính xác, màn hình LCD lớn',
+    NULL, NULL,
+    500000.00, 500000.00, 0,
+    45, 10,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186049/medical_devices/MD013/main_31fe7d4d-182e-4c58-a224-ce702d3fb4ad.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD013/main_31fe7d4d-182e-4c58-a224-ce702d3fb4ad'
+),
+
+-- MD014
+(
+    'MD014',
+    'Túi chườm đa năng Medione',
+    'tui-chuom-da-nang-medione',
+    'MEDIONE-COMP',
+    2, 6, 3,
+    'Túi chườm nóng/lạnh, giữ ấm 4–6 tiếng',
+    NULL, NULL,
+    130000.00, 130000.00, 0,
+    120, 30,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186208/medical_devices/MD014/main_2d220113-bd49-441c-b37b-89c1aa6ac39c.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD014/main_2d220113-bd49-441c-b37b-89c1aa6ac39c'
+),
+
+-- MD015
+(
+    'MD015',
+    'Máy massage chân Beurer FM60',
+    'may-massage-chan-beurer-fm60',
+    'BEURER-FM60',
+    10, 3, 2,
+    'Máy massage chân với chức năng nhiệt',
+    NULL, NULL,
+    2200000.00, 2200000.00, 0,
+    10, 3,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 1, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186233/medical_devices/MD015/main_8b4a6e9c-4865-48f1-902d-8d87f5892185.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD015/main_8b4a6e9c-4865-48f1-902d-8d87f5892185'
+),
+
+-- MD016
+(
+    'MD016',
+    'Băng dính y tế 3M Micropore 2.5cm',
+    'bang-dinh-y-te-3m-micropore-25cm',
+    '3M-MICRO25',
+    4, 5, 3,
+    'Băng dính y tế không gây dị ứng',
+    NULL, NULL,
+    40000.00, 40000.00, 0,
+    250, 50,
+    'Cuộn', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186353/medical_devices/MD016/main_ec173c15-d8ed-444b-a3da-5ee9aa511840.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD016/main_ec173c15-d8ed-444b-a3da-5ee9aa511840'
+),
+
+-- MD017
+(
+    'MD017',
+    'Máy đo huyết áp Rossmax MW701f',
+    'may-do-huyet-ap-rossmax-mw701f',
+    'ROSSMAX-MW701F',
+    3, 4, 1,
+    'Máy đo huyết áp tự động',
+    NULL, NULL,
+    950000.00, 950000.00, 0,
+    30, 8,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186429/medical_devices/MD017/main_00b36415-4f51-43b3-a0d2-785ff789ce54.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD017/main_00b36415-4f51-43b3-a0d2-785ff789ce54'
+),
+
+-- MD018
+(
+    'MD018',
+    'Khẩu trang N95 3M 9502+ (Hộp 20 cái)',
+    'khau-trang-n95-3m-9502-hop-20-cai',
+    '3M-N95-20',
+    5, 5, 3,
+    'Khẩu trang lọc bụi mịn',
+    NULL, NULL,
+    500000.00, 500000.00, 0,
+    200, 40,
+    'Hộp', NULL, NULL, NULL,
+    'Còn_hàng', 1, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186105/medical_devices/MD018/main_02a8fcf0-3e70-4743-9a45-e6676d3f5e98.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD018/main_02a8fcf0-3e70-4743-9a45-e6676d3f5e98'
+),
+
+-- MD019
+(
+    'MD019',
+    'Bộ test COVID-19 Abbott Panbio',
+    'bo-test-covid-19-abbott-panbio',
+    'ABBOTT-COVID',
+    8, 9, 2,
+    'Bộ test nhanh COVID-19 tại nhà',
+    NULL, NULL,
+    120000.00, 120000.00, 0,
+    300, 50,
+    'Hộp', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186471/medical_devices/MD019/main_8e95615a-1791-446d-8f52-390025ff8ff0.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD019/main_8e95615a-1791-446d-8f52-390025ff8ff0'
+),
+
+-- MD020
+(
+    'MD020',
+    'Máy massage cầm tay Beurer MG70',
+    'may-massage-cam-tay-beurer-mg70',
+    'BEURER-MG70',
+    10, 3, 2,
+    'Máy massage cầm tay đa năng',
+    NULL, NULL,
+    800000.00, 800000.00, 0,
+    25, 8,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 0,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186527/medical_devices/MD020/main_ce0a3e24-eb78-4bc8-a6a1-65bcea1ea1dd.png',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD020/main_ce0a3e24-eb78-4bc8-a6a1-65bcea1ea1dd'
+),
+
+-- MD021
+(
+    'MD021',
+    'Đai Massage Bụng – Lưng Beurer EM39',
+    'dai-massage-bung-lung-beurer-em39',
+    'BEURER-EM39',
+    10, 3, 2,
+    'Đai massage xung điện 4 cực',
+    NULL, NULL,
+    1705000.00, 1705000.00, 0,
+    12, 3,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 1, 1,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186622/medical_devices/MD021/main_16722b3d-2f7e-4347-afa8-e582d946bb52.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD021/main_16722b3d-2f7e-4347-afa8-e582d946bb52'
+),
+
+-- MD022
+(
+    'MD022',
+    'Máy tạo ẩm y tế Philips HU4803',
+    'may-tao-am-y-te-philips-hu4803',
+    'PHILIPS-HU4803',
+    2, 10, 1,
+    'Máy tạo ẩm không khí phòng bệnh',
+    NULL, NULL,
+    2190000.00, 2190000.00, 0,
+    8, 2,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 1, 1,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186695/medical_devices/MD022/main_f415f872-4c17-4c0f-b593-1b32a7531884.png',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD022/main_f415f872-4c17-4c0f-b593-1b32a7531884'
+),
+
+-- MD023
+(
+    'MD023',
+    'Bộ dụng cụ sơ cứu gia đình',
+    'bo-dung-cu-so-cuu-gia-dinh',
+    'FIRSTAID-HOME',
+    8, 6, 3,
+    'Bộ sơ cứu đầy đủ cho gia đình',
+    NULL, NULL,
+    550000.00, 550000.00, 0,
+    50, 15,
+    'Bộ', NULL, NULL, NULL,
+    'Còn_hàng', 0, 1,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186755/medical_devices/MD023/main_5ee01f6f-41bd-4b09-acc6-b566098309a3.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD023/main_5ee01f6f-41bd-4b09-acc6-b566098309a3'
+),
+
+-- MD024
+(
+    'MD024',
+    'Máy đo nhịp tim Polar H10',
+    'may-do-nhip-tim-polar-h10',
+    'POLAR-H10',
+    3, 10, 4,
+    'Dây đo nhịp tim thể thao chính xác',
+    NULL, NULL,
+    2500000.00, 2500000.00, 0,
+    18, 5,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 0, 1,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186830/medical_devices/MD024/main_0c190ff9-da1e-4cf1-9972-70ea06c72ea9.png',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD024/main_0c190ff9-da1e-4cf1-9972-70ea06c72ea9'
+),
+
+-- MD025
+(
+    'MD025',
+    'Đệm massage toàn thân Beurer MG295',
+    'dem-massage-toan-than-beurer-mg295',
+    'BEURER-MG295',
+    10, 3, 2,
+    'Đệm massage toàn thân đa chức năng',
+    NULL, NULL,
+    3800000.00, 3800000.00, 0,
+    6, 2,
+    'Cái', NULL, NULL, NULL,
+    'Còn_hàng', 1, 1,
+    0, 0,
+    'https://res.cloudinary.com/dkzoqr001/image/upload/v1766186873/medical_devices/MD025/main_c49c0ea7-367b-4ca3-83b0-5d3dd0b26d1c.jpg',
+    '',
+    NULL, NULL,
+    '2025-12-20 05:09:46',
+    '2025-12-20 06:31:58',
+    'medical_devices/MD025/main_c49c0ea7-367b-4ca3-83b0-5d3dd0b26d1c'
+);
+
+;
+
 
 -- ===============================
 -- PROMOTIONS (Khuyến mãi)
@@ -1650,30 +2028,15 @@ INSERT INTO review (customer_id, device_id, order_id, rating, comment, is_verifi
 VALUES (2, 'MD006', 2, 5, 'Máy xông rất tốt, con nhỏ dùng rất hiệu quả', TRUE, 'Approved', '2024-10-08 15:00:00'),
        (5, 'MD010', 5, 5, 'Ống nghe chất lượng tuyệt vời, âm thanh rõ ràng', TRUE, 'Approved', '2024-10-10 16:30:00'),
        (6, 'MD007', 7, 4, 'Máy đo cổ tay tiện lợi khi đi công tác', TRUE, 'Approved', '2024-10-13 10:00:00'),
-       (8, 'MD003', 9, 5, 'Máy đo đường huyết chính xác, đo nhanh', TRUE, 'Pending', '2024-10-14 14:00:00'),
+       (8, 'MD003', 9, 5, 'Máy đo đường huyết chính xác, đo nhanh', TRUE, 'PENDING', '2024-10-14 14:00:00'),
        (8, 'MD012', 9, 4, 'Máy đo SpO2 nhỏ gọn, dễ mang theo', TRUE, 'Approved', '2024-10-14 14:15:00');
 
 -- Thêm khách hàng mới (chưa mua hàng)
 INSERT INTO customer (customer_code, username, password_hash, full_name, email, phone, date_of_birth, gender, status)
 VALUES ('CUS011', 'customer11', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Dương Văn Yên',
-        'yen.duong@gmail.com', '0912345688', '1996-07-15', 'Male', 'Active'),
+        'yen.duong@gmail.com', '0912345688', '1996-07-15', 'Male', 'ACTIVE'),
        ('CUS012', 'customer12', '$2a$12$VAdnZPxy4cqUSSydZcAZTO4RRywHC2uBpNF9smx1hMsGBtOsI0PfO', 'Lý Thị Zin',
-        'zin.ly@gmail.com', '0912345689', '1998-12-30', 'Female', 'Active');
-
--- Thêm sản phẩm mới
-INSERT INTO medical_device (device_id, name, slug, sku, category_id, brand_id, supplier_id, description, price,
-                            original_price, discount_percent, stock_quantity, min_stock_level, unit, status,
-                            is_featured, is_new)
-VALUES ('MD021', 'Máy massage mắt Beurer EM58', 'may-massage-mat-beurer-em58', 'BEURER-EM58', 10, 3, 2,
-        'Máy massage mắt giảm mỏi mắt, căng thẳng', 1150000, 1400000, 18, 12, 3, 'Cái', 'Còn_hàng', TRUE, TRUE),
-       ('MD022', 'Máy tạo ẩm y tế Philips HU4803', 'may-tao-am-y-te-philips-hu4803', 'PHILIPS-HU4803', 2, 10, 1,
-        'Máy tạo ẩm không khí cho phòng bệnh', 2850000, 3200000, 11, 8, 2, 'Cái', 'Còn_hàng', TRUE, TRUE),
-       ('MD023', 'Bộ dụng cụ sơ cứu gia đình', 'bo-dung-cu-so-cuu-gia-dinh', 'FIRSTAID-HOME', 8, 6, 3,
-        'Bộ dụng cụ sơ cứu đầy đủ cho gia đình', 450000, 550000, 18, 50, 15, 'Bộ', 'Còn_hàng', FALSE, TRUE),
-       ('MD024', 'Máy đo nhịp tim Polar H10', 'may-do-nhip-tim-polar-h10', 'POLAR-H10', 3, 10, 4,
-        'Dây đo nhịp tim chính xác cho thể thao', 2150000, 2500000, 14, 18, 5, 'Cái', 'Còn_hàng', FALSE, TRUE),
-       ('MD025', 'Đệm massage toàn thân Beurer MG295', 'dem-massage-toan-than-beurer-mg295', 'BEURER-MG295', 10, 3, 2,
-        'Đệm massage toàn thân đa chức năng', 3250000, 3800000, 14, 6, 2, 'Cái', 'Còn_hàng', TRUE, TRUE);
+        'zin.ly@gmail.com', '0912345689', '1998-12-30', 'Female', 'ACTIVE');
 
 -- Thêm đơn hàng gần đây
 INSERT INTO `order` (order_code, customer_id, receiver_name, receiver_phone, receiver_address,
@@ -1846,26 +2209,12 @@ ALTER TABLE customer
     MODIFY COLUMN password_hash VARCHAR(255) NULL,
     MODIFY COLUMN username VARCHAR(100) NULL;
 
--- 2. Thêm OAuth2 columns
-ALTER TABLE customer
-    ADD COLUMN provider            VARCHAR(20) COMMENT 'LOCAL, GOOGLE, FACEBOOK' AFTER password_hash,
-    ADD COLUMN provider_id         VARCHAR(255) COMMENT 'OAuth2 Provider ID' AFTER provider,
-    ADD COLUMN has_custom_password BOOLEAN DEFAULT FALSE AFTER provider_id;
-
--- 3. Thêm indexes
-CREATE INDEX idx_provider ON customer (provider);
-CREATE INDEX idx_provider_id ON customer (provider_id);
-
 -- 4. Update existing data
 UPDATE customer
 SET provider            = 'LOCAL',
     has_custom_password = TRUE
 WHERE provider IS NULL
   AND password_hash IS NOT NULL;
-  
-  ALTER TABLE medical_device
-ADD COLUMN image_public_id VARCHAR(255)
-COMMENT 'Cloudinary public id';
 -- =============================================
 -- =============================================
 -- KẾT THÚC SCRIPT

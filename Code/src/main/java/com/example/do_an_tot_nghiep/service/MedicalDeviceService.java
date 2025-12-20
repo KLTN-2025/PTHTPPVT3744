@@ -103,47 +103,77 @@ public class MedicalDeviceService implements IMedicalDeviceService {
     @Transactional
     @Override
     public void updateProduct(String id, MedicalDeviceDTO dto, MultipartFile imageFile) throws IOException {
+
         MedicalDevice device = deviceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
+        // ===== BASIC INFO =====
         device.setName(dto.getName());
+        device.setSlug(generateSlug(dto.getName())); // 🔥 QUAN TRỌNG
         device.setSku(dto.getSku());
-        device.setPrice(dto.getPrice() != null ? BigDecimal.valueOf(dto.getPrice()) : null);
+        device.setDescription(dto.getDescription());
+        device.setSpecification(dto.getSpecification());
+        device.setUsageInstruction(dto.getUsageInstruction());
+
+        device.setPrice(dto.getPrice() != null ? BigDecimal.valueOf(dto.getPrice()) : BigDecimal.ZERO);
+        device.setOriginalPrice(dto.getOriginalPrice() != null ? BigDecimal.valueOf(dto.getOriginalPrice()) : null);
+        device.setDiscountPercent(dto.getDiscountPercent() != null ? dto.getDiscountPercent() : 0);
+
         device.setStockQuantity(dto.getStockQuantity());
+        device.setMinStockLevel(dto.getMinStockLevel());
+        device.setUnit(dto.getUnit());
+        device.setWeight(dto.getWeight() != null ? BigDecimal.valueOf(dto.getWeight()) : null);
+
+        device.setDimensions(dto.getDimensions());
+        device.setWarrantyPeriod(dto.getWarrantyPeriod());
+
         device.setStatus(dto.getStatus());
         device.setIsFeatured(dto.getIsFeatured());
         device.setIsNew(dto.getIsNew());
 
-        // Category & Brand
+        // ===== CATEGORY =====
         if (dto.getCategoryId() != null) {
-            device.setCategory(categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found")));
-        }
-        if (dto.getBrandId() != null) {
-            device.setBrand(brandRepository.findById(dto.getBrandId())
-                    .orElseThrow(() -> new RuntimeException("Brand not found")));
+            device.setCategory(
+                    categoryRepository.findById(dto.getCategoryId())
+                            .orElseThrow(() -> new RuntimeException("Category not found"))
+            );
         }
 
-        // Upload ảnh chính
+        // ===== BRAND =====
+        if (dto.getBrandId() != null) {
+            device.setBrand(
+                    brandRepository.findById(dto.getBrandId())
+                            .orElseThrow(() -> new RuntimeException("Brand not found"))
+            );
+        }
+
+        // ===== SUPPLIER =====
+        if (dto.getSupplierId() != null) {
+            device.setSupplier(
+                    supplierRepository.findById(dto.getSupplierId()).orElse(null)
+            );
+        }
+
+        // ===== MAIN IMAGE =====
         if (imageFile != null && !imageFile.isEmpty()) {
-            // Xóa ảnh cũ
+
             if (device.getImagePublicId() != null) {
                 cloudinaryService.delete(device.getImagePublicId());
             }
 
-            Map<String, String> uploaded = cloudinaryService.uploadFile(imageFile, "medical_devices/" + id, "main");
+            Map<String, String> uploaded =
+                    cloudinaryService.uploadFile(imageFile, "medical_devices/" + id, "main");
+
             device.setImageUrl(uploaded.get("url"));
             device.setImagePublicId(uploaded.get("publicId"));
-        } else if (dto.getImageUrl() != null && !dto.getImageUrl().isEmpty()) {
-            device.setImageUrl(dto.getImageUrl());
         }
 
-        // Update gallery
+        // ===== GALLERY =====
         if (dto.getGalleryFiles() != null && !dto.getGalleryFiles().isEmpty()) {
-            // Xóa gallery cũ trên Cloudinary
-            List<String> oldGalleryUrls = device.getGalleryUrlList();
-            if (oldGalleryUrls != null && !oldGalleryUrls.isEmpty()) {
-                for (String url : oldGalleryUrls) {
+
+            List<String> oldGallery = device.getGalleryUrlList();
+            if (oldGallery != null) {
+                for (String url : oldGallery) {
                     String publicId = extractPublicIdFromUrl(url);
                     if (publicId != null) {
                         cloudinaryService.delete(publicId);
@@ -151,10 +181,11 @@ public class MedicalDeviceService implements IMedicalDeviceService {
                 }
             }
 
-            // Upload gallery mới
             List<String> newGalleryUrls = new ArrayList<>();
             for (MultipartFile file : dto.getGalleryFiles()) {
-                Map<String, String> uploaded = cloudinaryService.uploadFile(file, "medical_devices/" + id, "gallery");
+                if (file.isEmpty()) continue;
+                Map<String, String> uploaded =
+                        cloudinaryService.uploadFile(file, "medical_devices/" + id, "gallery");
                 newGalleryUrls.add(uploaded.get("url"));
             }
             device.setGalleryUrlList(newGalleryUrls);
@@ -162,6 +193,7 @@ public class MedicalDeviceService implements IMedicalDeviceService {
 
         deviceRepository.save(device);
     }
+
 
     @Transactional
     @Override
