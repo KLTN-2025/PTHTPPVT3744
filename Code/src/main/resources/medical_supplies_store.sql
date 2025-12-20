@@ -1437,7 +1437,7 @@ INSERT INTO medical_device (
     5, 5, 3,
     'Khẩu trang lọc bụi mịn',
     NULL, NULL,
-    500000.00, 500000.00, 0,
+    500000.00, 50000.00, 0,
     200, 40,
     'Hộp', NULL, NULL, NULL,
     'Còn_hàng', 1, 0,

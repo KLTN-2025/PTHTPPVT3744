@@ -281,7 +281,7 @@ public class MedicalDevicePromptService {
         return String.format("""
             === KHÔNG TÌM THẤY SẢN PHẨM PHÙ HỢP ===
             
-            Tin nhắn: %s
+            Tin nhắn: %úh
             
             💡 GỢI Ý XỬ LÝ:
             - Xin lỗi khách lịch sự
